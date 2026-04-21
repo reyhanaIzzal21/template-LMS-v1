@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Pendaftaran - Paket Intensif UTBK SNBT - EduSmart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+                        accent: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+        }
+    </style>
+</head>
+
+<body class="text-gray-800 antialiased bg-white">
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-4 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white text-xl font-bold">
+                        E</div>
+                    <span class="text-2xl font-bold text-slate-900">EduSmart</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="../../home.html" class="text-slate-600 hover:text-primary-600 font-medium transition">Home</a>
+                    <a href="../index.html" class="text-primary-600 font-semibold">Program</a>
+                    <a href="../../courses/index.html" class="text-slate-600 hover:text-primary-600 font-medium transition">Course</a>
+                    <a href="../../event/index.html" class="text-slate-600 hover:text-primary-600 font-medium transition">Event</a>
+                    <a href="../../blog/index.html"
+                        class="text-slate-600 hover:text-primary-600 font-medium transition">Blog</a>
+                    <a href="../../testimoni/index.html"
+                        class="text-slate-600 hover:text-primary-600 font-medium transition">Testimoni</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-3">
+                    <a href="../../../../auth/login.html"
+                        class="px-5 py-2.5 text-slate-700 font-semibold border border-slate-200 rounded-full hover:bg-slate-50 transition">Masuk</a>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-slate-700 text-2xl"><i
+                        class="ph ph-list"></i></button>
+            </div>
+        </div>
+        <div id="mobile-menu"
+            class="hidden md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-xl py-4 px-4 flex-col space-y-4">
+            <a href="../../home.html" class="block text-slate-600 hover:text-primary-600 font-medium">Home</a>
+            <a href="../index.html" class="block text-primary-600 font-semibold">Program</a>
+            <a href="../../courses/index.html" class="block text-slate-600 hover:text-primary-600 font-medium">Course</a>
+            <a href="../../event/index.html" class="block text-slate-600 hover:text-primary-600 font-medium">Event</a>
+            <a href="../../blog/index.html" class="block text-slate-600 hover:text-primary-600 font-medium">Blog</a>
+            <a href="../../testimoni/index.html"
+                class="block text-slate-600 hover:text-primary-600 font-medium">Testimoni</a>
+            <div class="pt-4 border-t border-gray-100">
+                <a href="../../../../auth/login.html"
+                    class="block w-full text-center py-2 text-slate-700 font-semibold border border-slate-200 rounded-lg">Masuk</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="bg-slate-50 border-b border-slate-200 pt-28 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900">Formulir Pendaftaran</h1>
+                    <p class="text-slate-500 text-sm">Lengkapi data diri kamu untuk memulai akses belajar.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="py-12 bg-white min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Error Container (hidden by default) -->
+            <div id="form-errors" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+                <p class="font-bold mb-2"><i class="ph-bold ph-warning-circle mr-2"></i>Terdapat kesalahan:</p>
+                <ul id="error-list" class="list-disc list-inside text-sm"></ul>
+            </div>
+
+            <form id="enrollment-form" action="#" method="POST">
+                <div class="grid lg:grid-cols-3 gap-10">
+
+                    <!-- Left: Form Fields -->
+                    <div class="lg:col-span-2 space-y-8">
+
+                        <!-- Informasi Siswa -->
+                        <div class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-blue-50 text-primary-600 flex items-center justify-center text-xl">
+                                    <i class="ph-bold ph-user"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-slate-900">Informasi Siswa</h2>
+                                    <p class="text-xs text-slate-500">Data ini akan digunakan untuk sertifikat dan akun.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Nama Lengkap <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" name="full_name"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                        placeholder="Contoh: Aditya Pratama">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Alamat Email <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="email" name="email"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                        placeholder="email@contoh.com">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Nomor WhatsApp <span
+                                            class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <span
+                                            class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">+62</span>
+                                        <input type="text" name="phone_number"
+                                            class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                            placeholder="81234567890">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Asal Sekolah -->
+                        <div class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center text-xl">
+                                    <i class="ph-bold ph-graduation-cap"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-slate-900">Asal Sekolah</h2>
+                                    <p class="text-xs text-slate-500">Untuk menyesuaikan materi pembelajaran.</p>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Nama Sekolah <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" name="school_name"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                        placeholder="Contoh: SMAN 1 Surabaya">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Jenjang / Kelas <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" name="grade"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                        placeholder="Contoh: SMA / 12">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Tahun Kelulusan <span
+                                            class="text-slate-400 font-normal">(Opsional)</span></label>
+                                    <input type="number" name="graduation_year"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                        placeholder="Contoh: 2025">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Orang Tua -->
+                        <div class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                                    <i class="ph-bold ph-users-three"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-slate-900">Data Orang Tua / Wali</h2>
+                                    <p class="text-xs text-slate-500">Untuk laporan perkembangan belajar (Report Card).
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Nama Orang Tua <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" name="parent_name"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                        placeholder="Nama Ayah/Ibu">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">No. WhatsApp Ortu <span
+                                            class="text-red-500">*</span></label>
+                                    <div class="relative">
+                                        <span
+                                            class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-sm">+62</span>
+                                        <input type="text" name="parent_phone"
+                                            class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                            placeholder="81234567890">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alamat Domisili -->
+                        <div class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+                            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-xl">
+                                    <i class="ph-bold ph-map-pin"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-slate-900">Alamat Domisili</h2>
+                                    <p class="text-xs text-slate-500">Untuk pengiriman modul fisik (jika ada).</p>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Alamat Lengkap <span
+                                            class="text-red-500">*</span></label>
+                                    <textarea name="address" rows="3"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                        placeholder="Nama Jalan, No. Rumah, RT/RW"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Provinsi <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" name="province"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                        placeholder="Contoh: Jawa Timur">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Kota/Kabupaten <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" name="city"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                        placeholder="Contoh: Surabaya">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-slate-700 mb-2">Kecamatan <span
+                                            class="text-red-500">*</span></label>
+                                    <input type="text" name="district"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                        placeholder="Contoh: Sukolilo">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-sm font-bold text-slate-700 mb-2">Desa/Kelurahan</label>
+                                        <input type="text" name="village"
+                                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                            placeholder="Contoh: Gebang">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-slate-700 mb-2">Kode Pos</label>
+                                        <input type="text" name="postal_code"
+                                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition"
+                                            placeholder="60111">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Order Summary -->
+                    <div class="lg:col-span-1">
+                        <div class="sticky top-28 space-y-6">
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
+                                <div class="bg-slate-50 p-4 border-b border-slate-200">
+                                    <h3 class="font-bold text-slate-900">Ringkasan Pesanan</h3>
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex gap-4 mb-6">
+                                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop"
+                                            class="w-20 h-20 rounded-lg object-cover border border-slate-100"
+                                            alt="Paket Intensif UTBK">
+                                        <div>
+                                            <h4 class="text-sm font-bold text-slate-900 line-clamp-2">Paket Intensif
+                                                UTBK SNBT</h4>
+                                            <p class="text-xs text-slate-500 mt-1">Intensif UTBK</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pricing Breakdown -->
+                                    <div class="space-y-3 mb-6 border-t border-slate-100 pt-4">
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-slate-600">Harga Normal</span>
+                                            <span class="text-slate-400 line-through">Rp 1.200.000</span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-green-600 font-medium">Diskon Promo</span>
+                                            <span class="text-green-600 font-bold">- Rp 350.000</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-between items-center border-t border-slate-100 pt-4 mb-6">
+                                        <span class="font-bold text-slate-900">Total Bayar</span>
+                                        <span class="text-2xl font-extrabold text-primary-600">Rp 850.000</span>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <button type="submit" id="submit-btn"
+                                        class="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition shadow-lg shadow-primary-600/30 flex items-center justify-center gap-2 group">
+                                        <span id="btn-text">Lanjut Pembayaran</span>
+                                        <i id="btn-icon"
+                                            class="ph-bold ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                                        <svg id="btn-loading" class="hidden animate-spin h-5 w-5 text-white"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                            </path>
+                                        </svg>
+                                    </button>
+
+                                    <p class="text-center text-xs text-slate-400 mt-4">
+                                        <i class="ph-fill ph-lock-key"></i> Data Anda terenkripsi dengan aman.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3 items-start">
+                                <i class="ph-fill ph-info text-primary-600 text-xl mt-0.5"></i>
+                                <p class="text-xs text-slate-600 leading-relaxed">Pastikan nomor WhatsApp aktif. Kami
+                                    akan mengirimkan invoice dan akses akun melalui WA.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
+            document.getElementById('mobile-menu')?.classList.toggle('hidden');
+        });
+
+        // Demo: submit button loading effect
+        document.getElementById('enrollment-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnIcon = document.getElementById('btn-icon');
+            const btnLoading = document.getElementById('btn-loading');
+
+            btn.disabled = true;
+            btnText.textContent = 'Memproses...';
+            btnIcon.classList.add('hidden');
+            btnLoading.classList.remove('hidden');
+
+            // Simulate redirect after 2s (template demo)
+            setTimeout(() => {
+                window.location.href = 'success.html';
+            }, 1500);
+        });
+    </script>
+</body>
+
+</html>

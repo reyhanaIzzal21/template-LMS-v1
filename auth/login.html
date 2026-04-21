@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk - EduSmart</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                            950: '#172554',
+                        },
+                        accent: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Hide elements with x-cloak until Alpine.js loads */
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body class="bg-white antialiased text-slate-900 selection:bg-slate-900 selection:text-white">
+
+    <div class="flex min-h-screen">
+
+        <div class="hidden lg:flex lg:w-1/2 bg-primary-700 relative flex-col justify-between p-12 overflow-hidden">
+            <div class="absolute inset-0 opacity-30"
+                style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 24px 24px;">
+            </div>
+
+            <div class="relative z-10">
+                <a href="../user/pages/home.html" class="flex items-center gap-2 text-white hover:opacity-90 transition">
+                    <div
+                        class="w-8 h-8 bg-white rounded flex items-center justify-center text-slate-950 font-bold text-lg">
+                        E
+                    </div>
+                    <span class="text-xl font-bold tracking-tight">EduSmart</span>
+                </a>
+            </div>
+
+            <div class="relative z-10 max-w-md">
+                <blockquote class="space-y-6">
+                    <p class="text-2xl font-medium text-white leading-snug">
+                        "EduSmart mengubah cara institusi kami mengelola pembelajaran. Sistem yang cepat, stabil, dan
+                        sangat mudah digunakan."
+                    </p>
+                    <footer class="flex items-center gap-4">
+                        <img src="https://ui-avatars.com/api/?name=Sarah+Wijaya&background=ffffff&color=0f172a"
+                            alt="Sarah Wijaya" class="w-10 h-10 rounded-full border border-slate-700 object-cover">
+                        <div>
+                            <div class="font-semibold text-white">Sarah Wijaya</div>
+                            <div class="text-sm text-slate-400">Direktur Akademik</div>
+                        </div>
+                    </footer>
+                </blockquote>
+            </div>
+        </div>
+
+        <div
+            class="w-full lg:w-1/2 flex flex-col justify-center px-6 py-12 sm:px-16 lg:px-24 xl:px-32 bg-white relative">
+
+            <div class="w-full max-w-sm mx-auto">
+
+                <div class="lg:hidden flex items-center gap-2 mb-10">
+                    <div
+                        class="w-8 h-8 bg-primary-600 rounded flex items-center justify-center text-white font-bold text-lg">
+                        E
+                    </div>
+                    <span class="text-xl font-bold tracking-tight">EduSmart</span>
+                </div>
+
+                <div class="mb-8">
+                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Masuk ke akun Anda</h1>
+                    <p class="text-sm text-slate-500 mt-2">Masukkan email dan kata sandi Anda di bawah ini untuk masuk
+                    </p>
+                </div>
+
+                <form action="#" method="POST" class="flex flex-col gap-5">
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">Alamat Email</label>
+                        <input type="email" id="email" name="email" placeholder="email@contoh.com" required
+                            class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-shadow">
+                    </div>
+
+                    <div class="relative">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label for="password" class="block text-sm font-medium text-slate-700">Kata Sandi</label>
+                            <a href="#"
+                                class="text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors">
+                                Lupa kata sandi?
+                            </a>
+                        </div>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" placeholder="••••••••" required
+                                class="w-full px-4 py-2.5 pr-10 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-shadow">
+                            <button type="button"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none">
+                                <i class="ph ph-eye text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center mt-1">
+                        <input type="checkbox" id="remember" name="remember"
+                            class="w-4 h-4 text-primary-600 bg-white border-slate-300 rounded focus:ring-primary-500 focus:ring-2 cursor-pointer">
+                        <label for="remember" class="ml-2 text-sm text-slate-600 cursor-pointer">
+                            Ingat saya
+                        </label>
+                    </div>
+
+                    <div class="mt-2">
+                        <button type="submit"
+                            class="w-full px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg shadow-sm shadow-primary-600/20 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-600 flex justify-center items-center gap-2">
+                            Masuk
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-8 text-center text-sm text-slate-600">
+                    <span>Belum punya akun?</span>
+                    <a href="./register.html"
+                        class="font-semibold text-slate-900 hover:text-primary-600 hover:underline transition-colors ml-1">
+                        Daftar sekarang
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="mt-12 text-center lg:text-left">
+                <p class="text-xs text-slate-400 font-medium">
+                    &copy; 2024 EduSmart Learning Center. All rights reserved.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hukum Newton I, II, III - Fisika Intensif UTBK - EduSmart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="text-gray-800 antialiased bg-slate-50">
+
+    <!-- Top Navbar (thin bar) -->
+    <div
+        class="fixed top-0 left-0 w-full z-50 bg-white border-b border-slate-200 h-20 flex items-center px-4 md:px-6 shadow-sm">
+        <a href="index.html" class="flex items-center gap-2 mr-6">
+            <div
+                class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                E</div>
+            <span class="text-lg font-bold text-slate-900 hidden sm:block">EduSmart</span>
+        </a>
+        <div class="flex-1 flex items-center gap-2 text-xs text-slate-400">
+            <a href="detail.html" class="hover:text-primary-600 transition truncate max-w-[120px] sm:max-w-xs">Fisika
+                Intensif UTBK SNBT</a>
+            <i class="ph-bold ph-caret-right text-[10px]"></i>
+            <span class="text-primary-600 font-medium hidden sm:block">Modul 1: Mekanika & Dinamika</span>
+        </div>
+        <div class="flex items-center gap-3 ml-auto">
+            <div
+                class="hidden sm:flex items-center gap-2 text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+                <div class="w-20 bg-slate-200 rounded-full h-1.5">
+                    <div class="bg-green-500 h-1.5 rounded-full" style="width: 25%"></div>
+                </div>
+                <span class="font-bold text-slate-700">25%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="flex h-[calc(100vh-80px)] mt-20 bg-slate-50 overflow-hidden relative">
+
+        <!-- Mobile Overlay -->
+        <div id="mobile-overlay" class="fixed inset-0 bg-slate-900/50 z-30 hidden lg:hidden transition-opacity"
+            onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside id="course-sidebar"
+            class="fixed inset-y-0 left-0 z-40 w-80 bg-white border-r border-slate-200 flex flex-col h-full transform -translate-x-full lg:translate-x-0 lg:static lg:w-96 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none mt-20 lg:mt-0">
+
+            <div class="lg:hidden p-4 flex justify-end border-b border-slate-100">
+                <button onclick="toggleSidebar()" class="p-2 text-slate-500 hover:text-red-500">
+                    <i class="ph-bold ph-x text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="p-5 border-b border-slate-100 bg-white">
+                <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Progress Belajar</h2>
+                <div class="w-full bg-slate-100 rounded-full h-2.5 mb-2">
+                    <div id="progress-bar" class="bg-green-500 h-2.5 rounded-full transition-all duration-300"
+                        style="width: 25%"></div>
+                </div>
+                <div class="flex justify-between text-xs font-bold">
+                    <span id="progress-text" class="text-slate-900">25% Selesai</span>
+                    <span id="progress-count" class="text-slate-400">1/4 Item</span>
+                </div>
+            </div>
+
+            <!-- Module List -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2">
+
+                <!-- Module 1 (active) -->
+                <div class="module-item bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
+                    <button
+                        class="w-full flex items-center justify-between p-4 bg-slate-100 text-left hover:bg-slate-50 transition focus:outline-none"
+                        onclick="toggleModule(this)">
+                        <span class="font-bold text-slate-900 text-sm">Modul 1: Mekanika & Dinamika</span>
+                        <i
+                            class="ph-bold ph-caret-down text-slate-500 transform transition-transform duration-300 rotate-180"></i>
+                    </button>
+                    <div class="module-content divide-y divide-slate-200/50">
+                        <!-- Currently active -->
+                        <a href="#"
+                            class="flex items-start gap-3 p-3 bg-blue-50 border-l-4 border-primary-600 transition"
+                            data-submodule-id="1">
+                            <div class="mt-0.5 text-primary-600"><i
+                                    class="ph-fill ph-play-circle text-lg animate-pulse"></i></div>
+                            <div>
+                                <p class="text-sm font-bold text-primary-700">Hukum Newton I, II, III</p>
+                                <div class="flex items-center gap-1 text-[10px] text-primary-500 mt-1"><i
+                                        class="ph-fill ph-play-circle"></i> Sub-modul 1</div>
+                            </div>
+                        </a>
+                        <!-- Completed -->
+                        <a href="#" class="flex items-start gap-3 p-3 hover:bg-white transition opacity-60 completed"
+                            data-submodule-id="2">
+                            <div class="mt-0.5 text-green-600"><i class="ph-fill ph-check-circle text-lg"></i></div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-700 line-through decoration-slate-400">
+                                    Pendahuluan Fisika UTBK</p>
+                                <div class="flex items-center gap-1 text-[10px] text-slate-400 mt-1"><i
+                                        class="ph-fill ph-check"></i> Selesai</div>
+                            </div>
+                        </a>
+                        <!-- Not done -->
+                        <a href="#" class="flex items-start gap-3 p-3 hover:bg-white transition group"
+                            data-submodule-id="3">
+                            <div class="mt-0.5 text-slate-300 group-hover:text-purple-500"><i
+                                    class="ph-fill ph-circle text-lg"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-600 group-hover:text-slate-900">Gerak Lurus &
+                                    Gerak Melingkar</p>
+                                <div class="flex items-center gap-1 text-[10px] text-slate-400 mt-1"><i
+                                        class="ph-fill ph-play-circle"></i> Sub-modul 3</div>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-start gap-3 p-3 hover:bg-white transition group"
+                            data-submodule-id="4">
+                            <div class="mt-0.5 text-slate-300 group-hover:text-purple-500"><i
+                                    class="ph-fill ph-circle text-lg"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-600 group-hover:text-slate-900">Quiz: Mekanika
+                                </p>
+                                <div class="flex items-center gap-1 text-[10px] text-slate-400 mt-1"><i
+                                        class="ph-fill ph-play-circle"></i> Sub-modul 4</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Module 2 (collapsed) -->
+                <div class="module-item bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <button
+                        class="w-full flex items-center justify-between p-4 bg-white text-left hover:bg-slate-50 transition focus:outline-none"
+                        onclick="toggleModule(this)">
+                        <span class="font-bold text-slate-900 text-sm">Modul 2: Termodinamika</span>
+                        <i
+                            class="ph-bold ph-caret-down text-slate-500 transform transition-transform duration-300 -rotate-90"></i>
+                    </button>
+                    <div class="module-content hidden divide-y divide-slate-200/50">
+                        <a href="#" class="flex items-start gap-3 p-3 hover:bg-white transition group">
+                            <div class="mt-0.5 text-slate-300 group-hover:text-purple-500"><i
+                                    class="ph-fill ph-circle text-lg"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-600">Kalor & Perpindahan Panas</p>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-start gap-3 p-3 hover:bg-white transition group">
+                            <div class="mt-0.5 text-slate-300 group-hover:text-purple-500"><i
+                                    class="ph-fill ph-circle text-lg"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-600">Gas Ideal & Hukum Termodinamika</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Module 3 (collapsed) -->
+                <div class="module-item bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <button
+                        class="w-full flex items-center justify-between p-4 bg-white text-left hover:bg-slate-50 transition focus:outline-none"
+                        onclick="toggleModule(this)">
+                        <span class="font-bold text-slate-900 text-sm">Modul 3: Gelombang & Optik</span>
+                        <i
+                            class="ph-bold ph-caret-down text-slate-500 transform transition-transform duration-300 -rotate-90"></i>
+                    </button>
+                    <div class="module-content hidden divide-y divide-slate-200/50">
+                        <a href="#" class="flex items-start gap-3 p-3 hover:bg-white transition group">
+                            <div class="mt-0.5 text-slate-300 group-hover:text-purple-500"><i
+                                    class="ph-fill ph-circle text-lg"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-600">Gelombang Mekanik & Bunyi</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-white w-full">
+
+            <!-- Mobile top bar -->
+            <div
+                class="lg:hidden p-4 bg-white border-b border-slate-200 flex items-center justify-between sticky top-0 z-20">
+                <span class="font-bold text-slate-900 truncate max-w-[70%]">Modul 1: Hukum Newton I, II, III</span>
+                <button onclick="toggleSidebar()"
+                    class="text-primary-600 font-bold text-sm flex items-center gap-2 px-3 py-1.5 bg-primary-50 rounded-lg hover:bg-primary-100 transition">
+                    <i class="ph-bold ph-list text-lg"></i> Daftar Materi
+                </button>
+            </div>
+
+            <!-- Lesson Content -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 lg:px-12 pb-24" id="lesson-content">
+                <div class="max-w-4xl mx-auto">
+
+                    <!-- Breadcrumb -->
+                    <div class="flex items-center gap-2 text-xs text-slate-400 mb-4">
+                        <a href="detail.html" class="hover:text-primary-600 transition">Fisika Intensif UTBK SNBT</a>
+                        <i class="ph-bold ph-caret-right"></i>
+                        <span>Modul 1</span>
+                        <i class="ph-bold ph-caret-right"></i>
+                        <span class="text-primary-600 font-bold">Sub-modul 1</span>
+                    </div>
+
+                    <!-- Lesson Title -->
+                    <div
+                        class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8 border-b border-slate-100 pb-8">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Hukum Newton I, II, III</h1>
+                            <p class="text-slate-600 mb-2">Konsep dasar gaya dan gerak benda yang menjadi fondasi
+                                mekanika klasik.</p>
+                            <p class="text-slate-500 text-sm">Modul 1: Mekanika & Dinamika • Oleh Budi Prasetyo, M.Si.
+                            </p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                class="p-2 rounded-full border border-slate-200 text-slate-400 hover:text-blue-500 hover:border-blue-200 hover:bg-blue-50 transition"
+                                title="Diskusi / Komentar">
+                                <i class="ph-bold ph-chat-text"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lesson Body -->
+                    <div class="space-y-6 text-slate-700 leading-relaxed text-lg prose prose-slate max-w-none">
+                        <h2>Pendahuluan</h2>
+                        <p>Hukum Newton adalah tiga hukum fisika yang menjadi dasar mekanika klasik. Hukum-hukum ini
+                            menggambarkan hubungan antara gaya yang bekerja pada suatu benda dan gerak yang
+                            ditimbulkannya.</p>
+
+                        <h3>Hukum Newton I – Hukum Inersia</h3>
+                        <div class="bg-blue-50 border-l-4 border-primary-600 rounded-r-xl p-5 not-prose">
+                            <p class="font-bold text-primary-700 mb-1">Bunyi Hukum Newton I:</p>
+                            <p class="text-slate-700 italic">"Setiap benda akan tetap diam atau bergerak lurus beraturan
+                                selama tidak ada gaya luar yang bekerja pada benda tersebut."</p>
+                        </div>
+                        <p>Inersia (kelembaman) adalah kecenderungan benda untuk mempertahankan keadaannya. Semakin
+                            besar massa suatu benda, semakin besar inersianya.</p>
+
+                        <h3>Hukum Newton II – Hukum Percepatan</h3>
+                        <div class="bg-orange-50 border-l-4 border-orange-500 rounded-r-xl p-5 not-prose">
+                            <p class="font-bold text-orange-700 mb-1">Rumus:</p>
+                            <p class="text-2xl font-mono font-bold text-slate-900">ΣF = m × a</p>
+                            <p class="text-sm text-slate-500 mt-1">Di mana F = gaya (Newton), m = massa (kg), a =
+                                percepatan (m/s²)</p>
+                        </div>
+                        <p>Percepatan yang dialami benda berbanding lurus dengan resultan gaya yang bekerja dan
+                            berbanding terbalik dengan massanya.</p>
+
+                        <h3>Hukum Newton III – Hukum Aksi-Reaksi</h3>
+                        <div class="bg-green-50 border-l-4 border-green-600 rounded-r-xl p-5 not-prose">
+                            <p class="font-bold text-green-700 mb-1">Bunyi Hukum Newton III:</p>
+                            <p class="text-slate-700 italic">"Setiap aksi akan menimbulkan reaksi yang sama besar tetapi
+                                berlawanan arah."</p>
+                            <p class="text-sm font-mono mt-2 text-slate-700">F aksi = -F reaksi</p>
+                        </div>
+
+                        <h2>Contoh Soal SNBT</h2>
+                        <div class="bg-slate-50 rounded-xl p-6 border border-slate-200 not-prose">
+                            <p class="font-bold text-slate-900 mb-3">Soal:</p>
+                            <p class="text-slate-700 mb-4">Sebuah benda bermassa 5 kg dikenai gaya sebesar 20 N.
+                                Berapakah percepatan yang dialami benda tersebut?</p>
+                            <p class="font-bold text-slate-900 mb-2">Penyelesaian:</p>
+                            <div class="font-mono text-slate-700 space-y-1">
+                                <p>F = m × a</p>
+                                <p>20 = 5 × a</p>
+                                <p>a = 20/5</p>
+                                <p class="font-bold text-primary-600">a = 4 m/s²</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Info -->
+                    <div class="mt-12 mb-20 pt-8 border-t border-slate-100">
+                        <div class="flex items-center justify-between text-sm">
+                            <div>
+                                <p class="text-slate-400 text-xs mb-1">Sebelumnya</p>
+                                <a href="#" class="text-primary-600 font-bold hover:underline flex items-center gap-1">
+                                    <i class="ph-bold ph-arrow-left"></i> Pendahuluan Fisika UTBK
+                                </a>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-slate-400 text-xs mb-1">Selanjutnya</p>
+                                <a href="#" class="text-primary-600 font-bold hover:underline flex items-center gap-1">
+                                    Gerak Lurus & Gerak Melingkar <i class="ph-bold ph-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bottom Action Bar -->
+            <div
+                class="absolute bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 md:px-12 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20">
+                <div class="max-w-4xl mx-auto flex items-center justify-between">
+                    <!-- Previous -->
+                    <a href="#"
+                        class="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 transition px-4 py-2 rounded-lg hover:bg-slate-100">
+                        <i class="ph-bold ph-arrow-left"></i> <span class="hidden md:inline">Sebelumnya</span>
+                    </a>
+
+                    <!-- Mark Complete Toggle -->
+                    <form action="#" method="POST" class="flex-1 flex justify-center">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <div class="relative">
+                                <input type="checkbox" class="sr-only peer" id="mark-complete" data-submodule-id="1">
+                                <div
+                                    class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
+                                </div>
+                            </div>
+                            <span class="text-sm font-bold text-slate-600 group-hover:text-slate-900 select-none">Tandai
+                                Selesai</span>
+                        </label>
+                    </form>
+
+                    <!-- Next -->
+                    <a href="#"
+                        class="flex items-center gap-2 bg-slate-900 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-700 transition shadow-lg">
+                        <span class="hidden md:inline">Selanjutnya</span> <i class="ph-bold ph-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('course-sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function toggleModule(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('.ph-caret-down');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+                icon.classList.remove('-rotate-90');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+                icon.classList.add('-rotate-90');
+            }
+        }
+
+        // Mark complete toggle (demo)
+        const toggle = document.getElementById('mark-complete');
+        if (toggle) {
+            toggle.addEventListener('change', function () {
+                const isChecked = this.checked;
+                // Demo: update progress bar
+                const progressBar = document.getElementById('progress-bar');
+                const progressText = document.getElementById('progress-text');
+                const progressCount = document.getElementById('progress-count');
+                if (isChecked) {
+                    progressBar.style.width = '50%';
+                    progressText.textContent = '50% Selesai';
+                    progressCount.textContent = '2/4 Item';
+                } else {
+                    progressBar.style.width = '25%';
+                    progressText.textContent = '25% Selesai';
+                    progressCount.textContent = '1/4 Item';
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
