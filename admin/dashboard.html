@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Admin Dashboard - Category Management</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5d87ff',
+                        primaryHover: '#4a70e0',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Modal Animations */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 300ms, transform 300ms;
+        }
+
+        /* Custom Scrollbar for Sidebar */
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 font-sans antialiased text-slate-800">
+
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-[55] hidden xl:hidden transition-opacity"
+        onclick="closeSidebarAdminDashboard()"></div>
+
+    <main>
+        <div id="main-wrapper" class="flex min-h-screen">
+
+            <aside id="application-sidebar-brand"
+                class="fixed top-0 start-0 h-screen z-60 w-[270px] bg-white border-r border-gray-200 shadow-lg transform -translate-x-full xl:translate-x-0 transition-transform duration-300 ease-in-out">
+
+                <!-- Close button for mobile -->
+                <div class="absolute top-3 end-3 xl:hidden">
+                    <button type="button" onclick="closeSidebarAdminDashboard()"
+                        class="w-8 h-8 inline-flex justify-center items-center rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors">
+                        <span class="sr-only">Close</span>
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Logo Section -->
+                <div class="p-5 border-b border-gray-100">
+                    <a href="../user/pages/home.html" class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                            <i class="ti ti-dashboard text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-lg text-gray-800">DASHBOARD</h2>
+                            <span class="text-xs text-gray-500">Admin Panel</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Scrollable Navigation -->
+                <div class="h-[calc(100vh-100px)] overflow-y-auto px-4 py-6">
+                    <nav class="w-full flex flex-col">
+                        <ul id="sidebarnav" class="text-gray-700 text-sm space-y-1">
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2">
+                                <span>HOME</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 bg-blue-500 text-white shadow-md shadow-blue-500/30"
+                                    href="http://127.0.0.1:8000/admin/dashboard">
+                                    <i class="ti ti-layout-dashboard text-xl"></i>
+                                    <span class="font-medium">Dashboard</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>MAIN</span>
+                            </li>
+
+                            <!-- Courses Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="courses-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-book text-xl"></i>
+                                        <span class="font-medium">Courses</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="courses-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./coourse-category.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./course.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Course List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- Event Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="event-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-calendar-event text-xl"></i>
+                                        <span class="font-medium">Event</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="event-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Event</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-apps text-xl"></i>
+                                    <span class="font-medium">Course application</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-coins text-xl"></i>
+                                    <span class="font-medium">Points exchange</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>LMS SYSTEM</span>
+                            </li>
+
+                            <!-- Programs Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="programs-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-school text-xl"></i>
+                                        <span class="font-medium">Programs</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="programs-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="http://127.0.0.1:8000/admin/program-categories">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./program.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Program List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- schedule -->
+                            <li>
+                                <button type="button" data-accordion-toggle="schedule-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-books text-xl"></i>
+                                        <span class="font-medium">Pengaturan Akademik</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="schedule-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./tahun-ajaran.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Tahun Ajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./mapel.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Mata Palajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./room.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Ruangan</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./sesi.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Sesi</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="jadwal.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Jadwal Kelas</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="./bank-task.html">
+                                    <i class="ti ti-list-check text-xl"></i>
+                                    <span class="font-medium">Task Bank</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-user-star text-xl"></i>
+                                    <span class="font-medium">Teacher</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users text-xl"></i>
+                                    <span class="font-medium">Tutoring User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-trophy text-xl"></i>
+                                    <span class="font-medium">Student ranking</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <!-- Finance Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="finance-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-wallet text-xl"></i>
+                                        <span class="font-medium">Finance</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="finance-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./finance-over.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Financial Overview</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./income-analyst.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Income Analysis</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./transaction-history.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Transaction History</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./student-access.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Student Access</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./report.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Reports</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>CONTENT</span>
+                            </li>
+
+                            <!-- Blog Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="blog-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-article text-xl"></i>
+                                        <span class="font-medium">Blog</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="blog-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Blog list</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>PROFILE</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users-group text-xl"></i>
+                                    <span class="font-medium">User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-settings text-xl"></i>
+                                    <span class="font-medium">Profile</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="w-full xl:ml-[270px] flex flex-col min-h-screen transition-all duration-300">
+
+                <div class="shrink-0">
+                    <header
+                        class="sticky top-0 w-full bg-white/80 backdrop-blur-md z-40 border-b border-gray-200/60 shadow-sm">
+                        <nav class="flex items-center justify-between px-4 lg:px-6 py-3" aria-label="Global">
+                            <div class="flex items-center gap-4">
+                                <button type="button" onclick="openSidebarAdminDashboard()"
+                                    class="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                                    <i class="ti ti-menu-2 text-xl text-gray-600"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center gap-3 cursor-pointer relative" data-dropdown-toggle
+                                onclick="toggleDropdownAdminDashboard('profile-dropdown')">
+                                <div class="hidden sm:block text-right">
+                                    <p class="text-sm font-semibold text-gray-800">Administrator</p>
+                                    <span
+                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                        Super Admin
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
+                                        src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff"
+                                        alt="User avatar">
+
+                                    <div id="profile-dropdown" data-dropdown-menu
+                                        class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
+                                        <div class="px-4 py-3 border-b border-gray-100 sm:hidden">
+                                            <p class="text-sm font-semibold text-gray-800">Administrator</p>
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 mt-1">
+                                                Super Admin
+                                            </span>
+                                        </div>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-user text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">My Profile</span>
+                                        </a>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-settings text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">Settings</span>
+                                        </a>
+                                        <div class="border-t border-gray-100 my-2"></div>
+                                        <div class="px-4 py-2">
+                                            <button type="button"
+                                                class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors duration-200">
+                                                <i class="ti ti-logout text-lg"></i>
+                                                <span>Logout</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </header>
+                </div>
+
+
+
+                <main class="flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-50">
+
+                    <!-- Top Header -->
+                    <section class="mb-6">
+                        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+                            <div>
+                                <p class="text-sm font-semibold text-blue-600">Admin Dashboard</p>
+                                <h1 class="text-3xl lg:text-4xl font-extrabold text-slate-900 mt-1">
+                                    Selamat datang kembali, Admin.
+                                </h1>
+                                <p class="text-slate-500 mt-2 max-w-2xl leading-relaxed">
+                                    Pantau performa LMS, aktivitas pengguna, kelas aktif, dan status operasional
+                                    platform dalam satu tampilan.
+                                </p>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-3">
+                                <button
+                                    class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition">
+                                    <i class="ph ph-download-simple mr-2"></i>
+                                    Export Report
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- KPI Cards -->
+                    <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-6">
+                        <div
+                            class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm hover:shadow-lg transition">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-sm text-slate-500">Total Student</p>
+                                    <h3 class="text-3xl font-extrabold text-slate-900 mt-2">12.480</h3>
+                                    <p class="text-sm mt-2 text-emerald-600 font-semibold">
+                                        <i class="ph ph-arrow-up-right mr-1"></i> 12.4% dari bulan lalu
+                                    </p>
+                                </div>
+                                <div
+                                    class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                    <i class="ph-fill ph-student text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm hover:shadow-lg transition">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-sm text-slate-500">Active Teacher</p>
+                                    <h3 class="text-3xl font-extrabold text-slate-900 mt-2">248</h3>
+                                    <p class="text-sm mt-2 text-emerald-600 font-semibold">
+                                        <i class="ph ph-arrow-up-right mr-1"></i> 6.8% dari minggu lalu
+                                    </p>
+                                </div>
+                                <div
+                                    class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                                    <i class="ph-fill ph-chalkboard-teacher text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm hover:shadow-lg transition">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-sm text-slate-500">Active Classes</p>
+                                    <h3 class="text-3xl font-extrabold text-slate-900 mt-2">86</h3>
+                                    <p class="text-sm mt-2 text-blue-600 font-semibold">
+                                        <i class="ph ph-broadcast mr-1"></i> 22 kelas berlangsung sekarang
+                                    </p>
+                                </div>
+                                <div
+                                    class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                    <i class="ph-fill ph-books text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm hover:shadow-lg transition">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <p class="text-sm text-slate-500">Monthly Revenue</p>
+                                    <h3 class="text-3xl font-extrabold text-slate-900 mt-2">Rp 128jt</h3>
+                                    <p class="text-sm mt-2 text-emerald-600 font-semibold">
+                                        <i class="ph ph-arrow-up-right mr-1"></i> 18.2% dari bulan lalu
+                                    </p>
+                                </div>
+                                <div
+                                    class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                    <i class="ph-fill ph-wallet text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Main Analytics -->
+                    <section class="grid xl:grid-cols-12 gap-6 mb-6">
+                        <!-- Chart -->
+                        <div class="xl:col-span-8 bg-white rounded-3xl border border-slate-200 shadow-sm p-5 lg:p-6">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Platform Growth</h2>
+                                    <p class="text-sm text-slate-500 mt-1">Pertumbuhan pengguna dan aktivitas belajar
+                                        selama 6 bulan terakhir.</p>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <button class="px-3 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold">6
+                                        Bulan</button>
+                                    <button
+                                        class="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition">1
+                                        Tahun</button>
+                                    <button
+                                        class="px-3 py-2 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold hover:bg-slate-200 transition">Semua</button>
+                                </div>
+                            </div>
+
+                            <div id="admin-growth-chart" class="w-full h-[320px]"></div>
+                        </div>
+
+                        <!-- Right Side Panel -->
+                        <div class="xl:col-span-4 space-y-6">
+                            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h2 class="text-lg font-bold text-slate-900">System Health</h2>
+                                        <p class="text-sm text-slate-500">Status komponen LMS hari ini</p>
+                                    </div>
+                                    <span
+                                        class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold">
+                                        Stable
+                                    </span>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-2">
+                                            <span class="text-slate-600 font-medium">Server Load</span>
+                                            <span class="font-bold text-slate-900">68%</span>
+                                        </div>
+                                        <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                                            <div class="h-full w-[68%] rounded-full bg-blue-600"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-2">
+                                            <span class="text-slate-600 font-medium">Database Health</span>
+                                            <span class="font-bold text-slate-900">92%</span>
+                                        </div>
+                                        <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                                            <div class="h-full w-[92%] rounded-full bg-emerald-500"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-2">
+                                            <span class="text-slate-600 font-medium">Storage Usage</span>
+                                            <span class="font-bold text-slate-900">54%</span>
+                                        </div>
+                                        <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                                            <div class="h-full w-[54%] rounded-full bg-amber-500"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl shadow-xl shadow-blue-600/20 p-5 text-white">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <p class="text-blue-100 text-sm font-semibold">Quick Action</p>
+                                        <h3 class="text-2xl font-extrabold mt-1">Buat kelas baru</h3>
+                                        <p class="text-blue-100 text-sm mt-2 leading-relaxed">
+                                            Tambahkan kelas, materi, atau jadwal dengan cepat.
+                                        </p>
+                                    </div>
+                                    <div class="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center">
+                                        <i class="ph-fill ph-lightning text-2xl"></i>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3 mt-5">
+                                    <button
+                                        class="bg-white text-blue-700 rounded-2xl py-3 font-bold hover:bg-blue-50 transition">
+                                        <i class="ph ph-notebook mr-2"></i>
+                                        Course
+                                    </button>
+                                    <button
+                                        class="bg-white/15 text-white rounded-2xl py-3 font-bold hover:bg-white/20 transition border border-white/15">
+                                        <i class="ph ph-calendar-plus mr-2"></i>
+                                        Schedule
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Lower Grid -->
+                    <section class="grid xl:grid-cols-12 gap-6">
+                        <!-- Recent Enrollments -->
+                        <div class="xl:col-span-8 bg-white rounded-3xl border border-slate-200 shadow-sm p-5 lg:p-6">
+                            <div class="flex items-center justify-between mb-5">
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Recent Enrollments</h2>
+                                    <p class="text-sm text-slate-500 mt-1">Pendaftaran terbaru dari student di platform.
+                                    </p>
+                                </div>
+                                <a href="#" class="text-sm font-semibold text-blue-600 hover:text-blue-700">
+                                    Lihat semua
+                                </a>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead>
+                                        <tr
+                                            class="text-xs uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                                            <th class="py-3 pr-4">Student</th>
+                                            <th class="py-3 pr-4">Program</th>
+                                            <th class="py-3 pr-4">Status</th>
+                                            <th class="py-3 pr-4">Date</th>
+                                            <th class="py-3 pr-4">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr class="text-sm">
+                                            <td class="py-4 pr-4">
+                                                <div class="flex items-center gap-3">
+                                                    <div
+                                                        class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+                                                        AR</div>
+                                                    <div>
+                                                        <p class="font-semibold text-slate-900">Ahmad Rizky</p>
+                                                        <p class="text-slate-500 text-xs">ahmad@example.com</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-4 pr-4 text-slate-600">Intensif UTBK</td>
+                                            <td class="py-4 pr-4">
+                                                <span
+                                                    class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold">Paid</span>
+                                            </td>
+                                            <td class="py-4 pr-4 text-slate-500">22 Apr 2026</td>
+                                            <td class="py-4 pr-4">
+                                                <button
+                                                    class="text-blue-600 font-semibold hover:text-blue-700">Detail</button>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="text-sm">
+                                            <td class="py-4 pr-4">
+                                                <div class="flex items-center gap-3">
+                                                    <div
+                                                        class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
+                                                        SN</div>
+                                                    <div>
+                                                        <p class="font-semibold text-slate-900">Siti Nur</p>
+                                                        <p class="text-slate-500 text-xs">siti@example.com</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-4 pr-4 text-slate-600">Private Class</td>
+                                            <td class="py-4 pr-4">
+                                                <span
+                                                    class="px-3 py-1 rounded-full bg-amber-50 text-amber-600 text-xs font-bold">Pending</span>
+                                            </td>
+                                            <td class="py-4 pr-4 text-slate-500">22 Apr 2026</td>
+                                            <td class="py-4 pr-4">
+                                                <button
+                                                    class="text-blue-600 font-semibold hover:text-blue-700">Detail</button>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="text-sm">
+                                            <td class="py-4 pr-4">
+                                                <div class="flex items-center gap-3">
+                                                    <div
+                                                        class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+                                                        MF</div>
+                                                    <div>
+                                                        <p class="font-semibold text-slate-900">Muhammad Farhan</p>
+                                                        <p class="text-slate-500 text-xs">farhan@example.com</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-4 pr-4 text-slate-600">Regular Class</td>
+                                            <td class="py-4 pr-4">
+                                                <span
+                                                    class="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold">Verified</span>
+                                            </td>
+                                            <td class="py-4 pr-4 text-slate-500">21 Apr 2026</td>
+                                            <td class="py-4 pr-4">
+                                                <button
+                                                    class="text-blue-600 font-semibold hover:text-blue-700">Detail</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Activity Feed -->
+                        <div class="xl:col-span-4 space-y-6">
+                            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
+                                <div class="flex items-center justify-between mb-5">
+                                    <div>
+                                        <h2 class="text-lg font-bold text-slate-900">Activity Log</h2>
+                                        <p class="text-sm text-slate-500">Aktivitas terbaru sistem</p>
+                                    </div>
+                                    <i class="ph-fill ph-clock-counter-clockwise text-slate-300 text-2xl"></i>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div class="flex gap-3">
+                                        <div class="mt-1 w-2.5 h-2.5 rounded-full bg-blue-600"></div>
+                                        <div>
+                                            <p class="font-semibold text-slate-900 text-sm">Teacher baru ditambahkan</p>
+                                            <p class="text-slate-500 text-xs mt-1">2 menit yang lalu</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-3">
+                                        <div class="mt-1 w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                                        <div>
+                                            <p class="font-semibold text-slate-900 text-sm">Payment berhasil diproses
+                                            </p>
+                                            <p class="text-slate-500 text-xs mt-1">15 menit yang lalu</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-3">
+                                        <div class="mt-1 w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+                                        <div>
+                                            <p class="font-semibold text-slate-900 text-sm">Kelas UTBK dijadwalkan ulang
+                                            </p>
+                                            <p class="text-slate-500 text-xs mt-1">1 jam yang lalu</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-3">
+                                        <div class="mt-1 w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
+                                        <div>
+                                            <p class="font-semibold text-slate-900 text-sm">Materi baru diupload</p>
+                                            <p class="text-slate-500 text-xs mt-1">3 jam yang lalu</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h2 class="text-lg font-bold text-slate-900">Upcoming Classes</h2>
+                                        <p class="text-sm text-slate-500">Jadwal kelas terdekat</p>
+                                    </div>
+                                    <i class="ph-fill ph-calendar text-slate-300 text-2xl"></i>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                                        <div class="flex items-center justify-between">
+                                            <p class="font-bold text-slate-900">Matematika UTBK</p>
+                                            <span class="text-xs font-bold text-blue-600">09:00</span>
+                                        </div>
+                                        <p class="text-sm text-slate-500 mt-1">Teacher: Bu Rina</p>
+                                    </div>
+
+                                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                                        <div class="flex items-center justify-between">
+                                            <p class="font-bold text-slate-900">English Conversation</p>
+                                            <span class="text-xs font-bold text-amber-600">11:30</span>
+                                        </div>
+                                        <p class="text-sm text-slate-500 mt-1">Teacher: Mr. Kevin</p>
+                                    </div>
+
+                                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                                        <div class="flex items-center justify-between">
+                                            <p class="font-bold text-slate-900">Physics Basic</p>
+                                            <span class="text-xs font-bold text-indigo-600">14:00</span>
+                                        </div>
+                                        <p class="text-sm text-slate-500 mt-1">Teacher: Pak Dimas</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Footer note -->
+                    <section class="mt-6">
+                        <div
+                            class="rounded-3xl bg-white border border-slate-200 shadow-sm p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900">Dashboard siap dikembangkan</h3>
+                                <p class="text-sm text-slate-500 mt-1">
+                                    Kamu bisa lanjutkan ke halaman detail user, manajemen course, transaksi, laporan,
+                                    dan analytics yang lebih dalam.
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <button
+                                    class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition">
+                                    User Management
+                                </button>
+                                <button
+                                    class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition">
+                                    Report & Analytics
+                                </button>
+                                <button
+                                    class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition">
+                                    System Settings
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const adminGrowthChartOptions = {
+                chart: {
+                    type: 'area',
+                    height: 320,
+                    toolbar: {
+                        show: false
+                    },
+                    zoom: {
+                        enabled: false
+                    }
+                },
+
+                series: [
+                    {
+                        name: 'Students',
+                        data: [3200, 4100, 4800, 5600, 7200, 8500]
+                    },
+                    {
+                        name: 'Active Classes',
+                        data: [40, 52, 60, 70, 78, 86]
+                    }
+                ],
+
+                xaxis: {
+                    categories: ['Nov', 'Des', 'Jan', 'Feb', 'Mar', 'Apr'],
+                    labels: {
+                        style: {
+                            colors: '#64748b'
+                        }
+                    }
+                },
+
+                yaxis: {
+                    labels: {
+                        style: {
+                            colors: '#64748b'
+                        }
+                    }
+                },
+
+                colors: ['#2563eb', '#f59e0b'],
+
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.35,
+                        opacityTo: 0.05,
+                        stops: [0, 90, 100]
+                    }
+                },
+
+                grid: {
+                    borderColor: '#e2e8f0',
+                    strokeDashArray: 4
+                },
+
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'right',
+                    labels: {
+                        colors: '#475569'
+                    }
+                },
+
+                tooltip: {
+                    theme: 'light'
+                },
+
+                dataLabels: {
+                    enabled: false
+                }
+            };
+
+            const adminGrowthChart = new ApexCharts(
+                document.querySelector("#admin-growth-chart"),
+                adminGrowthChartOptions
+            );
+
+            adminGrowthChart.render();
+
+        });
+    </script>
+    <script>
+        // Sidebar Navigation & Dropdown
+        function openSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.remove('-translate-x-full', 'hidden');
+            sidebar.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function toggleDropdownAdminDashboard(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('[data-dropdown-menu]');
+
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.add('hidden', 'opacity-0');
+                }
+            });
+
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                setTimeout(() => dropdown.classList.remove('opacity-0'), 10);
+            } else {
+                dropdown.classList.add('opacity-0');
+                setTimeout(() => dropdown.classList.add('hidden'), 200);
+            }
+        }
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', function (e) {
+            const dropdowns = document.querySelectorAll('[data-dropdown-menu]');
+            const triggers = document.querySelectorAll('[data-dropdown-toggle]');
+            let clickedOnDropdown = false;
+
+            triggers.forEach(trigger => { if (trigger.contains(e.target)) clickedOnDropdown = true; });
+            dropdowns.forEach(dropdown => { if (dropdown.contains(e.target)) clickedOnDropdown = true; });
+
+            if (!clickedOnDropdown) {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('opacity-0');
+                    setTimeout(() => dropdown.classList.add('hidden'), 200);
+                });
+            }
+        });
+
+        // Accordion Toggle for Sidebar
+        document.querySelectorAll('[data-accordion-toggle]').forEach(button => {
+            button.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-accordion-toggle');
+                const content = document.getElementById(targetId);
+                const icon = this.querySelector('.accordion-icon');
+
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    if (icon) icon.classList.add('rotate-180');
+                } else {
+                    content.classList.add('hidden');
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

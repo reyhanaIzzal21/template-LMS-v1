@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd">
+
+    <script type="module" src="http://[::1]:5173/@vite/client" data-navigate-track="reload"></script>
+    <link rel="stylesheet" href="http://[::1]:5173/resources/css/app.css" data-navigate-track="reload" />
+    <script type="module" src="http://[::1]:5173/resources/js/app.js" data-navigate-track="reload"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Favicon icon-->
+    <link rel="shortcut icon" type="image/png" href="http://127.0.0.1:8000/assets/images/logos/favicon.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
+
+    <title>Manajemen Jadwal - LMS</title>
+    <!-- FullCalendar CDN -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        /* Font & Container Reset */
+        .fc {
+            font-family: inherit;
+            color: #334155;
+        }
+
+        .fc-theme-standard .fc-scrollgrid {
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .fc-theme-standard td,
+        .fc-theme-standard th {
+            border-color: #e2e8f0;
+        }
+
+        /* Header Toolbar Styling */
+        .fc .fc-toolbar {
+            padding: 0 0 1rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .fc .fc-toolbar-title {
+            font-size: 1.25rem !important;
+            font-weight: 800 !important;
+            color: #0f172a;
+        }
+
+        /* Button Styling (Menyerupai Tailwind Buttons) */
+        .fc .fc-button-primary {
+            background-color: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #475569 !important;
+            border-radius: 0.5rem !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+            text-transform: capitalize !important;
+            padding: 0.4rem 0.75rem !important;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+            transition: all 0.2s;
+        }
+
+        .fc .fc-button-primary:not(:disabled):hover {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+
+        .fc .fc-button-primary:focus {
+            box-shadow: 0 0 0 2px #bfdbfe !important;
+        }
+
+        .fc .fc-button-active {
+            background-color: #2563eb !important;
+            color: #ffffff !important;
+            border-color: #2563eb !important;
+        }
+
+        /* Tombol Today, Prev, Next Grouping */
+        .fc-direction-ltr .fc-button-group>.fc-button:not(:first-child) {
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+            border-left: 0 !important;
+        }
+
+        .fc-direction-ltr .fc-button-group>.fc-button:not(:last-child) {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+        }
+
+        /* Days Header (Sun, Mon, Tue) */
+        .fc-col-header-cell {
+            background-color: #f8fafc;
+            padding: 0.75rem 0;
+        }
+
+        .fc-col-header-cell-cushion {
+            font-weight: 700 !important;
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Day Numbers */
+        .fc-daygrid-day-number {
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 0.5rem !important;
+            color: #475569;
+        }
+
+        .fc-day-today {
+            background-color: #eff6ff !important;
+        }
+
+        /* Highlight Today */
+        .fc-day-today .fc-daygrid-day-number {
+            color: #2563eb;
+            background-color: #dbeafe;
+            border-radius: 100%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 4px;
+        }
+
+        /* Event Styles */
+        .fc-event {
+            border: none !important;
+            border-radius: 0.5rem !important;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .fc-event:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .fc-daygrid-event {
+            margin: 2px 6px 2px 6px !important;
+        }
+
+        .fc-v-event {
+            padding: 4px !important;
+        }
+
+        /* Week view */
+
+        /* List View Customization */
+        .fc-list {
+            border-radius: 1rem;
+            border-color: #e2e8f0;
+        }
+
+        .fc-list-day-cushion {
+            background-color: #f8fafc !important;
+            font-weight: 700;
+            color: #0f172a;
+            padding: 0.75rem 1rem !important;
+        }
+
+        .fc-list-event td {
+            padding: 0.75rem 1rem !important;
+            border-color: #f1f5f9;
+        }
+
+        .fc-list-event:hover td {
+            background-color: #f8fafc !important;
+        }
+
+        /* Fix Toolbar Layout on Mobile */
+        @media (max-width: 640px) {
+            .fc .fc-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .fc-toolbar-chunk {
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+    <script id="browser-logger-active">
+        (function () {
+            const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+            const logQueue = [];
+            let flushTimeout = null;
+
+            console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+
+            // Store original console methods
+            const originalConsole = {
+                log: console.log,
+                info: console.info,
+                error: console.error,
+                warn: console.warn,
+                table: console.table
+            };
+
+            // Helper to safely stringify values
+            function safeStringify(obj) {
+                const seen = new WeakSet();
+                return JSON.stringify(obj, (key, value) => {
+                    if (typeof value === 'object' && value !== null) {
+                        if (seen.has(value)) return '[Circular]';
+                        seen.add(value);
+                    }
+                    if (value instanceof Error) {
+                        return {
+                            name: value.name,
+                            message: value.message,
+                            stack: value.stack
+                        };
+                    }
+                    return value;
+                });
+            }
+
+            // Batch and send logs
+            function flushLogs() {
+                if (logQueue.length === 0) return;
+
+                const batch = logQueue.splice(0, logQueue.length);
+
+                fetch(ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ logs: batch })
+                }).catch(err => {
+                    // Silently fail to avoid infinite loops
+                    originalConsole.error('Failed to send logs:', err);
+                });
+            }
+
+            // Debounced flush (100ms)
+            function scheduleFlush() {
+                if (flushTimeout) clearTimeout(flushTimeout);
+                flushTimeout = setTimeout(flushLogs, 100);
+            }
+
+            // Intercept console methods
+            ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
+                console[method] = function (...args) {
+                    // Call original method
+                    originalConsole[method].apply(console, args);
+
+                    // Capture log data
+                    try {
+                        logQueue.push({
+                            type: method,
+                            timestamp: new Date().toISOString(),
+                            data: args.map(arg => {
+                                try {
+                                    return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                                } catch (e) {
+                                    return String(arg);
+                                }
+                            }),
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
+
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
+                };
+            });
+
+            // Global error handlers for uncaught errors
+            const originalOnError = window.onerror;
+            window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
+                try {
+                    logQueue.push({
+                        type: 'uncaught_error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: errorMsg,
+                            filename: url,
+                            lineno: lineNumber,
+                            colno: colNumber,
+                            error: error ? {
+                                name: error.name,
+                                message: error.message,
+                                stack: error.stack
+                            } : null
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Call original handler if it exists
+                if (originalOnError && typeof originalOnError === 'function') {
+                    return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+                }
+
+                // Let the error continue to propagate
+                return false;
+            }
+            window.addEventListener('error', (event) => {
+                try {
+                    logQueue.push({
+                        type: 'window_error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: event.message,
+                            filename: event.filename,
+                            lineno: event.lineno,
+                            colno: event.colno,
+                            error: event.error ? {
+                                name: event.error.name,
+                                message: event.error.message,
+                                stack: event.error.stack
+                            } : null
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Let the error continue to propagate
+                return false;
+            });
+            window.addEventListener('unhandledrejection', (event) => {
+                try {
+                    logQueue.push({
+                        type: 'error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: 'Unhandled Promise Rejection',
+                            reason: event.reason instanceof Error ? {
+                                name: event.reason.name,
+                                message: event.reason.message,
+                                stack: event.reason.stack
+                            } : event.reason
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Let the rejection continue to propagate
+                return false;
+            });
+
+            // Flush on page unload
+            window.addEventListener('beforeunload', () => {
+                if (logQueue.length > 0) {
+                    navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+                }
+            });
+        })();
+    </script>
+</head>
+
+<body class="bg-slate-50 font-sans antialiased">
+
+    <!-- Sidebar Backdrop for Mobile -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-[55] hidden xl:hidden"
+        onclick="closeSidebarAdminDashboard()"></div>
+
+    <!--start the project-->
+    <main>
+        <div id="main-wrapper" class="flex min-h-screen">
+            <aside id="application-sidebar-brand"
+                class="fixed top-0 start-0 h-screen z-60 w-[270px] bg-white border-r border-gray-200 shadow-lg transform -translate-x-full xl:translate-x-0 transition-transform duration-300 ease-in-out">
+
+                <!-- Close button for mobile -->
+                <div class="absolute top-3 end-3 xl:hidden">
+                    <button type="button" onclick="closeSidebarAdminDashboard()"
+                        class="w-8 h-8 inline-flex justify-center items-center rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors">
+                        <span class="sr-only">Close</span>
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Logo Section -->
+                <div class="p-5 border-b border-gray-100">
+                    <a href="../user/pages/home.html" class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                            <i class="ti ti-dashboard text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-lg text-gray-800">DASHBOARD</h2>
+                            <span class="text-xs text-gray-500">Admin Panel</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Scrollable Navigation -->
+                <div class="h-[calc(100vh-100px)] overflow-y-auto px-4 py-6">
+                    <nav class="w-full flex flex-col">
+                        <ul id="sidebarnav" class="text-gray-700 text-sm space-y-1">
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2">
+                                <span>HOME</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 bg-blue-500 text-white shadow-md shadow-blue-500/30"
+                                    href="http://127.0.0.1:8000/admin/dashboard">
+                                    <i class="ti ti-layout-dashboard text-xl"></i>
+                                    <span class="font-medium">Dashboard</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>MAIN</span>
+                            </li>
+
+                            <!-- Courses Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="courses-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-book text-xl"></i>
+                                        <span class="font-medium">Courses</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="courses-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./coourse-category.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./course.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Course List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- Event Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="event-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-calendar-event text-xl"></i>
+                                        <span class="font-medium">Event</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="event-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Event</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-apps text-xl"></i>
+                                    <span class="font-medium">Course application</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-coins text-xl"></i>
+                                    <span class="font-medium">Points exchange</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>LMS SYSTEM</span>
+                            </li>
+
+                            <!-- Programs Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="programs-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-school text-xl"></i>
+                                        <span class="font-medium">Programs</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="programs-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="http://127.0.0.1:8000/admin/program-categories">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./program.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Program List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- schedule -->
+                            <li>
+                                <button type="button" data-accordion-toggle="schedule-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-books text-xl"></i>
+                                        <span class="font-medium">Pengaturan Akademik</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="schedule-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./tahun-ajaran.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Tahun Ajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./mapel.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Mata Palajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./room.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Ruangan</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./sesi.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Sesi</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="jadwal.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Jadwal Kelas</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="./bank-task.html">
+                                    <i class="ti ti-list-check text-xl"></i>
+                                    <span class="font-medium">Task Bank</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-user-star text-xl"></i>
+                                    <span class="font-medium">Teacher</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users text-xl"></i>
+                                    <span class="font-medium">Tutoring User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-trophy text-xl"></i>
+                                    <span class="font-medium">Student ranking</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <!-- Finance Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="finance-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-wallet text-xl"></i>
+                                        <span class="font-medium">Finance</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="finance-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./finance-over.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Financial Overview</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./income-analyst.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Income Analysis</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./transaction-history.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Transaction History</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./student-access.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Student Access</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./report.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Reports</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>CONTENT</span>
+                            </li>
+
+                            <!-- Blog Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="blog-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-article text-xl"></i>
+                                        <span class="font-medium">Blog</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="blog-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Blog list</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>PROFILE</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users-group text-xl"></i>
+                                    <span class="font-medium">User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-settings text-xl"></i>
+                                    <span class="font-medium">Profile</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Page Wrapper with responsive margin -->
+            <div class="w-full xl:ml-[270px] flex flex-col min-h-screen transition-all duration-300">
+                <!-- HEADER -->
+                <div class="shrink-0">
+                    <header
+                        class="sticky top-0 w-full bg-white/80 backdrop-blur-md z-40 border-b border-gray-200/60 shadow-sm">
+                        <nav class="flex items-center justify-between px-4 lg:px-6 py-3" aria-label="Global">
+                            <!-- Left Side -->
+                            <div class="flex items-center gap-4">
+                                <!-- Mobile Menu Toggle -->
+                                <button type="button" onclick="openSidebarAdminDashboard()"
+                                    class="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                                    <i class="ti ti-menu-2 text-xl text-gray-600"></i>
+                                </button>
+                            </div>
+
+                            <!-- Right Side - User Profile -->
+                            <div class="flex items-center gap-3" data-dropdown-toggle
+                                onclick="toggleDropdownAdminDashboard('profile-dropdown')">
+                                <div class="hidden sm:block text-right">
+                                    <p class="text-sm font-semibold text-gray-800">admin</p>
+                                    <span
+                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                        admin
+                                    </span>
+                                </div>
+
+                                <!-- Profile Dropdown -->
+                                <div class="relative">
+                                    <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
+                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+
+                                    <div id="profile-dropdown" data-dropdown-menu
+                                        class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
+                                        <div class="px-4 py-3 border-b border-gray-100 sm:hidden">
+                                            <p class="text-sm font-semibold text-gray-800">admin</p>
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 mt-1">
+                                                admin
+                                            </span>
+                                        </div>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-user text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">My Profile</span>
+                                        </a>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-settings text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">Settings</span>
+                                        </a>
+                                        <div class="border-t border-gray-100 my-2"></div>
+                                        <div class="px-4 py-2">
+                                            <form action="http://127.0.0.1:8000/logout" method="POST">
+                                                <input type="hidden" name="_token"
+                                                    value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd" autocomplete="off">
+                                                <button type="submit"
+                                                    class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors duration-200">
+                                                    <i class="ti ti-logout text-lg"></i>
+                                                    <span>Logout</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </header>
+                </div>
+
+                <!-- CONTENT -->
+                <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+                    <!-- ALPINE ROOT & WRAPPER -->
+                    <div id="calendar-wrapper"
+                        class="min-h-screen bg-slate-50 flex flex-col md:flex-row overflow-hidden h-[calc(100vh-4rem)] relative"
+                        x-data="{
+            mobileFilterOpen: false,
+            eventModalOpen: false,
+            selectedEvent: { id: '', title: '', time: '', teacher: '', room: '', status: '', note: '' }
+        }">
+
+                        <!-- ================= MOBILE FILTER OVERLAY ================= -->
+                        <div x-show="mobileFilterOpen" x-cloak
+                            class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm md:hidden"
+                            @click="mobileFilterOpen = false" x-transition.opacity></div>
+
+                        <!-- ================= SIDEBAR (FILTER) ================= -->
+                        <aside :class="mobileFilterOpen ? 'translate-x-0' : '-translate-x-full'"
+                            class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col h-full transform transition-transform duration-300 md:relative md:translate-x-0 md:w-64 flex-shrink-0">
+
+                            <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                                <h2 class="font-bold text-slate-900 text-lg">Filter Jadwal</h2>
+                                <!-- Close Button Mobile -->
+                                <button @click="mobileFilterOpen = false"
+                                    class="md:hidden text-slate-400 hover:text-red-500">
+                                    <i class="ph-bold ph-x text-xl"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex-1 overflow-y-auto p-5 space-y-6">
+                                <!-- Filter Program -->
+                                <div>
+                                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Program
+                                    </h3>
+                                    <div class="space-y-3">
+                                        <label class="flex items-start gap-3 cursor-pointer group">
+                                            <input type="checkbox" value="019de180-8957-7185-81ff-1487d27c4b2c"
+                                                class="program-filter mt-0.5 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                                                checked>
+                                            <span
+                                                class="text-sm font-medium text-slate-700 group-hover:text-primary-600 transition leading-snug">Program
+                                                intensif Try Out</span>
+                                        </label>
+                                        <label class="flex items-start gap-3 cursor-pointer group">
+                                            <input type="checkbox" value="019dd7a3-f936-70e8-86ab-944a36ae9335"
+                                                class="program-filter mt-0.5 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                                                checked>
+                                            <span
+                                                class="text-sm font-medium text-slate-700 group-hover:text-primary-600 transition leading-snug">Kelas
+                                                UTBK intensif 2026</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="h-px bg-slate-100 w-full"></div>
+
+                                <!-- Filter Status -->
+                                <div>
+                                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Status
+                                        Kelas</h3>
+                                    <div class="space-y-3">
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" value="scheduled"
+                                                class="status-filter rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                                checked>
+                                            <span class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Scheduled
+                                            </span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" value="ongoing"
+                                                class="status-filter rounded border-slate-300 text-amber-500 focus:ring-amber-500"
+                                                checked>
+                                            <span class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Ongoing
+                                            </span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" value="completed"
+                                                class="status-filter rounded border-slate-300 text-emerald-500 focus:ring-emerald-500"
+                                                checked>
+                                            <span class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Completed
+                                            </span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" value="cancelled"
+                                                class="status-filter rounded border-slate-300 text-red-500 focus:ring-red-500"
+                                                checked>
+                                            <span class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Cancelled
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="h-px bg-slate-100 w-full"></div>
+
+                                <!-- Filter Ruangan -->
+                                <div>
+                                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pilih
+                                        Ruangan</h3>
+                                    <select id="room-filter"
+                                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition cursor-pointer">
+                                        <option value="">-- Semua Ruangan --</option>
+                                        <option value="019de45f-2550-7168-ab44-866cc9f8bead">Adam</option>
+                                        <option value="019de45f-0f92-7145-8e04-6c41baa8e37b">Epatain</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </aside>
+
+                        <!-- ================= MAIN CONTENT ================= -->
+                        <main class="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-slate-50">
+
+                            <!-- Mobile Header / Topbar Actions -->
+                            <div
+                                class="bg-white border-b border-slate-200 px-4 py-4 sm:p-6 flex items-center justify-between z-10 shrink-0 shadow-sm">
+                                <div class="flex items-center gap-3">
+                                    <!-- Mobile Sidebar Toggle -->
+                                    <button @click="mobileFilterOpen = true"
+                                        class="md:hidden p-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition">
+                                        <i class="ph-bold ph-faders text-xl"></i>
+                                    </button>
+                                    <div>
+                                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                                            Jadwal Kelas</h1>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <a href="http://127.0.0.1:8000/admin/schedules/generate"
+                                        class="flex items-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 hover:text-primary-600 hover:bg-primary-50 text-sm font-bold rounded-xl transition">
+                                        <i class="ph-bold ph-magic-wand text-lg"></i> <span
+                                            class="hidden sm:inline">Generate Batch</span>
+                                    </a>
+                                    <a href="http://127.0.0.1:8000/admin/meetings/create"
+                                        class="flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold rounded-xl transition shadow-lg shadow-primary-600/20">
+                                        <i class="ph-bold ph-plus text-lg"></i> <span class="hidden sm:inline">Tambah
+                                            Manual</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- FULLCALENDAR CONTAINER -->
+                            <!-- Note: h-full and flex-1 are crucial here so Fullcalendar calculates height automatically -->
+                            <div class="flex-1 min-h-0 p-4 sm:p-6 flex flex-col overflow-hidden">
+                                <div
+                                    class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 flex-1 flex flex-col h-full">
+                                    <div id="calendar" class="flex-1"></div>
+                                </div>
+                            </div>
+                        </main>
+
+                        <!-- ================= EVENT DETAIL MODAL ================= -->
+                        <div x-show="eventModalOpen" x-cloak
+                            class="fixed inset-0 z-1000 flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
+
+                            <!-- Backdrop -->
+                            <div x-show="eventModalOpen" x-transition.opacity
+                                class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" @click="eventModalOpen = false">
+                            </div>
+
+                            <!-- Modal Panel -->
+                            <div x-show="eventModalOpen" x-transition:enter="ease-out duration-300"
+                                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                                x-transition:leave="ease-in duration-200"
+                                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full border border-slate-100">
+
+                                <!-- Status Header Banner -->
+                                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-start"
+                                    :class="{
+                        'bg-blue-50 border-b-blue-100': selectedEvent.status === 'scheduled',
+                        'bg-amber-50 border-b-amber-100': selectedEvent.status === 'ongoing',
+                        'bg-emerald-50 border-b-emerald-100': selectedEvent.status === 'completed',
+                        'bg-red-50 border-b-red-100': selectedEvent.status === 'cancelled'
+                    }">
+                                    <div>
+                                        <!-- Dynamic Badge -->
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-2"
+                                            :class="{
+                                'bg-blue-100 text-blue-700': selectedEvent.status === 'scheduled',
+                                'bg-amber-100 text-amber-700': selectedEvent.status === 'ongoing',
+                                'bg-emerald-100 text-emerald-700': selectedEvent.status === 'completed',
+                                'bg-red-100 text-red-700': selectedEvent.status === 'cancelled'
+                            }">
+                                            <i class="ph-fill ph-circle text-[8px]"
+                                                :class="{ 'animate-pulse': selectedEvent.status === 'ongoing' }"></i>
+                                            <span x-text="selectedEvent.status"></span>
+                                        </span>
+                                        <h3 class="text-xl font-extrabold text-slate-900 leading-tight"
+                                            x-text="selectedEvent.title"></h3>
+                                    </div>
+                                    <button @click="eventModalOpen = false"
+                                        class="text-slate-400 hover:text-slate-900 bg-white/50 hover:bg-white p-1.5 rounded-lg transition">
+                                        <i class="ph-bold ph-x text-lg"></i>
+                                    </button>
+                                </div>
+
+                                <div class="p-6 space-y-5">
+                                    <!-- Meta Info Grid -->
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                                Waktu Pelaksanaan
+                                            </p>
+                                            <p class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                                <i class="ph-fill ph-clock text-slate-400"></i> <span
+                                                    x-text="selectedEvent.time"></span>
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                                Ruangan</p>
+                                            <p class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                                <i class="ph-fill ph-door-open text-slate-400"></i> <span
+                                                    x-text="selectedEvent.room"></span>
+                                            </p>
+                                        </div>
+                                        <div class="col-span-2">
+                                            <p
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                                Guru Pengajar</p>
+                                            <p class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                                <img src="https://ui-avatars.com/api/?name=User&background=eff6ff&color=2563eb"
+                                                    class="w-5 h-5 rounded-full">
+                                                <span x-text="selectedEvent.teacher"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="h-px bg-slate-100"></div>
+
+                                    <!-- Notes -->
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                                            Catatan Tambahan</p>
+                                        <div
+                                            class="bg-slate-50 rounded-lg p-3 border border-slate-100 text-sm text-slate-600 italic">
+                                            "<span x-text="selectedEvent.note"></span>"
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ================= MODAL ACTIONS (REDESIGNED) ================= -->
+                                <div
+                                    class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+
+                                    <!-- Kiri: Destructive Action (Delete) -->
+                                    <form :action="`/admin/meetings/${selectedEvent.id}`" method="POST"
+                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus pertemuan ini?')">
+                                        <input type="hidden" name="_token"
+                                            value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd" autocomplete="off"> <input
+                                            type="hidden" name="_method" value="DELETE"> <button type="submit"
+                                            class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 font-bold text-sm rounded-xl transition flex items-center gap-1.5"
+                                            title="Hapus Pertemuan">
+                                            <i class="ph-bold ph-trash text-lg"></i>
+                                        </button>
+                                    </form>
+
+                                    <!-- Kanan: Grouped Positive Actions (Edit & Show) -->
+                                    <div class="flex items-center gap-2">
+                                        <!-- Secondary Action (Edit) -->
+                                        <a :href="`/admin/meetings/${selectedEvent.id}/edit`"
+                                            class="px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-blue-600 font-bold text-sm rounded-xl transition shadow-sm flex items-center gap-2">
+                                            <i class="ph-bold ph-pencil-simple text-lg"></i> Edit
+                                        </a>
+
+                                        <!-- Primary Action (Lihat Detail) -->
+                                        <a href="http://127.0.0.1:8000/admin/meetings/detail"
+                                            class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/20 transition flex items-center gap-2">
+                                            <i class="ph-bold ph-arrow-circle-right text-lg"></i> Buka Kelas
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- SCRIPT FULLCALENDAR -->
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            var calendarEl = document.getElementById('calendar');
+
+                            var calendar = new FullCalendar.Calendar(calendarEl, {
+                                // Responsive Height: 100% memaksa kalender memenuhi div parent-nya (mencegah terpotong)
+                                height: '100%',
+                                initialView: window.innerWidth < 768 ? 'listWeek' :
+                                    'dayGridMonth', // Auto List-view on mobile
+                                headerToolbar: {
+                                    left: 'prev,next today',
+                                    center: 'title',
+                                    right: 'dayGridMonth,timeGridWeek,listWeek'
+                                },
+                                slotMinTime: '06:00:00',
+                                slotMaxTime: '22:00:00',
+                                allDaySlot: false,
+                                buttonText: {
+                                    today: 'Hari Ini',
+                                    month: 'Bulan',
+                                    week: 'Minggu',
+                                    list: 'List View'
+                                },
+                                // Fetch Event Logic
+                                events: function (fetchInfo, successCallback, failureCallback) {
+                                    var url = 'http://127.0.0.1:8000/admin/api/schedules/events';
+
+                                    var programIds = Array.from(document.querySelectorAll('.program-filter:checked'))
+                                        .map(el => el.value);
+                                    var statusValues = Array.from(document.querySelectorAll('.status-filter:checked'))
+                                        .map(el => el.value);
+                                    var roomId = document.getElementById('room-filter').value;
+
+                                    var params = new URLSearchParams({
+                                        start: fetchInfo.startStr,
+                                        end: fetchInfo.endStr
+                                    });
+
+                                    programIds.forEach(id => params.append('program_id[]', id));
+                                    statusValues.forEach(status => params.append('status[]', status));
+                                    if (roomId) params.append('room_id', roomId);
+
+                                    fetch(url + '?' + params.toString())
+                                        .then(response => response.json())
+                                        .then(events => {
+                                            var styledEvents = events.map(event => {
+                                                let bgClass = 'bg-blue-500';
+                                                let borderClass = 'border-l-blue-600';
+
+                                                if (event.extendedProps.status === 'ongoing') {
+                                                    bgClass = 'bg-amber-500';
+                                                    borderClass = 'border-l-amber-500';
+                                                }
+                                                if (event.extendedProps.status === 'completed') {
+                                                    bgClass = 'bg-emerald-500';
+                                                    borderClass = 'border-l-emerald-500';
+                                                }
+                                                if (event.extendedProps.status === 'cancelled') {
+                                                    bgClass = 'bg-red-500';
+                                                    borderClass = 'border-l-red-500';
+                                                }
+
+                                                return {
+                                                    ...event,
+                                                    extendedProps: {
+                                                        ...event.extendedProps,
+                                                        bgClass: bgClass,
+                                                        borderClass: borderClass
+                                                    }
+                                                };
+                                            });
+                                            successCallback(styledEvents);
+                                        })
+                                        .catch(error => failureCallback(error));
+                                },
+
+                                // Custom Event Styling inside Calendar Cells
+                                eventContent: function (arg) {
+                                    let p = arg.event.extendedProps;
+                                    let isListView = arg.view.type === 'listWeek';
+
+                                    if (isListView) {
+                                        return {
+                                            html: `<div class="font-bold">${arg.event.title} <span class="font-normal text-slate-500 ml-2">&bull; ${p.teacher || 'Guru'}</span></div>`
+                                        };
+                                    }
+
+                                    return {
+                                        html: `
+                            <div class="flex flex-col bg-white border-l-4 ${p.borderClass || 'border-l-blue-600'} shadow-sm rounded-r px-2 py-1.5 hover:shadow-md transition">
+                                <div class="font-bold text-[11px] text-slate-800 leading-tight truncate mb-1">${arg.event.title}</div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[9px] font-medium text-slate-500 flex items-center gap-0.5"><i class="ph-fill ph-clock"></i> ${arg.timeText}</span>
+                                    <span class="text-[9px] font-bold bg-slate-100 text-slate-600 px-1 rounded truncate max-w-[40px]" title="${p.teacher || ''}">${p.teacher ? p.teacher.substring(0, 2) : 'Guru'}</span>
+                                </div>
+                            </div>
+                        `
+                                    };
+                                },
+
+                                // Event Click Interaction -> Memicu Modal AlpineJS
+                                eventClick: function (info) {
+                                    let alpineData = Alpine.$data(document.getElementById('calendar-wrapper'));
+
+                                    // Format Jam (HH:MM)
+                                    let startTime = info.event.start.toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    });
+                                    let endTime = info.event.end ? info.event.end.toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    }) : 'Selesai';
+
+                                    alpineData.selectedEvent = {
+                                        id: info.event.id,
+                                        title: info.event.title,
+                                        time: startTime + ' - ' + endTime + ' WIB',
+                                        teacher: info.event.extendedProps.teacher || 'Guru',
+                                        room: info.event.extendedProps.room || 'Ruangan',
+                                        status: info.event.extendedProps.status || 'scheduled',
+                                        note: info.event.extendedProps.note ||
+                                            'Tidak ada catatan khusus untuk pertemuan ini.'
+                                    };
+
+                                    alpineData.eventModalOpen = true;
+                                }
+                            });
+
+                            calendar.render();
+
+                            // Refresh calendar when filters change
+                            document.querySelectorAll('.program-filter, .status-filter').forEach(el => {
+                                el.addEventListener('change', () => calendar.refetchEvents());
+                            });
+
+                            document.getElementById('room-filter').addEventListener('change', function () {
+                                calendar.refetchEvents();
+                            });
+
+                            // Handle Window Resize to auto-switch view on mobile
+                            window.addEventListener('resize', function () {
+                                if (window.innerWidth < 768 && calendar.view.type !== 'listWeek') {
+                                    calendar.changeView('listWeek');
+                                } else if (window.innerWidth >= 768 && calendar.view.type === 'listWeek') {
+                                    calendar.changeView('dayGridMonth');
+                                }
+                            });
+                        });
+                    </script>
+
+
+                    <!-- Overlay -->
+                    <div id="modal-delete"
+                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        <!-- Modal Box -->
+                        <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+                            <!-- Icon -->
+                            <div
+                                class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 class="mb-2 text-lg font-bold text-slate-800">
+                                Hapus Data?
+                            </h3>
+
+                            <!-- Description -->
+                            <p id="deleteModalText" class="mb-6 text-sm text-slate-500">
+                                Apakah anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex justify-center gap-3">
+                                <button type="button" onclick="closeDeleteModal()"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50">
+                                    Batal
+                                </button>
+
+                                <form id="deleteForm" method="POST" class="w-full">
+                                    <input type="hidden" name="_token" value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd"
+                                        autocomplete="off"> <input type="hidden" name="_method" value="DELETE"> <button
+                                        type="submit"
+                                        class="w-full rounded-lg bg-red-600 px-4 py-2 font-medium text-white shadow-md shadow-red-500/20 transition hover:bg-red-700">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openDeleteModal(actionUrl, description = null) {
+                            const modal = document.getElementById('modal-delete');
+                            const form = document.getElementById('deleteForm');
+                            const text = document.getElementById('deleteModalText');
+
+                            form.action = actionUrl;
+
+                            if (description) {
+                                text.innerHTML = description;
+                            }
+
+                            modal.classList.remove('hidden');
+                            modal.classList.add('flex');
+                        }
+
+                        function closeDeleteModal() {
+                            const modal = document.getElementById('modal-delete');
+
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                        }
+                    </script>
+
+
+                    <!-- Overlay -->
+                    <div id="modal-confirm"
+                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        <!-- Modal Box -->
+                        <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+                            <!-- Icon -->
+                            <div
+                                class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 id="confirmModalTitle" class="mb-2 text-lg font-bold text-slate-800">
+                                Konfirmasi
+                            </h3>
+
+                            <!-- Description -->
+                            <p id="confirmModalText" class="mb-6 text-sm text-slate-500">
+                                Apakah anda yakin?
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex justify-center gap-3">
+                                <button type="button" onclick="closeConfirmModal()"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50">
+                                    Batal
+                                </button>
+
+                                <form id="confirmForm" method="POST" class="w-full">
+                                    <input type="hidden" name="_token" value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd"
+                                        autocomplete="off"> <input type="hidden" name="_method" value="PATCH">
+                                    <!-- Both fields for compatibility -->
+                                    <input type="hidden" name="is_ready" id="confirmIsReady">
+                                    <input type="hidden" name="is_active" id="confirmIsActive">
+
+                                    <button type="submit" id="confirmButton"
+                                        class="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700">
+                                        Ya, Lanjutkan
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openConfirmModal(actionUrl, title, description, statusValue, buttonText = 'Ya, Lanjutkan',
+                            buttonColorClass = 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20') {
+                            const modal = document.getElementById('modal-confirm');
+                            const form = document.getElementById('confirmForm');
+                            const titleEl = document.getElementById('confirmModalTitle');
+                            const text = document.getElementById('confirmModalText');
+                            const isReadyInput = document.getElementById('confirmIsReady');
+                            const isActiveInput = document.getElementById('confirmIsActive');
+                            const confirmBtn = document.getElementById('confirmButton');
+
+                            form.action = actionUrl;
+                            titleEl.innerHTML = title;
+                            text.innerHTML = description;
+
+                            // Set both values for compatibility with courses (is_ready) and programs (is_active)
+                            isReadyInput.value = statusValue;
+                            isActiveInput.value = statusValue;
+
+                            confirmBtn.innerHTML = buttonText;
+
+                            // Reset classes
+                            confirmBtn.className =
+                                `w-full rounded-lg px-4 py-2 font-medium text-white shadow-md transition ${buttonColorClass}`;
+
+                            modal.classList.remove('hidden');
+                            modal.classList.add('flex');
+                        }
+
+                        function closeConfirmModal() {
+                            const modal = document.getElementById('modal-confirm');
+
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                        }
+                    </script>
+                </main>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
+
+    <script src="http://127.0.0.1:8000/assets/libs/iconify-icon/dist/iconify-icon.min.js"></script>
+
+    <script src="http://127.0.0.1:8000/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+    <script src="http://127.0.0.1:8000/assets/js/dashboard.js"></script>
+
+    <!-- Custom Dashboard Navigation Script -->
+    <script>
+        // Mobile Sidebar Toggle
+        function openSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.remove('-translate-x-full', 'hidden');
+            sidebar.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Dropdown Toggle
+        function toggleDropdownAdminDashboard(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('[data-dropdown-menu]');
+
+            // Close all other dropdowns
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.add('hidden', 'opacity-0');
+                }
+            });
+
+            // Toggle current dropdown
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                setTimeout(() => dropdown.classList.remove('opacity-0'), 10);
+            } else {
+                dropdown.classList.add('opacity-0');
+                setTimeout(() => dropdown.classList.add('hidden'), 200);
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function (e) {
+            const dropdowns = document.querySelectorAll('[data-dropdown-menu]');
+            const triggers = document.querySelectorAll('[data-dropdown-toggle]');
+
+            let clickedOnDropdown = false;
+            triggers.forEach(trigger => {
+                if (trigger.contains(e.target)) clickedOnDropdown = true;
+            });
+            dropdowns.forEach(dropdown => {
+                if (dropdown.contains(e.target)) clickedOnDropdown = true;
+            });
+
+            if (!clickedOnDropdown) {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('opacity-0');
+                    setTimeout(() => dropdown.classList.add('hidden'), 200);
+                });
+            }
+        });
+
+        // Accordion Toggle for Sidebar
+        document.querySelectorAll('[data-accordion-toggle]').forEach(button => {
+            button.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-accordion-toggle');
+                const content = document.getElementById(targetId);
+                const icon = this.querySelector('.accordion-icon');
+
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    if (icon) icon.classList.add('rotate-180');
+                } else {
+                    content.classList.add('hidden');
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

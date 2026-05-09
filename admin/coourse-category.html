@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Admin Dashboard - Category Management</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5d87ff',
+                        primaryHover: '#4a70e0',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Modal Animations */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 300ms, transform 300ms;
+        }
+
+        /* Custom Scrollbar for Sidebar */
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 font-sans antialiased text-slate-800">
+
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-[55] hidden xl:hidden transition-opacity"
+        onclick="closeSidebarAdminDashboard()"></div>
+
+    <main>
+        <div id="main-wrapper" class="flex min-h-screen">
+
+            <aside id="application-sidebar-brand"
+                class="fixed top-0 start-0 h-screen z-60 w-[270px] bg-white border-r border-gray-200 shadow-lg transform -translate-x-full xl:translate-x-0 transition-transform duration-300 ease-in-out">
+
+                <!-- Close button for mobile -->
+                <div class="absolute top-3 end-3 xl:hidden">
+                    <button type="button" onclick="closeSidebarAdminDashboard()"
+                        class="w-8 h-8 inline-flex justify-center items-center rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors">
+                        <span class="sr-only">Close</span>
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Logo Section -->
+                <div class="p-5 border-b border-gray-100">
+                    <a href="../user/pages/home.html" class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                            <i class="ti ti-dashboard text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-lg text-gray-800">DASHBOARD</h2>
+                            <span class="text-xs text-gray-500">Admin Panel</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Scrollable Navigation -->
+                <div class="h-[calc(100vh-100px)] overflow-y-auto px-4 py-6">
+                    <nav class="w-full flex flex-col">
+                        <ul id="sidebarnav" class="text-gray-700 text-sm space-y-1">
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2">
+                                <span>HOME</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 bg-blue-500 text-white shadow-md shadow-blue-500/30"
+                                    href="http://127.0.0.1:8000/admin/dashboard">
+                                    <i class="ti ti-layout-dashboard text-xl"></i>
+                                    <span class="font-medium">Dashboard</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>MAIN</span>
+                            </li>
+
+                            <!-- Courses Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="courses-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-book text-xl"></i>
+                                        <span class="font-medium">Courses</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="courses-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./coourse-category.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./course.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Course List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- Event Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="event-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-calendar-event text-xl"></i>
+                                        <span class="font-medium">Event</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="event-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Event</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-apps text-xl"></i>
+                                    <span class="font-medium">Course application</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-coins text-xl"></i>
+                                    <span class="font-medium">Points exchange</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>LMS SYSTEM</span>
+                            </li>
+
+                            <!-- Programs Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="programs-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-school text-xl"></i>
+                                        <span class="font-medium">Programs</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="programs-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="http://127.0.0.1:8000/admin/program-categories">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./program.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Program List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- schedule -->
+                            <li>
+                                <button type="button" data-accordion-toggle="schedule-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-books text-xl"></i>
+                                        <span class="font-medium">Pengaturan Akademik</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="schedule-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./tahun-ajaran.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Tahun Ajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./mapel.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Mata Palajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./room.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Ruangan</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./sesi.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Sesi</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="jadwal.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Jadwal Kelas</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="./bank-task.html">
+                                    <i class="ti ti-list-check text-xl"></i>
+                                    <span class="font-medium">Task Bank</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-user-star text-xl"></i>
+                                    <span class="font-medium">Teacher</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users text-xl"></i>
+                                    <span class="font-medium">Tutoring User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-trophy text-xl"></i>
+                                    <span class="font-medium">Student ranking</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <!-- Finance Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="finance-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-wallet text-xl"></i>
+                                        <span class="font-medium">Finance</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="finance-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./finance-over.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Financial Overview</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./income-analyst.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Income Analysis</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./transaction-history.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Transaction History</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./student-access.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Student Access</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./report.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Reports</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>CONTENT</span>
+                            </li>
+
+                            <!-- Blog Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="blog-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-article text-xl"></i>
+                                        <span class="font-medium">Blog</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="blog-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Blog list</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>PROFILE</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users-group text-xl"></i>
+                                    <span class="font-medium">User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-settings text-xl"></i>
+                                    <span class="font-medium">Profile</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="w-full xl:ml-[270px] flex flex-col min-h-screen transition-all duration-300">
+
+                <div class="shrink-0">
+                    <header
+                        class="sticky top-0 w-full bg-white/80 backdrop-blur-md z-40 border-b border-gray-200/60 shadow-sm">
+                        <nav class="flex items-center justify-between px-4 lg:px-6 py-3" aria-label="Global">
+                            <div class="flex items-center gap-4">
+                                <button type="button" onclick="openSidebarAdminDashboard()"
+                                    class="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                                    <i class="ti ti-menu-2 text-xl text-gray-600"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center gap-3 cursor-pointer relative" data-dropdown-toggle
+                                onclick="toggleDropdownAdminDashboard('profile-dropdown')">
+                                <div class="hidden sm:block text-right">
+                                    <p class="text-sm font-semibold text-gray-800">Administrator</p>
+                                    <span
+                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                        Super Admin
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
+                                        src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff"
+                                        alt="User avatar">
+
+                                    <div id="profile-dropdown" data-dropdown-menu
+                                        class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
+                                        <div class="px-4 py-3 border-b border-gray-100 sm:hidden">
+                                            <p class="text-sm font-semibold text-gray-800">Administrator</p>
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 mt-1">
+                                                Super Admin
+                                            </span>
+                                        </div>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-user text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">My Profile</span>
+                                        </a>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-settings text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">Settings</span>
+                                        </a>
+                                        <div class="border-t border-gray-100 my-2"></div>
+                                        <div class="px-4 py-2">
+                                            <button type="button"
+                                                class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors duration-200">
+                                                <i class="ti ti-logout text-lg"></i>
+                                                <span>Logout</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </header>
+                </div>
+
+                <main class="flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-50">
+
+                    <div class="container mx-auto px-0 py-2 max-w-7xl">
+
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                            <div>
+                                <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Category Management</h2>
+                                <p class="text-slate-500 text-sm mt-1">Manage your product categories efficiently.</p>
+                            </div>
+
+                            <button onclick="openModal('createCategoryModal')"
+                                class="group bg-primary hover:bg-primaryHover text-white px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 transition-all duration-300 flex items-center gap-2 font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-5 w-5 transition-transform group-hover:rotate-90" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>New Category</span>
+                            </button>
+                        </div>
+
+                        <div class="mb-6 p-4 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-700 flex items-center gap-3 shadow-sm hidden"
+                            id="dummySuccessAlert">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="font-medium">Category saved successfully.</span>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead
+                                        class="bg-slate-50 text-slate-500 uppercase text-xs font-bold tracking-wider border-b border-slate-200">
+                                        <tr>
+                                            <th class="py-4 px-6 w-16 text-center">#</th>
+                                            <th class="py-4 px-6">Category Name</th>
+                                            <th class="py-4 px-6 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+
+                                        <tr class="hover:bg-slate-50 transition-colors duration-200 group">
+                                            <td class="py-4 px-6 text-center text-slate-400 font-mono text-sm">1</td>
+                                            <td
+                                                class="py-4 px-6 font-medium text-slate-700 group-hover:text-primary transition-colors">
+                                                Web Development
+                                            </td>
+                                            <td class="py-4 px-6 text-right space-x-2">
+                                                <button onclick="openModal('editCategoryModal1')"
+                                                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-md hover:bg-amber-100 transition border border-amber-100 text-sm font-medium">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg> Edit
+                                                </button>
+                                                <button onclick="openDeleteModal('Web Development')"
+                                                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition border border-red-100 text-sm font-medium">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg> Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+
+                                        <tr class="hover:bg-slate-50 transition-colors duration-200 group">
+                                            <td class="py-4 px-6 text-center text-slate-400 font-mono text-sm">2</td>
+                                            <td
+                                                class="py-4 px-6 font-medium text-slate-700 group-hover:text-primary transition-colors">
+                                                UI/UX Design
+                                            </td>
+                                            <td class="py-4 px-6 text-right space-x-2">
+                                                <button onclick="openModal('editCategoryModal2')"
+                                                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-md hover:bg-amber-100 transition border border-amber-100 text-sm font-medium">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg> Edit
+                                                </button>
+                                                <button onclick="openDeleteModal('UI/UX Design')"
+                                                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition border border-red-100 text-sm font-medium">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg> Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+
+                                <div class="px-6 py-4 border-t border-slate-200">
+                                    <div class="flex items-center justify-between text-sm text-slate-500">
+                                        <span>Showing 1 to 2 of 2 entries</span>
+                                        <div class="flex space-x-1">
+                                            <button
+                                                class="px-3 py-1 rounded bg-slate-100 text-slate-400 cursor-not-allowed">Previous</button>
+                                            <button class="px-3 py-1 rounded bg-primary text-white">1</button>
+                                            <button
+                                                class="px-3 py-1 rounded bg-slate-100 text-slate-400 cursor-not-allowed">Next</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="createCategoryModal"
+                        class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+                        <div
+                            class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
+                            <div class="flex justify-between items-center mb-5">
+                                <h3 class="text-xl font-bold text-slate-800">Create New Category</h3>
+                                <button onclick="closeModal('createCategoryModal')"
+                                    class="text-slate-400 hover:text-slate-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <form action="#" onsubmit="event.preventDefault(); closeModal('createCategoryModal');">
+                                <div class="mb-5">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Category Name</label>
+                                    <input type="text" name="name"
+                                        class="w-full border border-slate-300 rounded-lg shadow-sm focus:border-primary focus:ring focus:ring-primary/20 px-4 py-2.5 transition-all outline-none"
+                                        placeholder="Enter category name...">
+                                </div>
+                                <div class="flex justify-end space-x-3 pt-2 border-t border-slate-100">
+                                    <button type="button" onclick="closeModal('createCategoryModal')"
+                                        class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition font-medium">Cancel</button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryHover shadow-md shadow-blue-500/20 transition font-medium">Save
+                                        Category</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="editCategoryModal1"
+                        class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+                        <div
+                            class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
+                            <div class="flex justify-between items-center mb-5">
+                                <h3 class="text-xl font-bold text-slate-800">Edit Category</h3>
+                                <button onclick="closeModal('editCategoryModal1')"
+                                    class="text-slate-400 hover:text-slate-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <form action="#" onsubmit="event.preventDefault(); closeModal('editCategoryModal1');">
+                                <div class="mb-5">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Category Name</label>
+                                    <input type="text" name="name" value="Web Development"
+                                        class="w-full border border-slate-300 rounded-lg shadow-sm focus:border-primary focus:ring focus:ring-primary/20 px-4 py-2.5 transition-all outline-none">
+                                </div>
+                                <div class="flex justify-end space-x-3 pt-2 border-t border-slate-100">
+                                    <button type="button" onclick="closeModal('editCategoryModal1')"
+                                        class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition font-medium">Cancel</button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryHover shadow-md shadow-blue-500/20 transition font-medium">Update
+                                        Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="editCategoryModal2"
+                        class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+                        <div
+                            class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
+                            <div class="flex justify-between items-center mb-5">
+                                <h3 class="text-xl font-bold text-slate-800">Edit Category</h3>
+                                <button onclick="closeModal('editCategoryModal2')"
+                                    class="text-slate-400 hover:text-slate-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <form action="#" onsubmit="event.preventDefault(); closeModal('editCategoryModal2');">
+                                <div class="mb-5">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Category Name</label>
+                                    <input type="text" name="name" value="UI/UX Design"
+                                        class="w-full border border-slate-300 rounded-lg shadow-sm focus:border-primary focus:ring focus:ring-primary/20 px-4 py-2.5 transition-all outline-none">
+                                </div>
+                                <div class="flex justify-end space-x-3 pt-2 border-t border-slate-100">
+                                    <button type="button" onclick="closeModal('editCategoryModal2')"
+                                        class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition font-medium">Cancel</button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryHover shadow-md shadow-blue-500/20 transition font-medium">Update
+                                        Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="deleteConfirmModal"
+                        class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+                        <div
+                            class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100 text-center">
+                            <div
+                                class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="ti ti-alert-triangle text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Konfirmasi Hapus</h3>
+                            <p id="deleteModalMessage" class="text-slate-500 text-sm mb-6">Apakah anda yakin ingin
+                                menghapus data ini?</p>
+                            <div class="flex justify-center space-x-3">
+                                <button type="button" onclick="closeModal('deleteConfirmModal')"
+                                    class="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition font-medium w-full">Batal</button>
+                                <button type="button" onclick="closeModal('deleteConfirmModal')"
+                                    class="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md shadow-red-500/20 transition font-medium w-full">Ya,
+                                    Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Modal Logic
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        // Custom Delete Modal Logic for testing
+        function openDeleteModal(categoryName) {
+            document.getElementById('deleteModalMessage').innerHTML = `Apakah anda yakin ingin menghapus <strong>${categoryName}</strong>? Tindakan ini tidak dapat dibatalkan.`;
+            openModal('deleteConfirmModal');
+        }
+
+        // Sidebar Navigation & Dropdown
+        function openSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.remove('-translate-x-full', 'hidden');
+            sidebar.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function toggleDropdownAdminDashboard(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('[data-dropdown-menu]');
+
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.add('hidden', 'opacity-0');
+                }
+            });
+
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                setTimeout(() => dropdown.classList.remove('opacity-0'), 10);
+            } else {
+                dropdown.classList.add('opacity-0');
+                setTimeout(() => dropdown.classList.add('hidden'), 200);
+            }
+        }
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', function (e) {
+            const dropdowns = document.querySelectorAll('[data-dropdown-menu]');
+            const triggers = document.querySelectorAll('[data-dropdown-toggle]');
+            let clickedOnDropdown = false;
+
+            triggers.forEach(trigger => { if (trigger.contains(e.target)) clickedOnDropdown = true; });
+            dropdowns.forEach(dropdown => { if (dropdown.contains(e.target)) clickedOnDropdown = true; });
+
+            if (!clickedOnDropdown) {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('opacity-0');
+                    setTimeout(() => dropdown.classList.add('hidden'), 200);
+                });
+            }
+        });
+
+        // Accordion Toggle for Sidebar
+        document.querySelectorAll('[data-accordion-toggle]').forEach(button => {
+            button.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-accordion-toggle');
+                const content = document.getElementById(targetId);
+                const icon = this.querySelector('.accordion-icon');
+
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    if (icon) icon.classList.add('rotate-180');
+                } else {
+                    content.classList.add('hidden');
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

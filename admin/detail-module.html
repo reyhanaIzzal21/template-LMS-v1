@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd">
+
+    <script type="module" src="http://[::1]:5173/@vite/client" data-navigate-track="reload"></script>
+    <link rel="stylesheet" href="http://[::1]:5173/resources/css/app.css" data-navigate-track="reload" />
+    <script type="module" src="http://[::1]:5173/resources/js/app.js" data-navigate-track="reload"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Favicon icon-->
+    <link rel="shortcut icon" type="image/png" href="http://127.0.0.1:8000/assets/images/logos/favicon.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
+
+    <title>Admin Dashboard - LMS</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .note-editor {
+            border-radius: 0.5rem;
+        }
+
+        .note-editor .note-toolbar {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+    </style>
+    <script id="browser-logger-active">
+        (function () {
+            const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+            const logQueue = [];
+            let flushTimeout = null;
+
+            console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+
+            // Store original console methods
+            const originalConsole = {
+                log: console.log,
+                info: console.info,
+                error: console.error,
+                warn: console.warn,
+                table: console.table
+            };
+
+            // Helper to safely stringify values
+            function safeStringify(obj) {
+                const seen = new WeakSet();
+                return JSON.stringify(obj, (key, value) => {
+                    if (typeof value === 'object' && value !== null) {
+                        if (seen.has(value)) return '[Circular]';
+                        seen.add(value);
+                    }
+                    if (value instanceof Error) {
+                        return {
+                            name: value.name,
+                            message: value.message,
+                            stack: value.stack
+                        };
+                    }
+                    return value;
+                });
+            }
+
+            // Batch and send logs
+            function flushLogs() {
+                if (logQueue.length === 0) return;
+
+                const batch = logQueue.splice(0, logQueue.length);
+
+                fetch(ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ logs: batch })
+                }).catch(err => {
+                    // Silently fail to avoid infinite loops
+                    originalConsole.error('Failed to send logs:', err);
+                });
+            }
+
+            // Debounced flush (100ms)
+            function scheduleFlush() {
+                if (flushTimeout) clearTimeout(flushTimeout);
+                flushTimeout = setTimeout(flushLogs, 100);
+            }
+
+            // Intercept console methods
+            ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
+                console[method] = function (...args) {
+                    // Call original method
+                    originalConsole[method].apply(console, args);
+
+                    // Capture log data
+                    try {
+                        logQueue.push({
+                            type: method,
+                            timestamp: new Date().toISOString(),
+                            data: args.map(arg => {
+                                try {
+                                    return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                                } catch (e) {
+                                    return String(arg);
+                                }
+                            }),
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
+
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
+                };
+            });
+
+            // Global error handlers for uncaught errors
+            const originalOnError = window.onerror;
+            window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
+                try {
+                    logQueue.push({
+                        type: 'uncaught_error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: errorMsg,
+                            filename: url,
+                            lineno: lineNumber,
+                            colno: colNumber,
+                            error: error ? {
+                                name: error.name,
+                                message: error.message,
+                                stack: error.stack
+                            } : null
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Call original handler if it exists
+                if (originalOnError && typeof originalOnError === 'function') {
+                    return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+                }
+
+                // Let the error continue to propagate
+                return false;
+            }
+            window.addEventListener('error', (event) => {
+                try {
+                    logQueue.push({
+                        type: 'window_error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: event.message,
+                            filename: event.filename,
+                            lineno: event.lineno,
+                            colno: event.colno,
+                            error: event.error ? {
+                                name: event.error.name,
+                                message: event.error.message,
+                                stack: event.error.stack
+                            } : null
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Let the error continue to propagate
+                return false;
+            });
+            window.addEventListener('unhandledrejection', (event) => {
+                try {
+                    logQueue.push({
+                        type: 'error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: 'Unhandled Promise Rejection',
+                            reason: event.reason instanceof Error ? {
+                                name: event.reason.name,
+                                message: event.reason.message,
+                                stack: event.reason.stack
+                            } : event.reason
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Let the rejection continue to propagate
+                return false;
+            });
+
+            // Flush on page unload
+            window.addEventListener('beforeunload', () => {
+                if (logQueue.length > 0) {
+                    navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+                }
+            });
+        })();
+    </script>
+</head>
+
+<body class="bg-slate-50 font-sans antialiased">
+
+    <!-- Sidebar Backdrop for Mobile -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-[55] hidden xl:hidden"
+        onclick="closeSidebarAdminDashboard()"></div>
+
+    <!--start the project-->
+    <main>
+        <div id="main-wrapper" class="flex min-h-screen">
+            <aside id="application-sidebar-brand"
+                class="fixed top-0 start-0 h-screen z-60 w-[270px] bg-white border-r border-gray-200 shadow-lg transform -translate-x-full xl:translate-x-0 transition-transform duration-300 ease-in-out">
+
+                <!-- Close button for mobile -->
+                <div class="absolute top-3 end-3 xl:hidden">
+                    <button type="button" onclick="closeSidebarAdminDashboard()"
+                        class="w-8 h-8 inline-flex justify-center items-center rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors">
+                        <span class="sr-only">Close</span>
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Logo Section -->
+                <div class="p-5 border-b border-gray-100">
+                    <a href="../user/pages/home.html" class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                            <i class="ti ti-dashboard text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-lg text-gray-800">DASHBOARD</h2>
+                            <span class="text-xs text-gray-500">Admin Panel</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Scrollable Navigation -->
+                <div class="h-[calc(100vh-100px)] overflow-y-auto px-4 py-6">
+                    <nav class="w-full flex flex-col">
+                        <ul id="sidebarnav" class="text-gray-700 text-sm space-y-1">
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2">
+                                <span>HOME</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 bg-blue-500 text-white shadow-md shadow-blue-500/30"
+                                    href="http://127.0.0.1:8000/admin/dashboard">
+                                    <i class="ti ti-layout-dashboard text-xl"></i>
+                                    <span class="font-medium">Dashboard</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>MAIN</span>
+                            </li>
+
+                            <!-- Courses Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="courses-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-book text-xl"></i>
+                                        <span class="font-medium">Courses</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="courses-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./coourse-category.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./course.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Course List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- Event Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="event-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-calendar-event text-xl"></i>
+                                        <span class="font-medium">Event</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="event-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Event</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-apps text-xl"></i>
+                                    <span class="font-medium">Course application</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-coins text-xl"></i>
+                                    <span class="font-medium">Points exchange</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>LMS SYSTEM</span>
+                            </li>
+
+                            <!-- Programs Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="programs-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-school text-xl"></i>
+                                        <span class="font-medium">Programs</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="programs-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="http://127.0.0.1:8000/admin/program-categories">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./program.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Program List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- schedule -->
+                            <li>
+                                <button type="button" data-accordion-toggle="schedule-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-books text-xl"></i>
+                                        <span class="font-medium">Pengaturan Akademik</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="schedule-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./tahun-ajaran.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Tahun Ajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./mapel.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Mata Palajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./room.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Ruangan</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./sesi.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Sesi</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="jadwal.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Jadwal Kelas</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="./bank-task.html">
+                                    <i class="ti ti-list-check text-xl"></i>
+                                    <span class="font-medium">Task Bank</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-user-star text-xl"></i>
+                                    <span class="font-medium">Teacher</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users text-xl"></i>
+                                    <span class="font-medium">Tutoring User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-trophy text-xl"></i>
+                                    <span class="font-medium">Student ranking</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <!-- Finance Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="finance-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-wallet text-xl"></i>
+                                        <span class="font-medium">Finance</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="finance-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./finance-over.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Financial Overview</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./income-analyst.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Income Analysis</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./transaction-history.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Transaction History</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./student-access.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Student Access</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./report.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Reports</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>CONTENT</span>
+                            </li>
+
+                            <!-- Blog Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="blog-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-article text-xl"></i>
+                                        <span class="font-medium">Blog</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="blog-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Blog list</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>PROFILE</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users-group text-xl"></i>
+                                    <span class="font-medium">User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-settings text-xl"></i>
+                                    <span class="font-medium">Profile</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Page Wrapper with responsive margin -->
+            <div class="w-full xl:ml-[270px] flex flex-col min-h-screen transition-all duration-300">
+                <!-- HEADER -->
+                <div class="shrink-0">
+                    <header
+                        class="sticky top-0 w-full bg-white/80 backdrop-blur-md z-40 border-b border-gray-200/60 shadow-sm">
+                        <nav class="flex items-center justify-between px-4 lg:px-6 py-3" aria-label="Global">
+                            <!-- Left Side -->
+                            <div class="flex items-center gap-4">
+                                <!-- Mobile Menu Toggle -->
+                                <button type="button" onclick="openSidebarAdminDashboard()"
+                                    class="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                                    <i class="ti ti-menu-2 text-xl text-gray-600"></i>
+                                </button>
+                            </div>
+
+                            <!-- Right Side - User Profile -->
+                            <div class="flex items-center gap-3" data-dropdown-toggle
+                                onclick="toggleDropdownAdminDashboard('profile-dropdown')">
+                                <div class="hidden sm:block text-right">
+                                    <p class="text-sm font-semibold text-gray-800">admin</p>
+                                    <span
+                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                        admin
+                                    </span>
+                                </div>
+
+                                <!-- Profile Dropdown -->
+                                <div class="relative">
+                                    <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
+                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+
+                                    <div id="profile-dropdown" data-dropdown-menu
+                                        class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
+                                        <div class="px-4 py-3 border-b border-gray-100 sm:hidden">
+                                            <p class="text-sm font-semibold text-gray-800">admin</p>
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 mt-1">
+                                                admin
+                                            </span>
+                                        </div>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-user text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">My Profile</span>
+                                        </a>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-settings text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">Settings</span>
+                                        </a>
+                                        <div class="border-t border-gray-100 my-2"></div>
+                                        <div class="px-4 py-2">
+                                            <form action="http://127.0.0.1:8000/logout" method="POST">
+                                                <input type="hidden" name="_token"
+                                                    value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd" autocomplete="off">
+                                                <button type="submit"
+                                                    class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors duration-200">
+                                                    <i class="ti ti-logout text-lg"></i>
+                                                    <span>Logout</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </header>
+                </div>
+
+                <!-- CONTENT -->
+                <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+                    <div class="container mx-auto px-4 py-8 max-w-7xl" x-data="{ activeTab: 'materi' }">
+
+                        <div class="flex items-center gap-2 text-sm text-slate-500 mb-6">
+                            <a href="http://127.0.0.1:8000/admin/courses" class="hover:text-[#5d87ff]">Courses</a>
+                            <span>/</span>
+                            <a href="#" class="hover:text-[#5d87ff]">Modul Course</a>
+                            <span>/</span>
+                            <span class="text-slate-800 font-medium">Detail Modul</span>
+                        </div>
+
+                        <div
+                            class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8 relative overflow-hidden">
+                            <div
+                                class="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -mr-16 -mt-16 opacity-50 pointer-events-none">
+                            </div>
+
+                            <div
+                                class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                <div>
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <span
+                                            class="bg-blue-100 text-[#5d87ff] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                            Step 2
+                                        </span>
+                                        <span class="text-slate-400 text-sm">Last updated: 18 minutes ago</span>
+                                    </div>
+                                    <h1 class="text-3xl font-bold text-slate-800 mb-1">Aljabar Dasar</h1>
+                                    <p class="text-slate-500 text-lg">Variabel dan Konstanta</p>
+                                </div>
+
+                                <div class="flex gap-4">
+                                    <div class="text-center px-4 py-2 bg-slate-50 rounded-lg border border-slate-100">
+                                        <span class="block text-2xl font-bold text-slate-800">1</span>
+                                        <span class="text-xs text-slate-500 uppercase font-semibold">Materi</span>
+                                    </div>
+                                    <div class="text-center px-4 py-2 bg-slate-50 rounded-lg border border-slate-100">
+                                        <span class="block text-2xl font-bold text-slate-800">0</span>
+                                        <span class="text-xs text-slate-500 uppercase font-semibold">Tugas</span>
+                                    </div>
+                                    <div class="text-center px-4 py-2 bg-slate-50 rounded-lg border border-slate-100">
+                                        <span class="block text-2xl font-bold text-slate-800">0</span>
+                                        <span class="text-xs text-slate-500 uppercase font-semibold">Quiz</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 sticky top-4 z-30">
+
+                            <div
+                                class="bg-white/80 backdrop-blur-md p-1.5 rounded-xl border border-slate-200 shadow-sm flex gap-1">
+                                <button @click="activeTab = 'materi'"
+                                    :class="activeTab === 'materi' ? 'bg-[#5d87ff] text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'"
+                                    class="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+                                    Materi
+                                </button>
+                                <button @click="activeTab = 'tugas'"
+                                    :class="activeTab === 'tugas' ? 'bg-[#5d87ff] text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'"
+                                    class="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+                                    Tugas
+                                </button>
+                                <button @click="activeTab = 'quiz'"
+                                    :class="activeTab === 'quiz' ? 'bg-[#5d87ff] text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'"
+                                    class="px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+                                    Quiz
+                                </button>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <button onclick="window.history.back()"
+                                    class="px-4 py-2.5 bg-white border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50 transition text-sm font-medium flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                    </svg>
+                                    Kembali
+                                </button>
+
+                                <div x-show="activeTab === 'materi'" x-cloak class="flex gap-2">
+                                    <a href="http://127.0.0.1:8000/admin/modules/019e0c50-2038-70bc-a76a-ed2e9d5babe1/sub-modules/create"
+                                        class="px-5 py-2.5 bg-[#5d87ff] hover:bg-[#4a70e0] text-white rounded-lg shadow-lg shadow-blue-500/30 transition text-sm font-medium flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        Tambah Materi
+                                    </a>
+                                </div>
+
+                                <div x-show="activeTab === 'tugas'" x-cloak class="flex gap-2">
+                                    <button type="button" onclick="openModuleChoiceModal()"
+                                        class="px-5 py-2.5 bg-[#5d87ff] hover:bg-[#4a70e0] text-white rounded-lg shadow-lg shadow-blue-500/30 transition text-sm font-medium flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Tambah Tugas
+                                    </button>
+                                </div>
+
+                                <div x-show="activeTab === 'quiz'" x-cloak class="flex gap-2">
+                                    <button
+                                        class="px-4 py-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition text-sm font-medium flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        Pengaturan Quiz
+                                    </button>
+                                    <button
+                                        class="px-5 py-2.5 bg-[#5d87ff] hover:bg-[#4a70e0] text-white rounded-lg shadow-lg shadow-blue-500/30 transition text-sm font-medium flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        Tambah Quiz
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 min-h-[400px]">
+
+                            <div x-show="activeTab === 'materi'" x-cloak class="divide-y divide-slate-100">
+
+
+                                <div class="p-5 flex items-center justify-between hover:bg-slate-50 transition group">
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#5d87ff] font-bold text-sm">
+                                            1
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-slate-800 group-hover:text-[#5d87ff] transition">
+                                                Variabel dan Konstanta</h4>
+                                            <p class="text-xs text-slate-500">ersamaan Linear</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+
+                                        <form method="POST"
+                                            action="http://127.0.0.1:8000/admin/sub-modules/019e0c50-c576-7119-9ed3-ae1984732a73/move-up">
+                                            <input type="hidden" name="_token"
+                                                value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd" autocomplete="off">
+                                            <input type="hidden" name="_method" value="PATCH"> <button type="submit"
+                                                class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition"
+                                                title="Move Up">
+                                                <i class="ti ti-arrow-up text-lg"></i>
+                                            </button>
+                                        </form>
+
+
+                                        <form method="POST"
+                                            action="http://127.0.0.1:8000/admin/sub-modules/019e0c50-c576-7119-9ed3-ae1984732a73/move-down">
+                                            <input type="hidden" name="_token"
+                                                value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd" autocomplete="off">
+                                            <input type="hidden" name="_method" value="PATCH"> <button type="submit"
+                                                class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition"
+                                                title="Move Down">
+                                                <i class="ti ti-arrow-down text-lg"></i>
+                                            </button>
+                                        </form>
+
+
+                                        <a href="http://127.0.0.1:8000/admin/sub-modules/019e0c50-c576-7119-9ed3-ae1984732a73/show"
+                                            class="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition"
+                                            title="Lihat">
+                                            <i class="ti ti-eye text-lg"></i>
+                                        </a>
+
+
+                                        <a href="http://127.0.0.1:8000/admin/sub-modules/019e0c50-c576-7119-9ed3-ae1984732a73/edit"
+                                            class="p-2 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition"
+                                            title="Edit">
+                                            <i class="ti ti-edit text-lg"></i>
+                                        </a>
+
+
+                                        <form
+                                            action="http://127.0.0.1:8000/admin/sub-modules/019e0c50-c576-7119-9ed3-ae1984732a73"
+                                            method="POST" onsubmit="return confirm('Hapus materi ini?')">
+                                            <input type="hidden" name="_token"
+                                                value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd" autocomplete="off">
+                                            <input type="hidden" name="_method" value="DELETE"> <button type="submit"
+                                                class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition"
+                                                title="Hapus">
+                                                <i class="ti ti-trash text-lg"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div x-show="activeTab === 'quiz'" x-cloak class="p-8 text-center">
+                                <div
+                                    class="bg-white border border-slate-200 rounded-xl p-6 text-left hover:shadow-md transition cursor-pointer group mb-4">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex gap-4">
+                                            <div
+                                                class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h3
+                                                    class="font-bold text-lg text-slate-800 group-hover:text-indigo-600 transition">
+                                                    Post-Test Module 1</h3>
+                                                <p class="text-slate-500 text-sm mt-1">10 Soal • Durasi 30 Menit •
+                                                    Passing Grade 70</p>
+                                            </div>
+                                        </div>
+                                        <span
+                                            class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Published</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div x-show="activeTab === 'tugas'" x-cloak class="space-y-4">
+
+
+                                <div id="module-task-list" class="divide-y divide-slate-100">
+                                    <div class="group flex flex-col sm:flex-row sm:items-center justify-between p-5 hover:bg-slate-50 transition duration-200"
+                                        data-task-id="019dd7a5-78db-7045-b914-197e7f11fa5e">
+                                        <div class="flex items-start gap-4 mb-3 sm:mb-0">
+                                            <div
+                                                class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0 mt-1">
+                                                <i class="ph-fill ph-file-text text-xl"></i>
+                                            </div>
+
+                                            <div>
+                                                <h4
+                                                    class="text-base font-bold text-slate-800 group-hover:text-primary-600 transition mb-1 leading-snug">
+                                                    Penalaran Umum (Esai Analitis)
+                                                </h4>
+
+                                                <div
+                                                    class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                                                    <span class="flex items-center gap-1" title="Pembuat">
+                                                        <img src="https://ui-avatars.com/api/?name=admin&background=random"
+                                                            class="w-4 h-4 rounded-full" alt="Guru">
+                                                        <span>admin</span>
+                                                    </span>
+                                                    <span class="text-slate-300">•</span>
+                                                    <span title="Tanggal Dibuat">29 Apr 2026</span>
+                                                    <span class="text-slate-300">•</span>
+                                                    <span class="text-orange-500" title="Deadline">
+                                                        <i class="ph-bold ph-clock"></i> 13 May 2026
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            class="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity self-end sm:self-center">
+
+                                            <a href="#"
+                                                class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition"
+                                                title="Lihat Detail">
+                                                <i class="ph-bold ph-eye text-lg"></i>
+                                            </a>
+
+                                            <a href="http://127.0.0.1:8000/admin/modules/019e0c50-2038-70bc-a76a-ed2e9d5babe1/tasks/019dd7a5-78db-7045-b914-197e7f11fa5e/edit"
+                                                class="p-2 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition"
+                                                title="Edit">
+                                                <i class="ph-bold ph-pencil-simple text-lg"></i>
+                                            </a>
+
+                                            <button type="button"
+                                                onclick="detachTaskFromModule('019e0c50-2038-70bc-a76a-ed2e9d5babe1', '019dd7a5-78db-7045-b914-197e7f11fa5e')"
+                                                class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                                                title="Hapus dari Module">
+                                                <i class="ph-bold ph-trash text-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div id="module-choice-modal" class="fixed inset-0 z-[1000] overflow-y-auto hidden"
+                                    role="dialog" aria-modal="true">
+                                    <div class="fixed inset-0 bg-slate-900/50 transition-opacity"
+                                        onclick="closeModuleChoiceModal()"></div>
+                                    <div class="flex min-h-full items-center justify-center p-4">
+                                        <div
+                                            class="relative transform overflow-hidden rounded-2xl bg-white shadow-xl transition-all w-full max-w-md">
+                                            <div
+                                                class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                                                <h3 class="text-lg font-bold text-slate-900">Tambah Tugas ke Module</h3>
+                                                <button type="button" onclick="closeModuleChoiceModal()"
+                                                    class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
+                                                    <i class="ph-bold ph-x text-lg"></i>
+                                                </button>
+                                            </div>
+                                            <div class="p-6 space-y-4">
+                                                <p class="text-sm text-slate-600 text-center mb-4">Pilih cara
+                                                    menambahkan tugas:</p>
+
+
+                                                <button type="button" onclick="openModuleBankPickerModal()"
+                                                    class="w-full flex items-center gap-4 p-4 bg-slate-50 hover:bg-primary-50 border-2 border-slate-200 hover:border-primary-400 rounded-xl transition group">
+                                                    <div
+                                                        class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+                                                        <i class="ph-bold ph-stack"></i>
+                                                    </div>
+                                                    <div class="text-left">
+                                                        <p
+                                                            class="font-bold text-slate-800 group-hover:text-primary-700">
+                                                            Pilih dari Bank Tugas</p>
+                                                        <p class="text-xs text-slate-500">Gunakan tugas dari semua guru
+                                                        </p>
+                                                    </div>
+                                                    <i class="ph-bold ph-caret-right text-slate-400 ml-auto"></i>
+                                                </button>
+
+
+                                                <a href="http://127.0.0.1:8000/admin/modules/019e0c50-2038-70bc-a76a-ed2e9d5babe1/tasks/create"
+                                                    class="w-full flex items-center gap-4 p-4 bg-slate-50 hover:bg-green-50 border-2 border-slate-200 hover:border-green-400 rounded-xl transition group">
+                                                    <div
+                                                        class="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+                                                        <i class="ph-bold ph-plus-circle"></i>
+                                                    </div>
+                                                    <div class="text-left">
+                                                        <p class="font-bold text-slate-800 group-hover:text-green-700">
+                                                            Buat Tugas Baru</p>
+                                                        <p class="text-xs text-slate-500">Buat tugas baru dengan form
+                                                            lengkap</p>
+                                                    </div>
+                                                    <i class="ph-bold ph-caret-right text-slate-400 ml-auto"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div id="module-bank-picker-modal" class="fixed inset-0 z-[1001] overflow-y-auto hidden"
+                                    role="dialog" aria-modal="true">
+                                    <div class="fixed inset-0 bg-slate-900/50 transition-opacity"
+                                        onclick="closeModuleBankPickerModal()"></div>
+                                    <div class="flex min-h-full items-center justify-center p-4">
+                                        <div
+                                            class="relative transform overflow-hidden rounded-2xl bg-white shadow-xl transition-all w-full max-w-2xl">
+                                            <div
+                                                class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                                                <div>
+                                                    <h3 class="text-lg font-bold text-slate-900">Pilih dari Bank Tugas
+                                                    </h3>
+                                                    <p class="text-xs text-slate-500">Centang tugas yang ingin
+                                                        ditambahkan (dari semua guru)</p>
+                                                </div>
+                                                <button type="button" onclick="closeModuleBankPickerModal()"
+                                                    class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
+                                                    <i class="ph-bold ph-x text-lg"></i>
+                                                </button>
+                                            </div>
+                                            <div class="p-6 max-h-96 overflow-y-auto">
+                                                <div id="module-available-tasks-list" class="space-y-2">
+                                                    <div class="text-center py-8">
+                                                        <i
+                                                            class="ph-bold ph-spinner animate-spin text-3xl text-slate-400"></i>
+                                                        <p class="text-sm text-slate-500 mt-2">Memuat tugas...</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
+                                                <button type="button" onclick="closeModuleBankPickerModal()"
+                                                    class="px-4 py-2 text-slate-700 font-bold rounded-xl hover:bg-slate-100 transition">
+                                                    Batal
+                                                </button>
+                                                <button type="button" onclick="attachSelectedTasksToModule()"
+                                                    class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition">
+                                                    <i class="ph-bold ph-plus mr-1"></i> Tambahkan Terpilih
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <!-- Overlay -->
+                    <div id="modal-delete"
+                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        <!-- Modal Box -->
+                        <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+                            <!-- Icon -->
+                            <div
+                                class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 class="mb-2 text-lg font-bold text-slate-800">
+                                Hapus Data?
+                            </h3>
+
+                            <!-- Description -->
+                            <p id="deleteModalText" class="mb-6 text-sm text-slate-500">
+                                Apakah anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex justify-center gap-3">
+                                <button type="button" onclick="closeDeleteModal()"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50">
+                                    Batal
+                                </button>
+
+                                <form id="deleteForm" method="POST" class="w-full">
+                                    <input type="hidden" name="_token" value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd"
+                                        autocomplete="off"> <input type="hidden" name="_method" value="DELETE"> <button
+                                        type="submit"
+                                        class="w-full rounded-lg bg-red-600 px-4 py-2 font-medium text-white shadow-md shadow-red-500/20 transition hover:bg-red-700">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openDeleteModal(actionUrl, description = null) {
+                            const modal = document.getElementById('modal-delete');
+                            const form = document.getElementById('deleteForm');
+                            const text = document.getElementById('deleteModalText');
+
+                            form.action = actionUrl;
+
+                            if (description) {
+                                text.innerHTML = description;
+                            }
+
+                            modal.classList.remove('hidden');
+                            modal.classList.add('flex');
+                        }
+
+                        function closeDeleteModal() {
+                            const modal = document.getElementById('modal-delete');
+
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                        }
+                    </script>
+
+
+                    <!-- Overlay -->
+                    <div id="modal-confirm"
+                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        <!-- Modal Box -->
+                        <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+                            <!-- Icon -->
+                            <div
+                                class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 id="confirmModalTitle" class="mb-2 text-lg font-bold text-slate-800">
+                                Konfirmasi
+                            </h3>
+
+                            <!-- Description -->
+                            <p id="confirmModalText" class="mb-6 text-sm text-slate-500">
+                                Apakah anda yakin?
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex justify-center gap-3">
+                                <button type="button" onclick="closeConfirmModal()"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50">
+                                    Batal
+                                </button>
+
+                                <form id="confirmForm" method="POST" class="w-full">
+                                    <input type="hidden" name="_token" value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd"
+                                        autocomplete="off"> <input type="hidden" name="_method" value="PATCH">
+                                    <!-- Both fields for compatibility -->
+                                    <input type="hidden" name="is_ready" id="confirmIsReady">
+                                    <input type="hidden" name="is_active" id="confirmIsActive">
+
+                                    <button type="submit" id="confirmButton"
+                                        class="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700">
+                                        Ya, Lanjutkan
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openConfirmModal(actionUrl, title, description, statusValue, buttonText = 'Ya, Lanjutkan',
+                            buttonColorClass = 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20') {
+                            const modal = document.getElementById('modal-confirm');
+                            const form = document.getElementById('confirmForm');
+                            const titleEl = document.getElementById('confirmModalTitle');
+                            const text = document.getElementById('confirmModalText');
+                            const isReadyInput = document.getElementById('confirmIsReady');
+                            const isActiveInput = document.getElementById('confirmIsActive');
+                            const confirmBtn = document.getElementById('confirmButton');
+
+                            form.action = actionUrl;
+                            titleEl.innerHTML = title;
+                            text.innerHTML = description;
+
+                            // Set both values for compatibility with courses (is_ready) and programs (is_active)
+                            isReadyInput.value = statusValue;
+                            isActiveInput.value = statusValue;
+
+                            confirmBtn.innerHTML = buttonText;
+
+                            // Reset classes
+                            confirmBtn.className =
+                                `w-full rounded-lg px-4 py-2 font-medium text-white shadow-md transition ${buttonColorClass}`;
+
+                            modal.classList.remove('hidden');
+                            modal.classList.add('flex');
+                        }
+
+                        function closeConfirmModal() {
+                            const modal = document.getElementById('modal-confirm');
+
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                        }
+                    </script>
+                </main>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
+
+    <script src="http://127.0.0.1:8000/assets/libs/iconify-icon/dist/iconify-icon.min.js"></script>
+
+    <script src="http://127.0.0.1:8000/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+    <script src="http://127.0.0.1:8000/assets/js/dashboard.js"></script>
+
+    <!-- Custom Dashboard Navigation Script -->
+    <script>
+        // Mobile Sidebar Toggle
+        function openSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.remove('-translate-x-full', 'hidden');
+            sidebar.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Dropdown Toggle
+        function toggleDropdownAdminDashboard(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('[data-dropdown-menu]');
+
+            // Close all other dropdowns
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.add('hidden', 'opacity-0');
+                }
+            });
+
+            // Toggle current dropdown
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                setTimeout(() => dropdown.classList.remove('opacity-0'), 10);
+            } else {
+                dropdown.classList.add('opacity-0');
+                setTimeout(() => dropdown.classList.add('hidden'), 200);
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function (e) {
+            const dropdowns = document.querySelectorAll('[data-dropdown-menu]');
+            const triggers = document.querySelectorAll('[data-dropdown-toggle]');
+
+            let clickedOnDropdown = false;
+            triggers.forEach(trigger => {
+                if (trigger.contains(e.target)) clickedOnDropdown = true;
+            });
+            dropdowns.forEach(dropdown => {
+                if (dropdown.contains(e.target)) clickedOnDropdown = true;
+            });
+
+            if (!clickedOnDropdown) {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('opacity-0');
+                    setTimeout(() => dropdown.classList.add('hidden'), 200);
+                });
+            }
+        });
+
+        // Accordion Toggle for Sidebar
+        document.querySelectorAll('[data-accordion-toggle]').forEach(button => {
+            button.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-accordion-toggle');
+                const content = document.getElementById(targetId);
+                const icon = this.querySelector('.accordion-icon');
+
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    if (icon) icon.classList.add('rotate-180');
+                } else {
+                    content.classList.add('hidden');
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            });
+        });
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script>
+        const moduleId = '019e0c50-2038-70bc-a76a-ed2e9d5babe1';
+
+        // Choice Modal functions
+        function openModuleChoiceModal() {
+            document.getElementById('module-choice-modal').classList.remove('hidden');
+        }
+
+        function closeModuleChoiceModal() {
+            document.getElementById('module-choice-modal').classList.add('hidden');
+        }
+
+        // Bank Picker Modal functions
+        function openModuleBankPickerModal() {
+            closeModuleChoiceModal();
+            document.getElementById('module-bank-picker-modal').classList.remove('hidden');
+            loadModuleAvailableTasks();
+        }
+
+        function closeModuleBankPickerModal() {
+            document.getElementById('module-bank-picker-modal').classList.add('hidden');
+        }
+
+        function loadModuleAvailableTasks() {
+            const listEl = document.getElementById('module-available-tasks-list');
+            if (!listEl) return;
+
+            listEl.innerHTML =
+                '<div class="text-center py-8"><i class="ph-bold ph-spinner animate-spin text-3xl text-slate-400"></i><p class="text-sm text-slate-500 mt-2">Memuat tugas...</p></div>';
+
+            fetch(`/admin/modules/${moduleId}/tasks/available`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.tasks && data.tasks.length > 0) {
+                        listEl.innerHTML = data.tasks.map(task => `
+                        <label class="flex items-center gap-3 p-4 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer transition border border-slate-200 hover:border-primary-300">
+                            <input type="checkbox" name="module_task_ids[]" value="${task.id}" class="w-5 h-5 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
+                            <div class="flex-1">
+                                <p class="font-bold text-slate-800">${task.title}</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Oleh: ${task.teacher}</p>
+                                <p class="text-xs text-slate-400 mt-0.5">${task.description}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-bold text-primary-600">Skor: ${task.max_score}</span>
+                                ${task.due_date ? `<p class="text-xs text-orange-500">${task.due_date}</p>` : ''}
+                            </div>
+                        </label>
+                    `).join('');
+                    } else {
+                        listEl.innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-3xl mb-4">
+                                <i class="ph-bold ph-note-blank"></i>
+                            </div>
+                            <p class="font-bold text-slate-700">Tidak ada tugas tersedia</p>
+                            <p class="text-sm text-slate-500 mb-4">Semua tugas sudah ditambahkan atau belum ada tugas di bank.</p>
+                            <a href="http://127.0.0.1:8000/admin/modules/019e0c50-2038-70bc-a76a-ed2e9d5babe1/tasks/create" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition">
+                                <i class="ph-bold ph-plus"></i> Buat Tugas Baru
+                            </a>
+                        </div>
+                    `;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading tasks:', err);
+                    listEl.innerHTML =
+                        '<p class="text-center text-red-500 py-8">Gagal memuat data. Silakan coba lagi.</p>';
+                });
+        }
+
+        function attachSelectedTasksToModule() {
+            const checkboxes = document.querySelectorAll('input[name="module_task_ids[]"]:checked');
+            const taskIds = Array.from(checkboxes).map(cb => cb.value);
+
+            if (taskIds.length === 0) {
+                alert('Pilih minimal satu tugas');
+                return;
+            }
+
+            fetch(`/admin/modules/${moduleId}/tasks`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    task_ids: taskIds
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Gagal menambahkan tugas');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Terjadi kesalahan');
+                });
+        }
+
+        function detachTaskFromModule(modId, taskId) {
+            if (!confirm('Hapus tugas ini dari module?')) return;
+
+            fetch(`/admin/modules/${modId}/tasks/${taskId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Gagal menghapus tugas');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Terjadi kesalahan');
+                });
+        }
+
+        // Close modals on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeModuleChoiceModal();
+                closeModuleBankPickerModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

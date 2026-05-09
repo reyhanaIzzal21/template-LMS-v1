@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd">
+
+    <script type="module" src="http://[::1]:5173/@vite/client" data-navigate-track="reload"></script>
+    <link rel="stylesheet" href="http://[::1]:5173/resources/css/app.css" data-navigate-track="reload" />
+    <script type="module" src="http://[::1]:5173/resources/js/app.js" data-navigate-track="reload"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Favicon icon-->
+    <link rel="shortcut icon" type="image/png" href="http://127.0.0.1:8000/assets/images/logos/favicon.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
+
+    <title>Manajemen Sesi - EduSmart Admin - LMS</title>
+    <script id="browser-logger-active">
+        (function () {
+            const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+            const logQueue = [];
+            let flushTimeout = null;
+
+            console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+
+            // Store original console methods
+            const originalConsole = {
+                log: console.log,
+                info: console.info,
+                error: console.error,
+                warn: console.warn,
+                table: console.table
+            };
+
+            // Helper to safely stringify values
+            function safeStringify(obj) {
+                const seen = new WeakSet();
+                return JSON.stringify(obj, (key, value) => {
+                    if (typeof value === 'object' && value !== null) {
+                        if (seen.has(value)) return '[Circular]';
+                        seen.add(value);
+                    }
+                    if (value instanceof Error) {
+                        return {
+                            name: value.name,
+                            message: value.message,
+                            stack: value.stack
+                        };
+                    }
+                    return value;
+                });
+            }
+
+            // Batch and send logs
+            function flushLogs() {
+                if (logQueue.length === 0) return;
+
+                const batch = logQueue.splice(0, logQueue.length);
+
+                fetch(ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ logs: batch })
+                }).catch(err => {
+                    // Silently fail to avoid infinite loops
+                    originalConsole.error('Failed to send logs:', err);
+                });
+            }
+
+            // Debounced flush (100ms)
+            function scheduleFlush() {
+                if (flushTimeout) clearTimeout(flushTimeout);
+                flushTimeout = setTimeout(flushLogs, 100);
+            }
+
+            // Intercept console methods
+            ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
+                console[method] = function (...args) {
+                    // Call original method
+                    originalConsole[method].apply(console, args);
+
+                    // Capture log data
+                    try {
+                        logQueue.push({
+                            type: method,
+                            timestamp: new Date().toISOString(),
+                            data: args.map(arg => {
+                                try {
+                                    return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                                } catch (e) {
+                                    return String(arg);
+                                }
+                            }),
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
+
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
+                };
+            });
+
+            // Global error handlers for uncaught errors
+            const originalOnError = window.onerror;
+            window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
+                try {
+                    logQueue.push({
+                        type: 'uncaught_error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: errorMsg,
+                            filename: url,
+                            lineno: lineNumber,
+                            colno: colNumber,
+                            error: error ? {
+                                name: error.name,
+                                message: error.message,
+                                stack: error.stack
+                            } : null
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Call original handler if it exists
+                if (originalOnError && typeof originalOnError === 'function') {
+                    return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+                }
+
+                // Let the error continue to propagate
+                return false;
+            }
+            window.addEventListener('error', (event) => {
+                try {
+                    logQueue.push({
+                        type: 'window_error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: event.message,
+                            filename: event.filename,
+                            lineno: event.lineno,
+                            colno: event.colno,
+                            error: event.error ? {
+                                name: event.error.name,
+                                message: event.error.message,
+                                stack: event.error.stack
+                            } : null
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Let the error continue to propagate
+                return false;
+            });
+            window.addEventListener('unhandledrejection', (event) => {
+                try {
+                    logQueue.push({
+                        type: 'error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: 'Unhandled Promise Rejection',
+                            reason: event.reason instanceof Error ? {
+                                name: event.reason.name,
+                                message: event.reason.message,
+                                stack: event.reason.stack
+                            } : event.reason
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Let the rejection continue to propagate
+                return false;
+            });
+
+            // Flush on page unload
+            window.addEventListener('beforeunload', () => {
+                if (logQueue.length > 0) {
+                    navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+                }
+            });
+        })();
+    </script>
+</head>
+
+<body class="bg-slate-50 font-sans antialiased">
+
+    <!-- Sidebar Backdrop for Mobile -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-[55] hidden xl:hidden"
+        onclick="closeSidebarAdminDashboard()"></div>
+
+    <!--start the project-->
+    <main>
+        <div id="main-wrapper" class="flex min-h-screen">
+            <aside id="application-sidebar-brand"
+                class="fixed top-0 start-0 h-screen z-60 w-[270px] bg-white border-r border-gray-200 shadow-lg transform -translate-x-full xl:translate-x-0 transition-transform duration-300 ease-in-out">
+
+                <!-- Close button for mobile -->
+                <div class="absolute top-3 end-3 xl:hidden">
+                    <button type="button" onclick="closeSidebarAdminDashboard()"
+                        class="w-8 h-8 inline-flex justify-center items-center rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors">
+                        <span class="sr-only">Close</span>
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Logo Section -->
+                <div class="p-5 border-b border-gray-100">
+                    <a href="../user/pages/home.html" class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                            <i class="ti ti-dashboard text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-lg text-gray-800">DASHBOARD</h2>
+                            <span class="text-xs text-gray-500">Admin Panel</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Scrollable Navigation -->
+                <div class="h-[calc(100vh-100px)] overflow-y-auto px-4 py-6">
+                    <nav class="w-full flex flex-col">
+                        <ul id="sidebarnav" class="text-gray-700 text-sm space-y-1">
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2">
+                                <span>HOME</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 bg-blue-500 text-white shadow-md shadow-blue-500/30"
+                                    href="http://127.0.0.1:8000/admin/dashboard">
+                                    <i class="ti ti-layout-dashboard text-xl"></i>
+                                    <span class="font-medium">Dashboard</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>MAIN</span>
+                            </li>
+
+                            <!-- Courses Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="courses-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-book text-xl"></i>
+                                        <span class="font-medium">Courses</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="courses-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./coourse-category.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./course.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Course List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- Event Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="event-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-calendar-event text-xl"></i>
+                                        <span class="font-medium">Event</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="event-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Event</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-apps text-xl"></i>
+                                    <span class="font-medium">Course application</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-coins text-xl"></i>
+                                    <span class="font-medium">Points exchange</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>LMS SYSTEM</span>
+                            </li>
+
+                            <!-- Programs Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="programs-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-school text-xl"></i>
+                                        <span class="font-medium">Programs</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="programs-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="http://127.0.0.1:8000/admin/program-categories">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./program.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Program List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- schedule -->
+                            <li>
+                                <button type="button" data-accordion-toggle="schedule-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-books text-xl"></i>
+                                        <span class="font-medium">Pengaturan Akademik</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="schedule-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./tahun-ajaran.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Tahun Ajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./mapel.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Mata Palajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./room.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Ruangan</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./sesi.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Sesi</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="jadwal.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Jadwal Kelas</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="./bank-task.html">
+                                    <i class="ti ti-list-check text-xl"></i>
+                                    <span class="font-medium">Task Bank</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-user-star text-xl"></i>
+                                    <span class="font-medium">Teacher</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users text-xl"></i>
+                                    <span class="font-medium">Tutoring User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-trophy text-xl"></i>
+                                    <span class="font-medium">Student ranking</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <!-- Finance Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="finance-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-wallet text-xl"></i>
+                                        <span class="font-medium">Finance</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="finance-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./finance-over.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Financial Overview</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./income-analyst.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Income Analysis</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./transaction-history.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Transaction History</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./student-access.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Student Access</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./report.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Reports</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>CONTENT</span>
+                            </li>
+
+                            <!-- Blog Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="blog-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-article text-xl"></i>
+                                        <span class="font-medium">Blog</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="blog-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Blog list</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>PROFILE</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users-group text-xl"></i>
+                                    <span class="font-medium">User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-settings text-xl"></i>
+                                    <span class="font-medium">Profile</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Page Wrapper with responsive margin -->
+            <div class="w-full xl:ml-[270px] flex flex-col min-h-screen transition-all duration-300">
+                <!-- HEADER -->
+                <div class="shrink-0">
+                    <header
+                        class="sticky top-0 w-full bg-white/80 backdrop-blur-md z-40 border-b border-gray-200/60 shadow-sm">
+                        <nav class="flex items-center justify-between px-4 lg:px-6 py-3" aria-label="Global">
+                            <!-- Left Side -->
+                            <div class="flex items-center gap-4">
+                                <!-- Mobile Menu Toggle -->
+                                <button type="button" onclick="openSidebarAdminDashboard()"
+                                    class="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                                    <i class="ti ti-menu-2 text-xl text-gray-600"></i>
+                                </button>
+                            </div>
+
+                            <!-- Right Side - User Profile -->
+                            <div class="flex items-center gap-3" data-dropdown-toggle
+                                onclick="toggleDropdownAdminDashboard('profile-dropdown')">
+                                <div class="hidden sm:block text-right">
+                                    <p class="text-sm font-semibold text-gray-800">admin</p>
+                                    <span
+                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                        admin
+                                    </span>
+                                </div>
+
+                                <!-- Profile Dropdown -->
+                                <div class="relative">
+                                    <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
+                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+
+                                    <div id="profile-dropdown" data-dropdown-menu
+                                        class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
+                                        <div class="px-4 py-3 border-b border-gray-100 sm:hidden">
+                                            <p class="text-sm font-semibold text-gray-800">admin</p>
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 mt-1">
+                                                admin
+                                            </span>
+                                        </div>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-user text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">My Profile</span>
+                                        </a>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-settings text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">Settings</span>
+                                        </a>
+                                        <div class="border-t border-gray-100 my-2"></div>
+                                        <div class="px-4 py-2">
+                                            <form action="http://127.0.0.1:8000/logout" method="POST">
+                                                <input type="hidden" name="_token"
+                                                    value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd" autocomplete="off">
+                                                <button type="submit"
+                                                    class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors duration-200">
+                                                    <i class="ti ti-logout text-lg"></i>
+                                                    <span>Logout</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </header>
+                </div>
+
+                <!-- CONTENT -->
+                <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+                    <div class="min-h-screen bg-slate-50 pb-20" x-data="{
+        isModalOpen: false,
+        modalType: 'create',
+        sessionName: '',
+        startTime: '',
+        endTime: '',
+        sessionId: ''
+    }">
+
+                        <div class="bg-white border-b border-slate-200 sticky top-0 z-20">
+                            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div>
+                                        <h1 class="text-2xl font-bold text-slate-900">Manajemen Sesi</h1>
+                                        <p class="text-sm text-slate-500">Atur jadwal shift kelas atau jam operasional
+                                            bimbingan belajar.</p>
+                                    </div>
+
+                                    <button
+                                        @click="isModalOpen = true; modalType = 'create'; sessionName = ''; startTime = ''; endTime = ''; sessionId = '';"
+                                        class="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition shadow-lg shadow-slate-900/20 text-sm">
+                                        <i class="ph-bold ph-plus text-lg"></i> Tambah Sesi
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+
+                                <div
+                                    class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                    <form action="http://127.0.0.1:8000/admin/sessions" method="GET"
+                                        class="relative w-full sm:w-80">
+                                        <i
+                                            class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                        <input type="text" name="search" value="" placeholder="Cari nama sesi..."
+                                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none text-sm transition">
+                                    </form>
+                                    <div class="text-sm text-slate-500 font-medium">
+                                        Total: <span class="text-slate-900 font-bold">2 Sesi Aktif</span>
+                                    </div>
+                                </div>
+
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-sm text-slate-600">
+                                        <thead class="bg-slate-50 text-slate-800 font-bold border-b border-slate-200">
+                                            <tr>
+                                                <th class="px-6 py-4 w-16 text-center">No</th>
+                                                <th class="px-6 py-4">Nama Sesi</th>
+                                                <th class="px-6 py-4">Waktu Pelaksanaan</th>
+                                                <th class="px-6 py-4">Durasi</th>
+                                                <th class="px-6 py-4 text-center w-32">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+
+                                            <tr class="hover:bg-slate-50 transition group">
+                                                <td class="px-6 py-4 text-center text-slate-400 font-medium">1</td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <div
+                                                            class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center border border-orange-100">
+                                                            <i class="ph-fill ph-sun text-lg"></i>
+                                                        </div>
+                                                        <span class="font-bold text-slate-900">Sesi 2</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <span
+                                                            class="font-mono text-sm font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">12:30</span>
+                                                        <i class="ph-bold ph-arrow-right text-slate-400"></i>
+                                                        <span
+                                                            class="font-mono text-sm font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">14:30</span>
+                                                        <span class="text-xs text-slate-400 ml-1">WIB</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span
+                                                        class="inline-flex items-center gap-1 text-xs font-bold text-slate-500 border border-slate-200 px-2 py-1 rounded-md">
+                                                        <i class="ph-bold ph-hourglass-medium"></i> 120 Menit
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-center">
+                                                    <div class="flex items-center justify-center gap-2">
+                                                        <button
+                                                            @click="isModalOpen = true; modalType = 'edit'; sessionName = 'Sesi 2'; startTime = '12:30'; endTime = '14:30'; sessionId = '019de45f-ada4-7335-ad61-18ed1787e405';"
+                                                            class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition"
+                                                            title="Edit">
+                                                            <i class="ph-bold ph-pencil-simple text-lg"></i>
+                                                        </button>
+                                                        <button type="button"
+                                                            onclick="openDeleteModal('http://127.0.0.1:8000/admin/sessions/019de45f-ada4-7335-ad61-18ed1787e405', 'Apakah Anda yakin ingin menghapus sesi waktu <strong>Sesi 2</strong>? Tindakan ini tidak dapat dibatalkan.')"
+                                                            class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                                                            title="Hapus">
+                                                            <i class="ph-bold ph-trash text-lg"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="hover:bg-slate-50 transition group">
+                                                <td class="px-6 py-4 text-center text-slate-400 font-medium">2</td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <div
+                                                            class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center border border-orange-100">
+                                                            <i class="ph-fill ph-sun text-lg"></i>
+                                                        </div>
+                                                        <span class="font-bold text-slate-900">Sesi 1</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <span
+                                                            class="font-mono text-sm font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">08:30</span>
+                                                        <i class="ph-bold ph-arrow-right text-slate-400"></i>
+                                                        <span
+                                                            class="font-mono text-sm font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">09:45</span>
+                                                        <span class="text-xs text-slate-400 ml-1">WIB</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span
+                                                        class="inline-flex items-center gap-1 text-xs font-bold text-slate-500 border border-slate-200 px-2 py-1 rounded-md">
+                                                        <i class="ph-bold ph-hourglass-medium"></i> 75 Menit
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-center">
+                                                    <div class="flex items-center justify-center gap-2">
+                                                        <button
+                                                            @click="isModalOpen = true; modalType = 'edit'; sessionName = 'Sesi 1'; startTime = '08:30'; endTime = '09:45'; sessionId = '019dd8f2-aa73-709b-b8fd-fc653417671c';"
+                                                            class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition"
+                                                            title="Edit">
+                                                            <i class="ph-bold ph-pencil-simple text-lg"></i>
+                                                        </button>
+                                                        <button type="button"
+                                                            onclick="openDeleteModal('http://127.0.0.1:8000/admin/sessions/019dd8f2-aa73-709b-b8fd-fc653417671c', 'Apakah Anda yakin ingin menghapus sesi waktu <strong>Sesi 1</strong>? Tindakan ini tidak dapat dibatalkan.')"
+                                                            class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                                                            title="Hapus">
+                                                            <i class="ph-bold ph-trash text-lg"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="p-4 border-t border-slate-200 bg-slate-50">
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div x-show="isModalOpen" style="display: none;"
+                            class="fixed inset-0 z-1000 flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
+
+                            <div x-show="isModalOpen" x-transition:enter="ease-out duration-300"
+                                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"
+                                x-transition:leave-end="opacity-0"
+                                class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+                                @click="isModalOpen = false">
+                            </div>
+
+                            <div x-show="isModalOpen" x-transition:enter="ease-out duration-300"
+                                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                                x-transition:leave="ease-in duration-200"
+                                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+
+                                <form
+                                    :action="modalType === 'create' ? 'http://127.0.0.1:8000/admin/sessions' : '/admin/sessions/' + sessionId"
+                                    method="POST">
+                                    <input type="hidden" name="_token" value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd"
+                                        autocomplete="off"> <template x-if="modalType === 'edit'">
+                                        <input type="hidden" name="_method" value="PUT">
+                                    </template>
+
+                                    <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
+                                        <h3 class="text-lg font-bold text-slate-900"
+                                            x-text="modalType === 'create' ? 'Tambah Sesi Baru' : 'Edit Jadwal Sesi'">
+                                        </h3>
+                                        <button type="button" @click="isModalOpen = false"
+                                            class="text-slate-400 hover:text-slate-600 transition">
+                                            <i class="ph-bold ph-x text-xl"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="px-6 py-6 space-y-5">
+
+                                        <div>
+                                            <label class="block text-sm font-bold text-slate-700 mb-2">Nama Sesi <span
+                                                    class="text-red-500">*</span></label>
+                                            <div class="relative">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <i class="ph-bold ph-tag text-slate-400"></i>
+                                                </div>
+                                                <input type="text" name="name" x-model="sessionName" required
+                                                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 outline-none text-sm transition"
+                                                    placeholder="Contoh: Sesi Siang 1">
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-bold text-slate-700 mb-2">Jam Mulai
+                                                    <span class="text-red-500">*</span></label>
+                                                <div class="relative">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <i class="ph-bold ph-clock text-slate-400"></i>
+                                                    </div>
+                                                    <input type="time" name="start_time" x-model="startTime" required
+                                                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 outline-none text-sm font-mono transition">
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-sm font-bold text-slate-700 mb-2">Jam Selesai
+                                                    <span class="text-red-500">*</span></label>
+                                                <div class="relative">
+                                                    <div
+                                                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <i class="ph-bold ph-flag-checkered text-slate-400"></i>
+                                                    </div>
+                                                    <input type="time" name="end_time" x-model="endTime" required
+                                                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 outline-none text-sm font-mono transition">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            class="bg-slate-50 border border-slate-200 rounded-lg p-3 flex gap-2 items-start mt-2">
+                                            <i class="ph-fill ph-info text-slate-400 mt-0.5"></i>
+                                            <p class="text-xs text-slate-500 leading-relaxed">
+                                                Format waktu menggunakan 24-jam (WIB). Pastikan jam selesai lebih besar
+                                                dari jam mulai agar
+                                                durasi valid.
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    <div
+                                        class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+                                        <button type="button" @click="isModalOpen = false"
+                                            class="px-4 py-2 border border-slate-300 text-slate-600 font-bold rounded-xl hover:bg-white transition text-sm">
+                                            Batal
+                                        </button>
+                                        <button type="submit"
+                                            class="px-5 py-2 bg-primary-600 text-white font-bold rounded-xl hover:bg-slate-800 shadow-lg shadow-slate-900/20 transition text-sm flex items-center gap-2">
+                                            <i class="ph-bold ph-floppy-disk"></i> Simpan Sesi
+                                        </button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Overlay -->
+                    <div id="modal-delete"
+                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        <!-- Modal Box -->
+                        <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+                            <!-- Icon -->
+                            <div
+                                class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 class="mb-2 text-lg font-bold text-slate-800">
+                                Hapus Data?
+                            </h3>
+
+                            <!-- Description -->
+                            <p id="deleteModalText" class="mb-6 text-sm text-slate-500">
+                                Apakah anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex justify-center gap-3">
+                                <button type="button" onclick="closeDeleteModal()"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50">
+                                    Batal
+                                </button>
+
+                                <form id="deleteForm" method="POST" class="w-full">
+                                    <input type="hidden" name="_token" value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd"
+                                        autocomplete="off"> <input type="hidden" name="_method" value="DELETE"> <button
+                                        type="submit"
+                                        class="w-full rounded-lg bg-red-600 px-4 py-2 font-medium text-white shadow-md shadow-red-500/20 transition hover:bg-red-700">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openDeleteModal(actionUrl, description = null) {
+                            const modal = document.getElementById('modal-delete');
+                            const form = document.getElementById('deleteForm');
+                            const text = document.getElementById('deleteModalText');
+
+                            form.action = actionUrl;
+
+                            if (description) {
+                                text.innerHTML = description;
+                            }
+
+                            modal.classList.remove('hidden');
+                            modal.classList.add('flex');
+                        }
+
+                        function closeDeleteModal() {
+                            const modal = document.getElementById('modal-delete');
+
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                        }
+                    </script>
+
+
+                    <!-- Overlay -->
+                    <div id="modal-confirm"
+                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        <!-- Modal Box -->
+                        <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+                            <!-- Icon -->
+                            <div
+                                class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 id="confirmModalTitle" class="mb-2 text-lg font-bold text-slate-800">
+                                Konfirmasi
+                            </h3>
+
+                            <!-- Description -->
+                            <p id="confirmModalText" class="mb-6 text-sm text-slate-500">
+                                Apakah anda yakin?
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex justify-center gap-3">
+                                <button type="button" onclick="closeConfirmModal()"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50">
+                                    Batal
+                                </button>
+
+                                <form id="confirmForm" method="POST" class="w-full">
+                                    <input type="hidden" name="_token" value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd"
+                                        autocomplete="off"> <input type="hidden" name="_method" value="PATCH">
+                                    <!-- Both fields for compatibility -->
+                                    <input type="hidden" name="is_ready" id="confirmIsReady">
+                                    <input type="hidden" name="is_active" id="confirmIsActive">
+
+                                    <button type="submit" id="confirmButton"
+                                        class="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700">
+                                        Ya, Lanjutkan
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openConfirmModal(actionUrl, title, description, statusValue, buttonText = 'Ya, Lanjutkan',
+                            buttonColorClass = 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20') {
+                            const modal = document.getElementById('modal-confirm');
+                            const form = document.getElementById('confirmForm');
+                            const titleEl = document.getElementById('confirmModalTitle');
+                            const text = document.getElementById('confirmModalText');
+                            const isReadyInput = document.getElementById('confirmIsReady');
+                            const isActiveInput = document.getElementById('confirmIsActive');
+                            const confirmBtn = document.getElementById('confirmButton');
+
+                            form.action = actionUrl;
+                            titleEl.innerHTML = title;
+                            text.innerHTML = description;
+
+                            // Set both values for compatibility with courses (is_ready) and programs (is_active)
+                            isReadyInput.value = statusValue;
+                            isActiveInput.value = statusValue;
+
+                            confirmBtn.innerHTML = buttonText;
+
+                            // Reset classes
+                            confirmBtn.className =
+                                `w-full rounded-lg px-4 py-2 font-medium text-white shadow-md transition ${buttonColorClass}`;
+
+                            modal.classList.remove('hidden');
+                            modal.classList.add('flex');
+                        }
+
+                        function closeConfirmModal() {
+                            const modal = document.getElementById('modal-confirm');
+
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                        }
+                    </script>
+                </main>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
+
+    <script src="http://127.0.0.1:8000/assets/libs/iconify-icon/dist/iconify-icon.min.js"></script>
+
+    <script src="http://127.0.0.1:8000/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+    <script src="http://127.0.0.1:8000/assets/js/dashboard.js"></script>
+
+    <!-- Custom Dashboard Navigation Script -->
+    <script>
+        // Mobile Sidebar Toggle
+        function openSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.remove('-translate-x-full', 'hidden');
+            sidebar.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Dropdown Toggle
+        function toggleDropdownAdminDashboard(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('[data-dropdown-menu]');
+
+            // Close all other dropdowns
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.add('hidden', 'opacity-0');
+                }
+            });
+
+            // Toggle current dropdown
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                setTimeout(() => dropdown.classList.remove('opacity-0'), 10);
+            } else {
+                dropdown.classList.add('opacity-0');
+                setTimeout(() => dropdown.classList.add('hidden'), 200);
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function (e) {
+            const dropdowns = document.querySelectorAll('[data-dropdown-menu]');
+            const triggers = document.querySelectorAll('[data-dropdown-toggle]');
+
+            let clickedOnDropdown = false;
+            triggers.forEach(trigger => {
+                if (trigger.contains(e.target)) clickedOnDropdown = true;
+            });
+            dropdowns.forEach(dropdown => {
+                if (dropdown.contains(e.target)) clickedOnDropdown = true;
+            });
+
+            if (!clickedOnDropdown) {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('opacity-0');
+                    setTimeout(() => dropdown.classList.add('hidden'), 200);
+                });
+            }
+        });
+
+        // Accordion Toggle for Sidebar
+        document.querySelectorAll('[data-accordion-toggle]').forEach(button => {
+            button.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-accordion-toggle');
+                const content = document.getElementById(targetId);
+                const icon = this.querySelector('.accordion-icon');
+
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    if (icon) icon.classList.add('rotate-180');
+                } else {
+                    content.classList.add('hidden');
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

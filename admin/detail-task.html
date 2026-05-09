@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd">
+
+    <script type="module" src="http://[::1]:5173/@vite/client" data-navigate-track="reload"></script>
+    <link rel="stylesheet" href="http://[::1]:5173/resources/css/app.css" data-navigate-track="reload" />
+    <script type="module" src="http://[::1]:5173/resources/js/app.js" data-navigate-track="reload"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Favicon icon-->
+    <link rel="shortcut icon" type="image/png" href="http://127.0.0.1:8000/assets/images/logos/favicon.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
+
+    <title> Detail Tugas & Distribusi - EduSmart Teacher
+        - LMS</title>
+    <script id="browser-logger-active">
+        (function () {
+            const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+            const logQueue = [];
+            let flushTimeout = null;
+
+            console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+
+            // Store original console methods
+            const originalConsole = {
+                log: console.log,
+                info: console.info,
+                error: console.error,
+                warn: console.warn,
+                table: console.table
+            };
+
+            // Helper to safely stringify values
+            function safeStringify(obj) {
+                const seen = new WeakSet();
+                return JSON.stringify(obj, (key, value) => {
+                    if (typeof value === 'object' && value !== null) {
+                        if (seen.has(value)) return '[Circular]';
+                        seen.add(value);
+                    }
+                    if (value instanceof Error) {
+                        return {
+                            name: value.name,
+                            message: value.message,
+                            stack: value.stack
+                        };
+                    }
+                    return value;
+                });
+            }
+
+            // Batch and send logs
+            function flushLogs() {
+                if (logQueue.length === 0) return;
+
+                const batch = logQueue.splice(0, logQueue.length);
+
+                fetch(ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ logs: batch })
+                }).catch(err => {
+                    // Silently fail to avoid infinite loops
+                    originalConsole.error('Failed to send logs:', err);
+                });
+            }
+
+            // Debounced flush (100ms)
+            function scheduleFlush() {
+                if (flushTimeout) clearTimeout(flushTimeout);
+                flushTimeout = setTimeout(flushLogs, 100);
+            }
+
+            // Intercept console methods
+            ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
+                console[method] = function (...args) {
+                    // Call original method
+                    originalConsole[method].apply(console, args);
+
+                    // Capture log data
+                    try {
+                        logQueue.push({
+                            type: method,
+                            timestamp: new Date().toISOString(),
+                            data: args.map(arg => {
+                                try {
+                                    return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                                } catch (e) {
+                                    return String(arg);
+                                }
+                            }),
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
+
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
+                };
+            });
+
+            // Global error handlers for uncaught errors
+            const originalOnError = window.onerror;
+            window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
+                try {
+                    logQueue.push({
+                        type: 'uncaught_error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: errorMsg,
+                            filename: url,
+                            lineno: lineNumber,
+                            colno: colNumber,
+                            error: error ? {
+                                name: error.name,
+                                message: error.message,
+                                stack: error.stack
+                            } : null
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Call original handler if it exists
+                if (originalOnError && typeof originalOnError === 'function') {
+                    return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+                }
+
+                // Let the error continue to propagate
+                return false;
+            }
+            window.addEventListener('error', (event) => {
+                try {
+                    logQueue.push({
+                        type: 'window_error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: event.message,
+                            filename: event.filename,
+                            lineno: event.lineno,
+                            colno: event.colno,
+                            error: event.error ? {
+                                name: event.error.name,
+                                message: event.error.message,
+                                stack: event.error.stack
+                            } : null
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Let the error continue to propagate
+                return false;
+            });
+            window.addEventListener('unhandledrejection', (event) => {
+                try {
+                    logQueue.push({
+                        type: 'error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: 'Unhandled Promise Rejection',
+                            reason: event.reason instanceof Error ? {
+                                name: event.reason.name,
+                                message: event.reason.message,
+                                stack: event.reason.stack
+                            } : event.reason
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Let the rejection continue to propagate
+                return false;
+            });
+
+            // Flush on page unload
+            window.addEventListener('beforeunload', () => {
+                if (logQueue.length > 0) {
+                    navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+                }
+            });
+        })();
+    </script>
+</head>
+
+<body class="bg-slate-50 font-sans antialiased">
+
+    <!-- Sidebar Backdrop for Mobile -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-[55] hidden xl:hidden"
+        onclick="closeSidebarAdminDashboard()"></div>
+
+    <!--start the project-->
+    <main>
+        <div id="main-wrapper" class="flex min-h-screen">
+            <aside id="application-sidebar-brand"
+                class="fixed top-0 start-0 h-screen z-60 w-[270px] bg-white border-r border-gray-200 shadow-lg transform -translate-x-full xl:translate-x-0 transition-transform duration-300 ease-in-out">
+
+                <!-- Close button for mobile -->
+                <div class="absolute top-3 end-3 xl:hidden">
+                    <button type="button" onclick="closeSidebarAdminDashboard()"
+                        class="w-8 h-8 inline-flex justify-center items-center rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors">
+                        <span class="sr-only">Close</span>
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Logo Section -->
+                <div class="p-5 border-b border-gray-100">
+                    <a href="../user/pages/home.html" class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                            <i class="ti ti-dashboard text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-lg text-gray-800">DASHBOARD</h2>
+                            <span class="text-xs text-gray-500">Admin Panel</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Scrollable Navigation -->
+                <div class="h-[calc(100vh-100px)] overflow-y-auto px-4 py-6">
+                    <nav class="w-full flex flex-col">
+                        <ul id="sidebarnav" class="text-gray-700 text-sm space-y-1">
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2">
+                                <span>HOME</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 bg-blue-500 text-white shadow-md shadow-blue-500/30"
+                                    href="http://127.0.0.1:8000/admin/dashboard">
+                                    <i class="ti ti-layout-dashboard text-xl"></i>
+                                    <span class="font-medium">Dashboard</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>MAIN</span>
+                            </li>
+
+                            <!-- Courses Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="courses-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-book text-xl"></i>
+                                        <span class="font-medium">Courses</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="courses-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./coourse-category.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./course.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Course List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- Event Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="event-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-calendar-event text-xl"></i>
+                                        <span class="font-medium">Event</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="event-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Event</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-apps text-xl"></i>
+                                    <span class="font-medium">Course application</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-coins text-xl"></i>
+                                    <span class="font-medium">Points exchange</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>LMS SYSTEM</span>
+                            </li>
+
+                            <!-- Programs Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="programs-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-school text-xl"></i>
+                                        <span class="font-medium">Programs</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="programs-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="http://127.0.0.1:8000/admin/program-categories">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./program.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Program List</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <!-- schedule -->
+                            <li>
+                                <button type="button" data-accordion-toggle="schedule-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-books text-xl"></i>
+                                        <span class="font-medium">Pengaturan Akademik</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="schedule-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./tahun-ajaran.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Tahun Ajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./mapel.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Mata Palajaran</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./room.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Ruangan</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./sesi.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Sesi</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="jadwal.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Jadwal Kelas</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="./bank-task.html">
+                                    <i class="ti ti-list-check text-xl"></i>
+                                    <span class="font-medium">Task Bank</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-user-star text-xl"></i>
+                                    <span class="font-medium">Teacher</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users text-xl"></i>
+                                    <span class="font-medium">Tutoring User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-trophy text-xl"></i>
+                                    <span class="font-medium">Student ranking</span>
+                                    <span
+                                        class="ml-auto text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-medium">FE</span>
+                                </a>
+                            </li>
+
+                            <!-- Finance Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="finance-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 cursor-pointer text-gray-600 hover:bg-blue-50 hover:text-blue-600">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-wallet text-xl"></i>
+                                        <span class="font-medium">Finance</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon "></i>
+                                </button>
+
+                                <div id="finance-accordion-content"
+                                    class="w-full overflow-hidden transition-all duration-300 hidden">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./finance-over.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Financial Overview</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./income-analyst.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Income Analysis</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./transaction-history.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Transaction History</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./student-access.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Student Access</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="./report.html">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Reports</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>CONTENT</span>
+                            </li>
+
+                            <!-- Blog Accordion -->
+                            <li>
+                                <button type="button" data-accordion-toggle="blog-accordion-content"
+                                    class="flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600 cursor-pointer">
+                                    <span class="flex items-center gap-3">
+                                        <i class="ti ti-article text-xl"></i>
+                                        <span class="font-medium">Blog</span>
+                                    </span>
+                                    <i
+                                        class="ti ti-chevron-down text-sm transition-transform duration-200 accordion-icon"></i>
+                                </button>
+
+                                <div id="blog-accordion-content"
+                                    class="hidden w-full overflow-hidden transition-all duration-300">
+                                    <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Category</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                                href="#">
+                                                <i class="ti ti-point text-xs"></i>
+                                                <span>Blog list</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>PROFILE</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-users-group text-xl"></i>
+                                    <span class="font-medium">User</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="#">
+                                    <i class="ti ti-settings text-xl"></i>
+                                    <span class="font-medium">Profile</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Page Wrapper with responsive margin -->
+            <div class="w-full xl:ml-[270px] flex flex-col min-h-screen transition-all duration-300">
+                <!-- HEADER -->
+                <div class="shrink-0">
+                    <header
+                        class="sticky top-0 w-full bg-white/80 backdrop-blur-md z-40 border-b border-gray-200/60 shadow-sm">
+                        <nav class="flex items-center justify-between px-4 lg:px-6 py-3" aria-label="Global">
+                            <!-- Left Side -->
+                            <div class="flex items-center gap-4">
+                                <!-- Mobile Menu Toggle -->
+                                <button type="button" onclick="openSidebarAdminDashboard()"
+                                    class="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                                    <i class="ti ti-menu-2 text-xl text-gray-600"></i>
+                                </button>
+                            </div>
+
+                            <!-- Right Side - User Profile -->
+                            <div class="flex items-center gap-3" data-dropdown-toggle
+                                onclick="toggleDropdownAdminDashboard('profile-dropdown')">
+                                <div class="hidden sm:block text-right">
+                                    <p class="text-sm font-semibold text-gray-800">admin</p>
+                                    <span
+                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                        admin
+                                    </span>
+                                </div>
+
+                                <!-- Profile Dropdown -->
+                                <div class="relative">
+                                    <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
+                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+
+                                    <div id="profile-dropdown" data-dropdown-menu
+                                        class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
+                                        <div class="px-4 py-3 border-b border-gray-100 sm:hidden">
+                                            <p class="text-sm font-semibold text-gray-800">admin</p>
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 mt-1">
+                                                admin
+                                            </span>
+                                        </div>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-user text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">My Profile</span>
+                                        </a>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-settings text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">Settings</span>
+                                        </a>
+                                        <div class="border-t border-gray-100 my-2"></div>
+                                        <div class="px-4 py-2">
+                                            <form action="http://127.0.0.1:8000/logout" method="POST">
+                                                <input type="hidden" name="_token"
+                                                    value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd" autocomplete="off">
+                                                <button type="submit"
+                                                    class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors duration-200">
+                                                    <i class="ti ti-logout text-lg"></i>
+                                                    <span>Logout</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </header>
+                </div>
+
+                <!-- CONTENT -->
+                <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+                    <div class="min-h-screen bg-slate-50 pb-20" x-data="{ gradingModalOpen: false }">
+
+                        <div class="bg-white border-b border-slate-200 sticky top-0 z-20">
+                            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+                                <nav class="flex items-center gap-2 text-sm text-slate-500 mb-4">
+                                    <a href="#" class="hover:text-primary-600">Bank Tugas</a>
+                                    <i class="ph-bold ph-caret-right text-xs"></i>
+                                    <span class="font-bold text-slate-900 truncate">Detail Tugas</span>
+                                </nav>
+
+                                <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-3 mb-2">
+                                            <span
+                                                class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                                <i class="ph-bold ph-share-network"></i> Digunakan di 3 Tempat
+                                            </span>
+                                            <span class="flex items-center gap-1 text-xs font-bold text-slate-500">
+                                                <i class="ph-fill ph-calendar-blank"></i> Dibuat: 20 Des 2024
+                                            </span>
+                                        </div>
+
+                                        <h1 class="text-2xl font-bold text-slate-900 mb-3">Latihan Limit Fungsi Aljabar
+                                            (HOTS)</h1>
+
+                                        <div x-data="{ expanded: false }"
+                                            class="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
+                                            <div class="text-slate-600 text-sm leading-relaxed"
+                                                :class="expanded ? '' : 'line-clamp-2'">
+                                                <p>Kerjakan soal-soal berikut dengan menggunakan metode pemfaktoran atau
+                                                    perkalian sekawan.
+                                                    Khusus untuk nomor 5, sertakan grafik fungsi limitnya. Jawaban bisa
+                                                    ditulis tangan lalu
+                                                    difoto, atau diketik menggunakan Equation Editor.</p>
+                                            </div>
+                                            <button @click="expanded = !expanded"
+                                                class="text-xs font-bold text-primary-600 hover:underline mt-2 flex items-center gap-1">
+                                                <span
+                                                    x-text="expanded ? 'Tutup Deskripsi' : 'Baca Selengkapnya'"></span>
+                                                <i class="ph-bold"
+                                                    :class="expanded ? 'ph-caret-up' : 'ph-caret-down'"></i>
+                                            </button>
+
+                                            <div class="mt-3 pt-3 border-t border-slate-200 flex items-center gap-2">
+                                                <span
+                                                    class="text-xs font-bold text-slate-400 uppercase mr-1">Lampiran:</span>
+                                                <a href="#"
+                                                    class="flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:text-primary-600 hover:border-primary-200 transition shadow-sm">
+                                                    <i class="ph-fill ph-file-pdf text-red-500"></i> Soal_Paket_A.pdf
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 h-fit">
+                                        <div class="text-right border-r border-slate-200 pr-4">
+                                            <p class="text-xs font-bold text-slate-400 uppercase">Max Score</p>
+                                            <p class="text-2xl font-extrabold text-slate-900">100</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs font-bold text-slate-400 uppercase">Total Submisi</p>
+                                            <p class="text-2xl font-extrabold text-slate-900">142</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
+                                    <i class="ph-fill ph-map-pin text-primary-600"></i> Distribusi Tugas (Digunakan Di)
+                                </h3>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                                    <div
+                                        class="bg-white p-4 rounded-xl border-l-4 border-purple-500 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span
+                                                    class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded">Program
+                                                    Bimbel</span>
+                                                <a href="#" class="text-slate-400 hover:text-purple-600"><i
+                                                        class="ph-bold ph-arrow-square-out text-lg"></i></a>
+                                            </div>
+                                            <h4 class="font-bold text-slate-900 mb-1">Intensif UTBK SNBT 2025</h4>
+                                            <p class="text-xs text-slate-500">Batch Gelombang 1</p>
+                                        </div>
+                                        <div
+                                            class="mt-3 pt-3 border-t border-slate-100 flex justify-between items-center">
+                                            <span class="text-xs font-medium text-slate-500"><i
+                                                    class="ph-bold ph-clock text-orange-500 mr-1"></i> Deadline: 20
+                                                Des</span>
+                                            <span class="text-xs font-bold text-slate-900">45 Siswa</span>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="bg-white p-4 rounded-xl border-l-4 border-purple-500 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span
+                                                    class="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded">Program
+                                                    Bimbel</span>
+                                                <a href="#" class="text-slate-400 hover:text-purple-600"><i
+                                                        class="ph-bold ph-arrow-square-out text-lg"></i></a>
+                                            </div>
+                                            <h4 class="font-bold text-slate-900 mb-1">Try Out Akbar Nasional</h4>
+                                            <p class="text-xs text-slate-500">Sesi Matematika Saintek</p>
+                                        </div>
+                                        <div
+                                            class="mt-3 pt-3 border-t border-slate-100 flex justify-between items-center">
+                                            <span class="text-xs font-medium text-slate-500"><i
+                                                    class="ph-bold ph-clock text-red-500 mr-1"></i> Expired</span>
+                                            <span class="text-xs font-bold text-slate-900">80 Siswa</span>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="bg-white p-4 rounded-xl border-l-4 border-blue-500 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span
+                                                    class="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded">Course
+                                                    Module</span>
+                                                <a href="#" class="text-slate-400 hover:text-blue-600"><i
+                                                        class="ph-bold ph-arrow-square-out text-lg"></i></a>
+                                            </div>
+                                            <h4 class="font-bold text-slate-900 mb-1">Matematika Dasar SMA</h4>
+                                            <p class="text-xs text-slate-500">Modul 4: Limit & Turunan</p>
+                                        </div>
+                                        <div
+                                            class="mt-3 pt-3 border-t border-slate-100 flex justify-between items-center">
+                                            <span class="text-xs font-medium text-slate-500"><i
+                                                    class="ph-bold ph-infinity text-slate-400 mr-1"></i> No
+                                                Deadline</span>
+                                            <span class="text-xs font-bold text-slate-900">17 Siswa</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+
+                                <div
+                                    class="p-5 border-b border-slate-100 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                                    <div>
+                                        <h3 class="font-bold text-slate-900 text-lg">Jawaban Siswa</h3>
+                                        <p class="text-xs text-slate-500">Kelola nilai dari berbagai sumber
+                                            program/course.</p>
+                                    </div>
+
+                                    <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+                                        <select
+                                            class="pl-3 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-slate-600 focus:outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer">
+                                            <option value="">Semua Sumber</option>
+                                            <optgroup label="Program">
+                                                <option value="utbk">Intensif UTBK 2025</option>
+                                                <option value="to">Try Out Akbar</option>
+                                            </optgroup>
+                                            <optgroup label="Course">
+                                                <option value="math">Matematika Dasar</option>
+                                            </optgroup>
+                                        </select>
+
+                                        <select
+                                            class="pl-3 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-slate-600 focus:outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer">
+                                            <option value="">Status Penilaian</option>
+                                            <option value="pending">Belum Dinilai</option>
+                                            <option value="graded">Sudah Dinilai</option>
+                                        </select>
+
+                                        <div class="relative">
+                                            <i
+                                                class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                            <input type="text" placeholder="Cari nama siswa..."
+                                                class="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 w-full sm:w-auto">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-sm text-slate-600">
+                                        <thead class="bg-slate-50 text-slate-800 font-bold border-b border-slate-200">
+                                            <tr>
+                                                <th class="px-6 py-4">Siswa</th>
+                                                <th class="px-6 py-4">Sumber (Program/Course)</th>
+                                                <th class="px-6 py-4">Waktu Submit</th>
+                                                <th class="px-6 py-4">Lampiran/Jawaban</th>
+                                                <th class="px-6 py-4">Status</th>
+                                                <th class="px-6 py-4 text-center">Nilai</th>
+                                                <th class="px-6 py-4 text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+
+                                            <tr class="hover:bg-orange-50/30 transition">
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <img src="https://ui-avatars.com/api/?name=Aditya+Pratama&background=random"
+                                                            class="w-8 h-8 rounded-full" alt="Avatar">
+                                                        <div>
+                                                            <p class="font-bold text-slate-900">Aditya Pratama</p>
+                                                            <div
+                                                                class="flex items-center gap-1 text-[10px] text-slate-400">
+                                                                adit@gmail.com
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span
+                                                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100">
+                                                        <i class="ph-bold ph-graduation-cap"></i> Intensif UTBK
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span class="font-medium text-slate-700">20 Des, 14:30</span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <div
+                                                            class="w-8 h-8 rounded bg-slate-100 text-slate-500 flex items-center justify-center">
+                                                            <i class="ph-fill ph-file-zip text-lg"></i>
+                                                        </div>
+                                                        <span
+                                                            class="text-xs font-bold text-primary-600 truncate max-w-[150px]">Project_Final.zip</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span
+                                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200">
+                                                        <span
+                                                            class="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse"></span>
+                                                        Pending
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-center text-slate-400 font-bold">-</td>
+                                                <td class="px-6 py-4 text-center">
+                                                    <button @click="gradingModalOpen = true"
+                                                        class="px-3 py-1.5 bg-primary-600 text-white text-xs font-bold rounded-lg hover:bg-primary-700 transition shadow-sm">
+                                                        Nilai
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover:bg-slate-50 transition">
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <img src="https://ui-avatars.com/api/?name=Budi+Utomo&background=random"
+                                                            class="w-8 h-8 rounded-full" alt="Avatar">
+                                                        <div>
+                                                            <p class="font-bold text-slate-900">Budi Utomo</p>
+                                                            <div
+                                                                class="flex items-center gap-1 text-[10px] text-slate-400">
+                                                                budi@gmail.com
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span
+                                                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                                        <i class="ph-bold ph-book-open"></i> Matematika Dasar SMA -
+                                                        module Introduction
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span class="font-medium text-slate-700">18 Des, 10:00</span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <div
+                                                            class="w-8 h-8 rounded bg-slate-100 text-slate-500 flex items-center justify-center">
+                                                            <i class="ph-fill ph-text-t text-lg"></i>
+                                                        </div>
+                                                        <span class="text-xs font-bold text-slate-600">Teks
+                                                            Langsung</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span
+                                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">
+                                                        <i class="ph-bold ph-check"></i> Graded
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-center text-green-600 font-extrabold text-lg">
+                                                    88</td>
+                                                <td class="px-6 py-4 text-center">
+                                                    <button
+                                                        class="px-3 py-1.5 border border-slate-200 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-50 transition">
+                                                        Detail
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover:bg-slate-50 transition">
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <img src="https://ui-avatars.com/api/?name=Budi+Utomo&background=random"
+                                                            class="w-8 h-8 rounded-full" alt="Avatar">
+                                                        <div>
+                                                            <p class="font-bold text-slate-900">Budi Utomo</p>
+                                                            <div
+                                                                class="flex items-center gap-1 text-[10px] text-slate-400">
+                                                                budi@gmail.com
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span
+                                                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                                        <i class="ph-bold ph-book-open"></i> Matematika dasar SMA -
+                                                        Module 3
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span class="font-medium text-slate-700">18 Des, 10:00</span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <div
+                                                            class="w-8 h-8 rounded bg-slate-100 text-slate-500 flex items-center justify-center">
+                                                            <i class="ph-fill ph-image text-lg"></i>
+                                                        </div>
+                                                        <span
+                                                            class="text-xs font-bold text-primary-600 truncate max-w-[150px]">Screenshot_Err.png</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 text-center">
+                                                    <span
+                                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">
+                                                        <i class="ph-bold ph-arrow-counter-clockwise"></i> Revisi
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-center text-green-600 font-extrabold text-lg">
+                                                    88</td>
+                                                <td class="px-6 py-4 text-center">
+                                                    <button
+                                                        class="px-3 py-1.5 border border-slate-200 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-50 transition">
+                                                        Update
+                                                    </button>
+                                                </td>
+                                            </tr>
+
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+
+
+                                <div
+                                    class="p-4 border-t border-slate-200 bg-slate-50 flex justify-between items-center gap-4">
+                                    <span class="text-xs text-slate-500">Menampilkan 1-10 dari 142 Jawaban</span>
+                                    <div class="flex gap-1">
+                                        <button
+                                            class="px-2 py-1 border border-slate-300 rounded text-xs hover:bg-white">Prev</button>
+                                        <button
+                                            class="px-2 py-1 border border-slate-300 rounded text-xs hover:bg-white">Next</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div x-show="gradingModalOpen" style="display: none;"
+                            class="fixed inset-0 z-1000 flex items-center justify-center px-4 py-6 sm:px-0">
+                            <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"
+                                @click="gradingModalOpen = false"></div>
+
+                            <div
+                                class="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col md:flex-row overflow-hidden animate-fade-in-up">
+                                <div class="flex-1 bg-slate-100 border-r border-slate-200 flex flex-col h-full">
+                                    <div
+                                        class="p-4 border-b border-slate-200 bg-white flex justify-between items-center">
+                                        <div class="flex items-center gap-3">
+                                            <img src="https://ui-avatars.com/api/?name=Aditya+Pratama&background=random"
+                                                class="w-8 h-8 rounded-full">
+                                            <div>
+                                                <h3 class="font-bold text-slate-900 text-sm">Aditya Pratama</h3>
+                                                <p
+                                                    class="text-xs text-purple-600 font-bold bg-purple-50 px-1.5 rounded w-fit mt-0.5">
+                                                    Via: Intensif UTBK 2025
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button class="text-primary-600 text-xs font-bold hover:underline"><i
+                                                class="ph-bold ph-download-simple"></i> Download</button>
+                                    </div>
+                                    <div
+                                        class="flex-1 p-6 overflow-y-auto flex items-center justify-center text-slate-400 flex-col">
+                                        <i class="ph-fill ph-file-zip text-6xl mb-2"></i>
+                                        <p class="text-sm">File ZIP Preview</p>
+                                    </div>
+                                </div>
+
+                                <div class="w-full md:w-80 bg-white flex flex-col h-full flex-shrink-0">
+                                    <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                                        <h3 class="font-bold text-slate-900">Penilaian</h3>
+                                        <button @click="gradingModalOpen = false"><i
+                                                class="ph-bold ph-x text-xl text-slate-400"></i></button>
+                                    </div>
+                                    <div class="flex-1 p-6 space-y-4 overflow-y-auto">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">Nilai</label>
+                                            <input type="number"
+                                                class="w-full px-3 py-2 rounded-lg border border-slate-300 font-bold text-lg focus:border-primary-500 outline-none"
+                                                placeholder="0">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">Feedback</label>
+                                            <textarea rows="4"
+                                                class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:border-primary-500 outline-none"
+                                                placeholder="Catatan untuk siswa..."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 border-t border-slate-100 bg-slate-50">
+                                        <button
+                                            class="w-full py-2 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Overlay -->
+                    <div id="modal-delete"
+                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        <!-- Modal Box -->
+                        <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+                            <!-- Icon -->
+                            <div
+                                class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 class="mb-2 text-lg font-bold text-slate-800">
+                                Hapus Data?
+                            </h3>
+
+                            <!-- Description -->
+                            <p id="deleteModalText" class="mb-6 text-sm text-slate-500">
+                                Apakah anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex justify-center gap-3">
+                                <button type="button" onclick="closeDeleteModal()"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50">
+                                    Batal
+                                </button>
+
+                                <form id="deleteForm" method="POST" class="w-full">
+                                    <input type="hidden" name="_token" value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd"
+                                        autocomplete="off"> <input type="hidden" name="_method" value="DELETE"> <button
+                                        type="submit"
+                                        class="w-full rounded-lg bg-red-600 px-4 py-2 font-medium text-white shadow-md shadow-red-500/20 transition hover:bg-red-700">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openDeleteModal(actionUrl, description = null) {
+                            const modal = document.getElementById('modal-delete');
+                            const form = document.getElementById('deleteForm');
+                            const text = document.getElementById('deleteModalText');
+
+                            form.action = actionUrl;
+
+                            if (description) {
+                                text.innerHTML = description;
+                            }
+
+                            modal.classList.remove('hidden');
+                            modal.classList.add('flex');
+                        }
+
+                        function closeDeleteModal() {
+                            const modal = document.getElementById('modal-delete');
+
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                        }
+                    </script>
+
+
+                    <!-- Overlay -->
+                    <div id="modal-confirm"
+                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        <!-- Modal Box -->
+                        <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+                            <!-- Icon -->
+                            <div
+                                class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 id="confirmModalTitle" class="mb-2 text-lg font-bold text-slate-800">
+                                Konfirmasi
+                            </h3>
+
+                            <!-- Description -->
+                            <p id="confirmModalText" class="mb-6 text-sm text-slate-500">
+                                Apakah anda yakin?
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex justify-center gap-3">
+                                <button type="button" onclick="closeConfirmModal()"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50">
+                                    Batal
+                                </button>
+
+                                <form id="confirmForm" method="POST" class="w-full">
+                                    <input type="hidden" name="_token" value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd"
+                                        autocomplete="off"> <input type="hidden" name="_method" value="PATCH">
+                                    <!-- Both fields for compatibility -->
+                                    <input type="hidden" name="is_ready" id="confirmIsReady">
+                                    <input type="hidden" name="is_active" id="confirmIsActive">
+
+                                    <button type="submit" id="confirmButton"
+                                        class="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700">
+                                        Ya, Lanjutkan
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openConfirmModal(actionUrl, title, description, statusValue, buttonText = 'Ya, Lanjutkan',
+                            buttonColorClass = 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20') {
+                            const modal = document.getElementById('modal-confirm');
+                            const form = document.getElementById('confirmForm');
+                            const titleEl = document.getElementById('confirmModalTitle');
+                            const text = document.getElementById('confirmModalText');
+                            const isReadyInput = document.getElementById('confirmIsReady');
+                            const isActiveInput = document.getElementById('confirmIsActive');
+                            const confirmBtn = document.getElementById('confirmButton');
+
+                            form.action = actionUrl;
+                            titleEl.innerHTML = title;
+                            text.innerHTML = description;
+
+                            // Set both values for compatibility with courses (is_ready) and programs (is_active)
+                            isReadyInput.value = statusValue;
+                            isActiveInput.value = statusValue;
+
+                            confirmBtn.innerHTML = buttonText;
+
+                            // Reset classes
+                            confirmBtn.className =
+                                `w-full rounded-lg px-4 py-2 font-medium text-white shadow-md transition ${buttonColorClass}`;
+
+                            modal.classList.remove('hidden');
+                            modal.classList.add('flex');
+                        }
+
+                        function closeConfirmModal() {
+                            const modal = document.getElementById('modal-confirm');
+
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                        }
+                    </script>
+                </main>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
+
+    <script src="http://127.0.0.1:8000/assets/libs/iconify-icon/dist/iconify-icon.min.js"></script>
+
+    <script src="http://127.0.0.1:8000/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+    <script src="http://127.0.0.1:8000/assets/js/dashboard.js"></script>
+
+    <!-- Custom Dashboard Navigation Script -->
+    <script>
+        // Mobile Sidebar Toggle
+        function openSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.remove('-translate-x-full', 'hidden');
+            sidebar.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebarAdminDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Dropdown Toggle
+        function toggleDropdownAdminDashboard(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('[data-dropdown-menu]');
+
+            // Close all other dropdowns
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.add('hidden', 'opacity-0');
+                }
+            });
+
+            // Toggle current dropdown
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                setTimeout(() => dropdown.classList.remove('opacity-0'), 10);
+            } else {
+                dropdown.classList.add('opacity-0');
+                setTimeout(() => dropdown.classList.add('hidden'), 200);
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function (e) {
+            const dropdowns = document.querySelectorAll('[data-dropdown-menu]');
+            const triggers = document.querySelectorAll('[data-dropdown-toggle]');
+
+            let clickedOnDropdown = false;
+            triggers.forEach(trigger => {
+                if (trigger.contains(e.target)) clickedOnDropdown = true;
+            });
+            dropdowns.forEach(dropdown => {
+                if (dropdown.contains(e.target)) clickedOnDropdown = true;
+            });
+
+            if (!clickedOnDropdown) {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('opacity-0');
+                    setTimeout(() => dropdown.classList.add('hidden'), 200);
+                });
+            }
+        });
+
+        // Accordion Toggle for Sidebar
+        document.querySelectorAll('[data-accordion-toggle]').forEach(button => {
+            button.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-accordion-toggle');
+                const content = document.getElementById(targetId);
+                const icon = this.querySelector('.accordion-icon');
+
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    if (icon) icon.classList.add('rotate-180');
+                } else {
+                    content.classList.add('hidden');
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

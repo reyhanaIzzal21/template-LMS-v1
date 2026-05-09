@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduSmart - Pilih Dashboard</title>
+
+    <!-- Tailwind v4 Play CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+        }
+
+        html, body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+        }
+
+        .hero-blob {
+            position: absolute;
+            filter: blur(90px);
+            opacity: 0.55;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
+        }
+
+        .shine {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shine::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 15%, rgba(255,255,255,0.35) 30%, transparent 45%);
+            transform: translateX(-120%);
+            transition: transform 0.7s ease;
+        }
+
+        .shine:hover::before {
+            transform: translateX(120%);
+        }
+
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased overflow-x-hidden">
+
+    <!-- Background -->
+    <div class="relative min-h-screen">
+        <div class="hero-blob w-80 h-80 rounded-full bg-blue-300 top-[-80px] left-[-60px]"></div>
+        <div class="hero-blob w-96 h-96 rounded-full bg-indigo-300 top-[120px] right-[-120px]"></div>
+        <div class="hero-blob w-72 h-72 rounded-full bg-amber-200 bottom-[-60px] left-[15%]"></div>
+
+        <!-- Top bar -->
+        <header class="relative z-10">
+            <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+                <div class="glass rounded-2xl shadow-sm px-5 py-4 flex items-center justify-between">
+                    <a href="#" class="flex items-center gap-3 group">
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/25">
+                            <i class="ph-bold ph-book-open text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-lg font-extrabold text-slate-900 leading-tight">EduSmart</p>
+                            <p class="text-xs text-slate-500">Pilih akses dashboard</p>
+                        </div>
+                    </a>
+
+                    <div class="hidden md:flex items-center gap-3">
+                        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold border border-blue-100">
+                            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                            Terintegrasi untuk Admin, Teacher, Student
+                        </span>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Main -->
+        <main class="relative z-10">
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 lg:pt-20">
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+
+                    <!-- Left content -->
+                    <div class="text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-slate-200 text-slate-600 text-sm font-semibold mb-6">
+                            <i class="ph-fill ph-shield-check text-blue-600"></i>
+                            Pilih role yang ingin dibuka
+                        </div>
+
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight">
+                            Masuk ke
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                                dashboard
+                            </span>
+                            sesuai peranmu
+                        </h1>
+
+                        <p class="mt-5 text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                            Halaman ini dibuat sebagai gerbang akses untuk Admin, Teacher, dan Student.
+                            Desainnya tetap satu keluarga dengan tema EduSmart: modern, clean, dan profesional.
+                        </p>
+
+                        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                            <div class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                                <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                    <i class="ph-bold ph-rocket-launch text-xl"></i>
+                                </div>
+                                <div class="text-left">
+                                    <p class="text-sm font-bold text-slate-900">Akses cepat</p>
+                                    <p class="text-xs text-slate-500">1 klik langsung masuk</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                                <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                                    <i class="ph-bold ph-lock-key text-xl"></i>
+                                </div>
+                                <div class="text-left">
+                                    <p class="text-sm font-bold text-slate-900">Aman & jelas</p>
+                                    <p class="text-xs text-slate-500">Role-based access</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right content -->
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-600/15 via-white to-amber-500/10 rounded-[2rem] blur-2xl"></div>
+
+                        <div class="relative glass rounded-[2rem] shadow-2xl border border-white/70 p-5 sm:p-6 lg:p-7">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-500">Dashboard Access</p>
+                                    <h2 class="text-2xl font-extrabold text-slate-900">Pilih Portal</h2>
+                                </div>
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/25">
+                                    <i class="ph-fill ph-compass text-xl"></i>
+                                </div>
+                            </div>
+
+                            <div class="grid gap-4">
+                                <!-- Admin -->
+                                <button
+                                    type="button"
+                                    onclick="goToDashboard('admin')"
+                                    class="shine card-hover text-left w-full group rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 flex items-center gap-4">
+                                    <div class="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                        <i class="ph-fill ph-gauge text-3xl"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between gap-4">
+                                            <div>
+                                                <p class="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">Admin</p>
+                                                <h3 class="text-xl font-extrabold text-slate-900">Masuk Dashboard Admin</h3>
+                                            </div>
+                                            <i class="ph-bold ph-arrow-right text-2xl text-slate-300 group-hover:text-blue-600 transition"></i>
+                                        </div>
+                                        <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+                                            Mengelola data utama, pengguna, laporan, dan seluruh konfigurasi sistem.
+                                        </p>
+                                    </div>
+                                </button>
+
+                                <!-- Teacher -->
+                                <button
+                                    type="button"
+                                    onclick="goToDashboard('teacher')"
+                                    class="shine card-hover text-left w-full group rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 flex items-center gap-4">
+                                    <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                                        <i class="ph-fill ph-chalkboard-teacher text-3xl"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between gap-4">
+                                            <div>
+                                                <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-600">Teacher</p>
+                                                <h3 class="text-xl font-extrabold text-slate-900">Masuk Dashboard Guru</h3>
+                                            </div>
+                                            <i class="ph-bold ph-arrow-right text-2xl text-slate-300 group-hover:text-amber-600 transition"></i>
+                                        </div>
+                                        <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+                                            Mengakses kelas, materi, jadwal mengajar, presensi, dan perkembangan siswa.
+                                        </p>
+                                    </div>
+                                </button>
+
+                                <!-- Student -->
+                                <button
+                                    type="button"
+                                    onclick="goToDashboard('student')"
+                                    class="shine card-hover text-left w-full group rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 flex items-center gap-4">
+                                    <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                        <i class="ph-fill ph-graduation-cap text-3xl"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between gap-4">
+                                            <div>
+                                                <p class="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Student</p>
+                                                <h3 class="text-xl font-extrabold text-slate-900">Masuk Dashboard Student</h3>
+                                            </div>
+                                            <i class="ph-bold ph-arrow-right text-2xl text-slate-300 group-hover:text-indigo-600 transition"></i>
+                                        </div>
+                                        <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+                                            Melihat kelas, tugas, nilai, jadwal, dan progress belajar dengan cepat.
+                                        </p>
+                                    </div>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Small features section -->
+            <!-- <section class="pb-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="rounded-3xl bg-white border border-slate-200 p-6 shadow-sm">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+                                <i class="ph-fill ph-layout text-2xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Clean UI</h3>
+                            <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+                                Tampilan fokus ke 3 pilihan utama tanpa elemen yang bikin ramai.
+                            </p>
+                        </div>
+
+                        <div class="rounded-3xl bg-white border border-slate-200 p-6 shadow-sm">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
+                                <i class="ph-fill ph-device-mobile-camera text-2xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Responsif</h3>
+                            <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+                                Tetap nyaman di HP, tablet, dan laptop karena grid-nya fleksibel.
+                            </p>
+                        </div>
+
+                        <div class="rounded-3xl bg-white border border-slate-200 p-6 shadow-sm">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
+                                <i class="ph-fill ph-sparkle text-2xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Serasi dengan EduSmart</h3>
+                            <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+                                Warna dan feel tetap satu keluarga dengan desain website referensimu.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section> -->
+        </main>
+    </div>
+
+    <script>
+        function goToDashboard(role) {
+            const routes = {
+                admin: '../admin/dashboard.html',
+                teacher: '../teacher/dashboard.html',
+                student: '../students/dashboard.html'
+            };
+
+            window.location.href = routes[role] || '#';
+        }
+    </script>
+</body>
+</htm
+::contentReference[oaicite:1]{index=1}
+l>
