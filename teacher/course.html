@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="hvzAEp00mNecg199ibx3EMSsbFgvXEcHO9RwzCyr">
+
+    <script type="module" src="http://[::1]:5173/@vite/client" data-navigate-track="reload"></script>
+    <link rel="stylesheet" href="http://[::1]:5173/resources/css/app.css" data-navigate-track="reload" />
+    <script type="module" src="http://[::1]:5173/resources/js/app.js" data-navigate-track="reload"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Favicon icon-->
+    <link rel="shortcut icon" type="image/png" href="http://127.0.0.1:8000/assets/images/logos/favicon.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
+
+    <title>Teacher Dashboard - LMS</title>
+    <script id="browser-logger-active">
+        (function () {
+            const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+            const logQueue = [];
+            let flushTimeout = null;
+
+            console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+
+            // Store original console methods
+            const originalConsole = {
+                log: console.log,
+                info: console.info,
+                error: console.error,
+                warn: console.warn,
+                table: console.table
+            };
+
+            // Helper to safely stringify values
+            function safeStringify(obj) {
+                const seen = new WeakSet();
+                return JSON.stringify(obj, (key, value) => {
+                    if (typeof value === 'object' && value !== null) {
+                        if (seen.has(value)) return '[Circular]';
+                        seen.add(value);
+                    }
+                    if (value instanceof Error) {
+                        return {
+                            name: value.name,
+                            message: value.message,
+                            stack: value.stack
+                        };
+                    }
+                    return value;
+                });
+            }
+
+            // Batch and send logs
+            function flushLogs() {
+                if (logQueue.length === 0) return;
+
+                const batch = logQueue.splice(0, logQueue.length);
+
+                fetch(ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ logs: batch })
+                }).catch(err => {
+                    // Silently fail to avoid infinite loops
+                    originalConsole.error('Failed to send logs:', err);
+                });
+            }
+
+            // Debounced flush (100ms)
+            function scheduleFlush() {
+                if (flushTimeout) clearTimeout(flushTimeout);
+                flushTimeout = setTimeout(flushLogs, 100);
+            }
+
+            // Intercept console methods
+            ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
+                console[method] = function (...args) {
+                    // Call original method
+                    originalConsole[method].apply(console, args);
+
+                    // Capture log data
+                    try {
+                        logQueue.push({
+                            type: method,
+                            timestamp: new Date().toISOString(),
+                            data: args.map(arg => {
+                                try {
+                                    return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                                } catch (e) {
+                                    return String(arg);
+                                }
+                            }),
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
+
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
+                };
+            });
+
+            // Global error handlers for uncaught errors
+            const originalOnError = window.onerror;
+            window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
+                try {
+                    logQueue.push({
+                        type: 'uncaught_error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: errorMsg,
+                            filename: url,
+                            lineno: lineNumber,
+                            colno: colNumber,
+                            error: error ? {
+                                name: error.name,
+                                message: error.message,
+                                stack: error.stack
+                            } : null
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Call original handler if it exists
+                if (originalOnError && typeof originalOnError === 'function') {
+                    return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+                }
+
+                // Let the error continue to propagate
+                return false;
+            }
+            window.addEventListener('error', (event) => {
+                try {
+                    logQueue.push({
+                        type: 'window_error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: event.message,
+                            filename: event.filename,
+                            lineno: event.lineno,
+                            colno: event.colno,
+                            error: event.error ? {
+                                name: event.error.name,
+                                message: event.error.message,
+                                stack: event.error.stack
+                            } : null
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Let the error continue to propagate
+                return false;
+            });
+            window.addEventListener('unhandledrejection', (event) => {
+                try {
+                    logQueue.push({
+                        type: 'error',
+                        timestamp: new Date().toISOString(),
+                        data: [{
+                            message: 'Unhandled Promise Rejection',
+                            reason: event.reason instanceof Error ? {
+                                name: event.reason.name,
+                                message: event.reason.message,
+                                stack: event.reason.stack
+                            } : event.reason
+                        }],
+                        url: window.location.href,
+                        userAgent: navigator.userAgent
+                    });
+
+                    scheduleFlush();
+                } catch (e) {
+                    // Fail silently
+                }
+
+                // Let the rejection continue to propagate
+                return false;
+            });
+
+            // Flush on page unload
+            window.addEventListener('beforeunload', () => {
+                if (logQueue.length > 0) {
+                    navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+                }
+            });
+        })();
+    </script>
+</head>
+
+<body class="bg-slate-50 font-sans antialiased">
+
+    <!-- Sidebar Backdrop for Mobile -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-[55] hidden xl:hidden"
+        onclick="closeSidebarTeacherDashboard()"></div>
+
+    <!--start the project-->
+    <main>
+        <div id="main-wrapper" class="flex min-h-screen">
+            <aside id="application-sidebar-brand"
+                class="fixed top-0 start-0 h-screen z-[60] w-[270px] bg-white border-r border-gray-200 shadow-lg transform -translate-x-full xl:translate-x-0 transition-transform duration-300 ease-in-out">
+
+                <!-- Close button for mobile -->
+                <div class="absolute top-3 end-3 xl:hidden">
+                    <button type="button" onclick="closeSidebarTeacherDashboard()"
+                        class="w-8 h-8 inline-flex justify-center items-center rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors">
+                        <span class="sr-only">Close</span>
+                        <i class="ti ti-x text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Logo Section -->
+                <div class="p-5 border-b border-gray-100">
+                    <a href="../user/pages/home.html" class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                            <i class="ti ti-chalkboard text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-lg text-gray-800">DASHBOARD</h2>
+                            <span class="text-xs text-gray-500">Teacher Panel</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Scrollable Navigation -->
+                <div class="h-[calc(100vh-100px)] overflow-y-auto px-4 py-6">
+                    <nav class="w-full flex flex-col">
+                        <ul id="sidebarnav" class="text-gray-700 text-sm space-y-1">
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2">
+                                <span>HOME</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 bg-blue-500 text-white shadow-md shadow-emerald-500/30"
+                                    href="./dashboard.html">
+                                    <i class="ti ti-layout-dashboard text-xl"></i>
+                                    <span class="font-medium">Dashboard</span>
+                                </a>
+                            </li>
+
+
+                            <li class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-2 pt-6">
+                                <span>MAIN</span>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="./course.html">
+                                    <i class="ti ti-book text-xl"></i>
+                                    <span class="font-medium">Course</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="./program.html">
+                                    <i class="ti ti-school text-xl"></i>
+                                    <span class="font-medium">Program</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="./jadwal.html">
+                                    <i class="ti ti-calendar text-xl"></i>
+                                    <span class="font-medium">Jadwal Kelas</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    href="./task.html">
+                                    <i class="ti ti-list-check text-xl"></i>
+                                    <span class="font-medium">Task Bank</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Page Wrapper with responsive margin -->
+            <div class="w-full xl:ml-[270px] flex flex-col min-h-screen transition-all duration-300">
+                <!-- HEADER -->
+                <div class="shrink-0">
+                    <header
+                        class="sticky top-0 w-full bg-white/80 backdrop-blur-md z-40 border-b border-gray-200/60 shadow-sm">
+                        <nav class="flex items-center justify-between px-4 lg:px-6 py-3" aria-label="Global">
+                            <!-- Left Side -->
+                            <div class="flex items-center gap-4">
+                                <!-- Mobile Menu Toggle -->
+                                <button type="button" onclick="openSidebarTeacherDashboard()"
+                                    class="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                                    <i class="ti ti-menu-2 text-xl text-gray-600"></i>
+                                </button>
+                            </div>
+
+                            <!-- Right Side - User Profile -->
+                            <div class="flex items-center gap-3" data-dropdown-toggle
+                                onclick="toggleDropdownTeacherDashboard('profile-dropdown-teacher')">
+                                <div class="hidden sm:block text-right">
+                                    <p class="text-sm font-semibold text-gray-800">Staff teacher</p>
+                                    <span
+                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                                        teacher
+                                    </span>
+                                </div>
+
+                                <!-- Profile Dropdown -->
+                                <div class="relative">
+                                    <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
+                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+
+                                    <div id="profile-dropdown-teacher" data-dropdown-menu
+                                        class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
+                                        <div class="px-4 py-3 border-b border-gray-100 sm:hidden">
+                                            <p class="text-sm font-semibold text-gray-800">Staff teacher</p>
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 mt-1">
+                                                teacher
+                                            </span>
+                                        </div>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-user text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">My Profile</span>
+                                        </a>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                            <i class="ti ti-settings text-lg text-gray-400"></i>
+                                            <span class="text-sm font-medium">Settings</span>
+                                        </a>
+                                        <div class="border-t border-gray-100 my-2"></div>
+                                        <div class="px-4 py-2">
+                                            <form action="http://127.0.0.1:8000/logout" method="POST">
+                                                <input type="hidden" name="_token"
+                                                    value="hvzAEp00mNecg199ibx3EMSsbFgvXEcHO9RwzCyr" autocomplete="off">
+                                                <button type="submit"
+                                                    class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors duration-200">
+                                                    <i class="ti ti-logout text-lg"></i>
+                                                    <span>Logout</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </header>
+                </div>
+
+                <!-- CONTENT -->
+                <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+                    <div class="container mx-auto px-4 py-8 max-w-7xl">
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                            <div>
+                                <h1 class="text-3xl font-bold text-slate-800 tracking-tight">My Courses</h1>
+                                <p class="text-slate-500 text-sm mt-1">Manage modules and content for your assigned
+                                    courses.</p>
+                            </div>
+                        </div>
+
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                            <div
+                                class="group bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full relative">
+
+                                <div class="relative h-48 w-full overflow-hidden bg-slate-100">
+                                    <img src="http://127.0.0.1:8000/storage/courses/T8R35kazd1s2rKS6NOEXKiuSnNabQBJcFrdZJba0.png"
+                                        alt="Kelas Matematika Wajib SMA"
+                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+
+                                    <span
+                                        class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-slate-700 text-xs font-bold px-3 py-1 rounded-full shadow-sm border border-slate-100">
+                                        FIsika
+                                    </span>
+
+                                    <div class="absolute top-3 right-3">
+                                        <span class="relative flex h-3 w-3">
+                                            <span
+                                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                            <span
+                                                class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="p-5 flex-grow flex flex-col">
+
+                                    <h3 class="text-lg font-bold text-slate-800 leading-tight mb-3 line-clamp-2"
+                                        title="Kelas Matematika Wajib SMA">
+                                        Kelas Matematika Wajib SMA
+                                    </h3>
+
+                                    <div
+                                        class="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
+                                        <div class="flex flex-col">
+                                            <span class="text-xs text-slate-400">Price</span>
+                                            <span class="text-lg font-bold text-slate-800">
+                                                Rp 700.000
+                                            </span>
+                                        </div>
+
+                                        <span
+                                            class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Premium</span>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="bg-slate-50 p-3 px-5 flex items-center justify-between border-t border-slate-100">
+
+                                    <span class="px-3 py-1.5 text-xs font-semibold rounded-md border shadow-sm
+                            bg-emerald-100 text-emerald-700 border-emerald-200">
+                                        Published
+                                    </span>
+
+
+                                    <a href="./detail-course.html"
+                                        class="flex items-center gap-2 px-4 py-2 bg-[#5d87ff] text-white text-sm font-medium rounded-lg hover:bg-[#4a70e0] transition shadow-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        Kelola Konten
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Overlay -->
+                    <div id="modal-delete"
+                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        <!-- Modal Box -->
+                        <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+                            <!-- Icon -->
+                            <div
+                                class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 class="mb-2 text-lg font-bold text-slate-800">
+                                Hapus Data?
+                            </h3>
+
+                            <!-- Description -->
+                            <p id="deleteModalText" class="mb-6 text-sm text-slate-500">
+                                Apakah anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex justify-center gap-3">
+                                <button type="button" onclick="closeDeleteModal()"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50">
+                                    Batal
+                                </button>
+
+                                <form id="deleteForm" method="POST" class="w-full">
+                                    <input type="hidden" name="_token" value="hvzAEp00mNecg199ibx3EMSsbFgvXEcHO9RwzCyr"
+                                        autocomplete="off"> <input type="hidden" name="_method" value="DELETE"> <button
+                                        type="submit"
+                                        class="w-full rounded-lg bg-red-600 px-4 py-2 font-medium text-white shadow-md shadow-red-500/20 transition hover:bg-red-700">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openDeleteModal(actionUrl, description = null) {
+                            const modal = document.getElementById('modal-delete');
+                            const form = document.getElementById('deleteForm');
+                            const text = document.getElementById('deleteModalText');
+
+                            form.action = actionUrl;
+
+                            if (description) {
+                                text.innerHTML = description;
+                            }
+
+                            modal.classList.remove('hidden');
+                            modal.classList.add('flex');
+                        }
+
+                        function closeDeleteModal() {
+                            const modal = document.getElementById('modal-delete');
+
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                        }
+                    </script>
+
+
+                    <!-- Overlay -->
+                    <div id="modal-confirm"
+                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        <!-- Modal Box -->
+                        <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+                            <!-- Icon -->
+                            <div
+                                class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 id="confirmModalTitle" class="mb-2 text-lg font-bold text-slate-800">
+                                Konfirmasi
+                            </h3>
+
+                            <!-- Description -->
+                            <p id="confirmModalText" class="mb-6 text-sm text-slate-500">
+                                Apakah anda yakin?
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="flex justify-center gap-3">
+                                <button type="button" onclick="closeConfirmModal()"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 transition hover:bg-slate-50">
+                                    Batal
+                                </button>
+
+                                <form id="confirmForm" method="POST" class="w-full">
+                                    <input type="hidden" name="_token" value="hvzAEp00mNecg199ibx3EMSsbFgvXEcHO9RwzCyr"
+                                        autocomplete="off"> <input type="hidden" name="_method" value="PATCH">
+                                    <!-- Both fields for compatibility -->
+                                    <input type="hidden" name="is_ready" id="confirmIsReady">
+                                    <input type="hidden" name="is_active" id="confirmIsActive">
+
+                                    <button type="submit" id="confirmButton"
+                                        class="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700">
+                                        Ya, Lanjutkan
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openConfirmModal(actionUrl, title, description, statusValue, buttonText = 'Ya, Lanjutkan',
+                            buttonColorClass = 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20') {
+                            const modal = document.getElementById('modal-confirm');
+                            const form = document.getElementById('confirmForm');
+                            const titleEl = document.getElementById('confirmModalTitle');
+                            const text = document.getElementById('confirmModalText');
+                            const isReadyInput = document.getElementById('confirmIsReady');
+                            const isActiveInput = document.getElementById('confirmIsActive');
+                            const confirmBtn = document.getElementById('confirmButton');
+
+                            form.action = actionUrl;
+                            titleEl.innerHTML = title;
+                            text.innerHTML = description;
+
+                            // Set both values for compatibility with courses (is_ready) and programs (is_active)
+                            isReadyInput.value = statusValue;
+                            isActiveInput.value = statusValue;
+
+                            confirmBtn.innerHTML = buttonText;
+
+                            // Reset classes
+                            confirmBtn.className =
+                                `w-full rounded-lg px-4 py-2 font-medium text-white shadow-md transition ${buttonColorClass}`;
+
+                            modal.classList.remove('hidden');
+                            modal.classList.add('flex');
+                        }
+
+                        function closeConfirmModal() {
+                            const modal = document.getElementById('modal-confirm');
+
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                        }
+                    </script>
+                </main>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
+
+    <script src="http://127.0.0.1:8000/assets/libs/iconify-icon/dist/iconify-icon.min.js"></script>
+
+    <script src="http://127.0.0.1:8000/assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+    <script src="http://127.0.0.1:8000/assets/js/dashboard.js"></script>
+
+    <!-- Custom Dashboard Navigation Script -->
+    <script>
+        // Mobile Sidebar Toggle
+        function openSidebarTeacherDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.remove('-translate-x-full', 'hidden');
+            sidebar.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebarTeacherDashboard() {
+            const sidebar = document.getElementById('application-sidebar-brand');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Dropdown Toggle
+        function toggleDropdownTeacherDashboard(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('[data-dropdown-menu]');
+
+            // Close all other dropdowns
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.add('hidden', 'opacity-0');
+                }
+            });
+
+            // Toggle current dropdown
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                setTimeout(() => dropdown.classList.remove('opacity-0'), 10);
+            } else {
+                dropdown.classList.add('opacity-0');
+                setTimeout(() => dropdown.classList.add('hidden'), 200);
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function (e) {
+            const dropdowns = document.querySelectorAll('[data-dropdown-menu]');
+            const triggers = document.querySelectorAll('[data-dropdown-toggle]');
+
+            let clickedOnDropdown = false;
+            triggers.forEach(trigger => {
+                if (trigger.contains(e.target)) clickedOnDropdown = true;
+            });
+            dropdowns.forEach(dropdown => {
+                if (dropdown.contains(e.target)) clickedOnDropdown = true;
+            });
+
+            if (!clickedOnDropdown) {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('opacity-0');
+                    setTimeout(() => dropdown.classList.add('hidden'), 200);
+                });
+            }
+        });
+
+        // Accordion Toggle for Sidebar
+        document.querySelectorAll('[data-accordion-toggle]').forEach(button => {
+            button.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-accordion-toggle');
+                const content = document.getElementById(targetId);
+                const icon = this.querySelector('.accordion-icon');
+
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    if (icon) icon.classList.add('rotate-180');
+                } else {
+                    content.classList.add('hidden');
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>
