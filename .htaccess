@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# Mengarahkan root (/) ke halaman user/pages/home.html
+# Menggunakan [L] untuk menghentikan pemrosesan rule jika sudah cocok
+RewriteRule ^$ user/pages/home.html [L]
+
+# Jika Anda ingin melakukan pengalihan (URL berubah di browser), gunakan:
+# RewriteRule ^$ /user/pages/home.html [R=301,L]
