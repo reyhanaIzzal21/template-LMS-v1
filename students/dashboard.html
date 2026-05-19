@@ -69,84 +69,113 @@
         }
     </style>
     <script id="browser-logger-active">
-        (function () {
-            const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
-            const logQueue = [];
-            let flushTimeout = null;
+            (function () {
+                const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+                const logQueue = [];
+                let flushTimeout = null;
 
-            console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+                console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
 
-            // Store original console methods
-            const originalConsole = {
-                log: console.log,
-                info: console.info,
-                error: console.error,
-                warn: console.warn,
-                table: console.table
-            };
+                // Store original console methods
+                const originalConsole = {
+                    log: console.log,
+                    info: console.info,
+                    error: console.error,
+                    warn: console.warn,
+                    table: console.table
+                };
 
-            // Helper to safely stringify values
-            function safeStringify(obj) {
-                const seen = new WeakSet();
-                return JSON.stringify(obj, (key, value) => {
-                    if (typeof value === 'object' && value !== null) {
-                        if (seen.has(value)) return '[Circular]';
-                        seen.add(value);
-                    }
-                    if (value instanceof Error) {
-                        return {
-                            name: value.name,
-                            message: value.message,
-                            stack: value.stack
-                        };
-                    }
-                    return value;
+                // Helper to safely stringify values
+                function safeStringify(obj) {
+                    const seen = new WeakSet();
+                    return JSON.stringify(obj, (key, value) => {
+                        if (typeof value === 'object' && value !== null) {
+                            if (seen.has(value)) return '[Circular]';
+                            seen.add(value);
+                        }
+                        if (value instanceof Error) {
+                            return {
+                                name: value.name,
+                                message: value.message,
+                                stack: value.stack
+                            };
+                        }
+                        return value;
+                    });
+                }
+
+                // Batch and send logs
+                function flushLogs() {
+                    if (logQueue.length === 0) return;
+
+                    const batch = logQueue.splice(0, logQueue.length);
+
+                    fetch(ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ logs: batch })
+                    }).catch(err => {
+                        // Silently fail to avoid infinite loops
+                        originalConsole.error('Failed to send logs:', err);
+                    });
+                }
+
+                // Debounced flush (100ms)
+                function scheduleFlush() {
+                    if (flushTimeout) clearTimeout(flushTimeout);
+                    flushTimeout = setTimeout(flushLogs, 100);
+                }
+
+                // Intercept console methods
+                ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
+                    console[method] = function (...args) {
+                        // Call original method
+                        originalConsole[method].apply(console, args);
+
+                        // Capture log data
+                        try {
+                            logQueue.push({
+                                type: method,
+                                timestamp: new Date().toISOString(),
+                                data: args.map(arg => {
+                                    try {
+                                        return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                                    } catch (e) {
+                                        return String(arg);
+                                    }
+                                }),
+                                url: window.location.href,
+                                userAgent: navigator.userAgent
+                            });
+
+                            scheduleFlush();
+                        } catch (e) {
+                            // Fail silently
+                        }
+                    };
                 });
-            }
 
-            // Batch and send logs
-            function flushLogs() {
-                if (logQueue.length === 0) return;
-
-                const batch = logQueue.splice(0, logQueue.length);
-
-                fetch(ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ logs: batch })
-                }).catch(err => {
-                    // Silently fail to avoid infinite loops
-                    originalConsole.error('Failed to send logs:', err);
-                });
-            }
-
-            // Debounced flush (100ms)
-            function scheduleFlush() {
-                if (flushTimeout) clearTimeout(flushTimeout);
-                flushTimeout = setTimeout(flushLogs, 100);
-            }
-
-            // Intercept console methods
-            ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
-                console[method] = function (...args) {
-                    // Call original method
-                    originalConsole[method].apply(console, args);
-
-                    // Capture log data
+                // Global error handlers for uncaught errors
+                const originalOnError = window.onerror;
+                window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
                     try {
                         logQueue.push({
-                            type: method,
+                            type: 'uncaught_error',
                             timestamp: new Date().toISOString(),
-                            data: args.map(arg => {
-                                try {
-                                    return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
-                                } catch (e) {
-                                    return String(arg);
-                                }
-                            }),
+                            data: [{
+                                message: errorMsg,
+                                filename: url,
+                                lineno: lineNumber,
+                                colno: colNumber,
+                                error: error ? {
+                                    name: error.name,
+                                    message: error.message,
+                                    stack: error.stack
+                                } : null
+                            }],
                             url: window.location.href,
                             userAgent: navigator.userAgent
                         });
@@ -155,105 +184,76 @@
                     } catch (e) {
                         // Fail silently
                     }
-                };
-            });
 
-            // Global error handlers for uncaught errors
-            const originalOnError = window.onerror;
-            window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
-                try {
-                    logQueue.push({
-                        type: 'uncaught_error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: errorMsg,
-                            filename: url,
-                            lineno: lineNumber,
-                            colno: colNumber,
-                            error: error ? {
-                                name: error.name,
-                                message: error.message,
-                                stack: error.stack
-                            } : null
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Call original handler if it exists
+                    if (originalOnError && typeof originalOnError === 'function') {
+                        return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+                    }
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
+                    // Let the error continue to propagate
+                    return false;
                 }
+                window.addEventListener('error', (event) => {
+                    try {
+                        logQueue.push({
+                            type: 'window_error',
+                            timestamp: new Date().toISOString(),
+                            data: [{
+                                message: event.message,
+                                filename: event.filename,
+                                lineno: event.lineno,
+                                colno: event.colno,
+                                error: event.error ? {
+                                    name: event.error.name,
+                                    message: event.error.message,
+                                    stack: event.error.stack
+                                } : null
+                            }],
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
 
-                // Call original handler if it exists
-                if (originalOnError && typeof originalOnError === 'function') {
-                    return originalOnError(errorMsg, url, lineNumber, colNumber, error);
-                }
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
 
-                // Let the error continue to propagate
-                return false;
-            }
-            window.addEventListener('error', (event) => {
-                try {
-                    logQueue.push({
-                        type: 'window_error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: event.message,
-                            filename: event.filename,
-                            lineno: event.lineno,
-                            colno: event.colno,
-                            error: event.error ? {
-                                name: event.error.name,
-                                message: event.error.message,
-                                stack: event.error.stack
-                            } : null
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Let the error continue to propagate
+                    return false;
+                });
+                window.addEventListener('unhandledrejection', (event) => {
+                    try {
+                        logQueue.push({
+                            type: 'error',
+                            timestamp: new Date().toISOString(),
+                            data: [{
+                                message: 'Unhandled Promise Rejection',
+                                reason: event.reason instanceof Error ? {
+                                    name: event.reason.name,
+                                    message: event.reason.message,
+                                    stack: event.reason.stack
+                                } : event.reason
+                            }],
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
-                }
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
 
-                // Let the error continue to propagate
-                return false;
-            });
-            window.addEventListener('unhandledrejection', (event) => {
-                try {
-                    logQueue.push({
-                        type: 'error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: 'Unhandled Promise Rejection',
-                            reason: event.reason instanceof Error ? {
-                                name: event.reason.name,
-                                message: event.reason.message,
-                                stack: event.reason.stack
-                            } : event.reason
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Let the rejection continue to propagate
+                    return false;
+                });
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
-                }
-
-                // Let the rejection continue to propagate
-                return false;
-            });
-
-            // Flush on page unload
-            window.addEventListener('beforeunload', () => {
-                if (logQueue.length > 0) {
-                    navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
-                }
-            });
-        })();
+                // Flush on page unload
+                window.addEventListener('beforeunload', () => {
+                    if (logQueue.length > 0) {
+                        navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+                    }
+                });
+            })();
     </script>
 </head>
 
@@ -315,13 +315,10 @@
 
 
             <div class="lg:col-span-3">
-
                 <div class="space-y-6">
-
 
                     <div
                         class="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-sm relative overflow-hidden group">
-
                         <div class="relative w-24 h-24 mx-auto mb-4">
                             <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=200&auto=format&fit=crop"
                                 class="w-full h-full rounded-full object-cover border-4 border-white shadow-md"
@@ -335,114 +332,192 @@
 
                         <h2 class="text-lg font-bold text-slate-900">Audrey Syafa Az-Zahra</h2>
                         <p class="text-sm text-slate-500 mb-4">Siswa Paket UTBK</p>
+
                         <div class="flex justify-center gap-2 mb-6">
                             <span
-                                class="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-bold rounded-full border border-yellow-200 flex items-center gap-1">
-                                <i class="ph-fill ph-crown"></i> Premium
+                                class="px-3 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-full border border-amber-200 flex items-center gap-1.5 shadow-sm">
+                                <i class="ph-fill ph-crown text-amber-500"></i> Premium Member
                             </span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
                             <div class="text-center">
-                                <span class="block text-lg font-bold text-slate-900">12</span>
-                                <span class="text-xs text-slate-500">Kursus</span>
+                                <span class="block text-lg font-extrabold text-slate-900">12</span>
+                                <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Kursus</span>
                             </div>
                             <div class="text-center border-l border-slate-100">
-                                <span class="block text-lg font-bold text-slate-900">850</span>
-                                <span class="text-xs text-slate-500">XP Poin</span>
+                                <span class="block text-lg font-extrabold text-slate-900">850</span>
+                                <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">XP Poin</span>
                             </div>
                         </div>
                     </div>
 
-
                     <nav class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden lg:block">
                         <div class="p-2 space-y-1">
-
-                            <a href="./"
+                            <a href="./dashboard.html"
                                 class="flex items-center gap-3 px-4 py-3 bg-primary-50 text-primary-700 rounded-xl font-bold transition">
-                                <i class="ph-fill ph-squares-four text-lg"></i> Dashboard
+                                <i class="ph-fill ph-squares-four text-xl"></i> Dashboard
                             </a>
+
                             <a href="./course.html"
                                 class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium transition">
-                                <i class="ph-bold ph-book-open text-lg"></i> Course
+                                <i class="ph-bold ph-book-open text-xl"></i> Course
                             </a>
 
                             <label class="block m-0">
                                 <input type="checkbox" class="peer sr-only" />
-                                <div class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-medium transition
-                            bg-white text-slate-600 hover:bg-slate-50 hover:text-primary-600 cursor-pointer border border-transparent
-                            peer-checked:bg-primary-50 peer-checked:text-primary-700">
+                                <div
+                                    class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-medium transition bg-white text-slate-600 hover:bg-slate-50 hover:text-primary-600 cursor-pointer border border-transparent peer-checked:bg-primary-50 peer-checked:text-primary-700">
                                     <div class="flex items-center gap-3">
-                                        <i class="ph-bold ph-app-window text-lg"></i>
-                                        <span>Bimbel</span>
+                                        <i class="ph-bold ph-app-window text-xl"></i>
+                                        <span>Menu Bimbel</span>
                                     </div>
                                     <i
-                                        class="ti ti-chevron-down text-sm transform transition-transform duration-200 peer-checked:rotate-180"></i>
+                                        class="ph-bold ph-caret-down text-sm transform transition-transform duration-300 peer-checked:rotate-180"></i>
                                 </div>
 
                                 <div
-                                    class="overflow-hidden max-h-0 peer-checked:max-h-[1000px] transition-all duration-300 ease-in-out pl-4 pr-2">
-                                    <a href="./payment.html"
-                                        class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium">
-                                        <i class="ph-bold ph-circle text-xs"></i> Pembayaran
-                                    </a>
-                                    <a href="./schedules.html"
-                                        class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium">
-                                        <i class="ph-bold ph-circle text-xs"></i> Jadwal
-                                    </a>
-                                    <a href="./materi.html"
-                                        class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium">
-                                        <i class="ph-bold ph-circle text-xs"></i> Materi
-                                    </a>
-                                    <a href="#"
-                                        class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium">
-                                        <i class="ph-bold ph-circle text-xs"></i> Try Out
-                                    </a>
-                                    <a href="./task.html"
-                                        class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium">
-                                        <i class="ph-bold ph-circle text-xs"></i> Tugas & Ujian
-                                    </a>
-                                    <a href="#"
-                                        class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium">
-                                        <i class="ph-bold ph-circle text-xs"></i> Quiz
-                                    </a>
+                                    class="overflow-hidden max-h-0 peer-checked:max-h-[1000px] transition-all duration-500 ease-in-out pl-10 pr-2">
+                                    <div class="py-2 space-y-1 border-l-2 border-slate-100 ml-2 pl-2">
+                                        <a href="./progres.html"
+                                            class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium text-sm transition">
+                                            <i class="ph-bold ph-chart-line-up text-lg"></i> Progres Belajar
+                                        </a>
+                                        <a href="./payment.html"
+                                            class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium text-sm transition">
+                                            <i class="ph-bold ph-credit-card text-lg"></i> Pembayaran
+                                        </a>
+                                        <a href="./schedules.html"
+                                            class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium text-sm transition">
+                                            <i class="ph-bold ph-calendar-check text-lg"></i> Jadwal
+                                        </a>
+                                        <a href="./materi.html"
+                                            class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium text-sm transition">
+                                            <i class="ph-bold ph-book-bookmark text-lg"></i> Materi
+                                        </a>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium text-sm transition">
+                                            <i class="ph-bold ph-pencil-simple text-lg"></i> Try Out
+                                        </a>
+                                        <a href="./task.html"
+                                            class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium text-sm transition">
+                                            <i class="ph-bold ph-exam text-lg"></i> Tugas & Ujian
+                                        </a>
+                                        <a href="#"
+                                            class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium text-sm transition">
+                                            <i class="ph-bold ph-question text-lg"></i> Quiz
+                                        </a>
+                                    </div>
                                 </div>
                             </label>
 
                             <a href="#"
                                 class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium transition">
-                                <i class="ph-bold ph-receipt text-lg"></i> Riwayat Pembelian
+                                <i class="ph-bold ph-receipt text-xl"></i> Riwayat Pembelian
                             </a>
+
                             <a href="#"
                                 class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium transition">
-                                <i class="ph-bold ph-gear text-lg"></i> Edit Profil
+                                <i class="ph-bold ph-gear text-xl"></i> Edit Profil
                             </a>
+
                             <div class="border-t border-slate-100 my-2"></div>
+
                             <a href="#"
                                 class="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-medium transition">
-                                <i class="ph-bold ph-sign-out text-lg"></i> Keluar
+                                <i class="ph-bold ph-sign-out text-xl"></i> Keluar
                             </a>
                         </div>
                     </nav>
 
+                    <div class="lg:hidden relative" x-data="{ mobileNavOpen: false }">
 
-                    <div class="lg:hidden">
-                        <select
-                            class="w-full p-3 border border-slate-200 rounded-xl bg-white font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            onchange="window.location.href=this.value">
-                            <option value="./" selected>🏠 Dashboard</option>
-                            <option value="./course.html">📚 Course</option>
-                            <option value="./payment.html">💳 Pembayaran</option>
-                            <option value="./schedules.html">📅 Jadwal</option>
-                            <option value="./materi.html">📖 Materi</option>
-                            <option value="#">📝 Try Out</option>
-                            <option value="./task.html">📝 Tugas & Ujian</option>
-                            <option value="#">❓ Quiz</option>
-                            <option value="#">🧾 Riwayat Pembelian</option>
-                            <option value="#">⚙️ Edit Profil</option>
-                            <option value="#">🚪 Keluar</option>
-                        </select>
+                        <button @click="mobileNavOpen = !mobileNavOpen"
+                            class="w-full flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-sm text-slate-700 font-bold transition focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 active:scale-[0.98]">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center">
+                                    <i class="ph-bold ph-list text-lg"></i>
+                                </div>
+                                <span>Menu Navigasi</span>
+                            </div>
+                            <div
+                                class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                                <i class="ph-bold ph-caret-down transition-transform duration-300"
+                                    :class="mobileNavOpen ? 'rotate-180' : ''"></i>
+                            </div>
+                        </button>
+
+                        <div x-show="mobileNavOpen" x-collapse
+                            class="mt-3 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50">
+                            <div class="p-3 space-y-1">
+
+                                <a href="./dashboard.html"
+                                    class="flex items-center gap-3 px-4 py-3 text-slate-700 hover:bg-primary-50 hover:text-primary-600 rounded-xl font-bold transition">
+                                    <i class="ph-fill ph-squares-four text-xl text-slate-400"></i> Dashboard
+                                </a>
+
+                                <a href="./course.html"
+                                    class="flex items-center gap-3 px-4 py-3 bg-primary-50 text-primary-600 rounded-xl font-bold transition shadow-sm border border-primary-100">
+                                    <i class="ph-bold ph-book-open text-xl"></i> Course
+                                </a>
+
+                                <div class="pt-4 pb-2 px-4">
+                                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+                                        Aktivitas Bimbel</p>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <a href="./progres.html"
+                                        class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
+                                        <i class="ph-fill ph-chart-line-up text-2xl text-slate-400"></i> Progres
+                                    </a>
+                                    <a href="./schedules.html"
+                                        class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
+                                        <i class="ph-fill ph-calendar-check text-2xl text-slate-400"></i> Jadwal
+                                    </a>
+                                    <a href="./materi.html"
+                                        class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
+                                        <i class="ph-fill ph-book-bookmark text-2xl text-slate-400"></i> Materi
+                                    </a>
+                                    <a href="./task.html"
+                                        class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
+                                        <i class="ph-fill ph-exam text-2xl text-slate-400"></i> Ujian
+                                    </a>
+                                    <a href="#"
+                                        class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
+                                        <i class="ph-fill ph-pencil-simple text-2xl text-slate-400"></i> Try Out
+                                    </a>
+                                    <a href="#"
+                                        class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
+                                        <i class="ph-fill ph-question text-2xl text-slate-400"></i> Quiz
+                                    </a>
+                                </div>
+
+                                <div class="border-t border-slate-100 my-3"></div>
+
+                                <a href="./payment.html"
+                                    class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium text-sm transition">
+                                    <i class="ph-bold ph-credit-card text-lg text-slate-400"></i> Pembayaran
+                                </a>
+                                <a href="#"
+                                    class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium text-sm transition">
+                                    <i class="ph-bold ph-receipt text-lg text-slate-400"></i> Riwayat Pembelian
+                                </a>
+                                <a href="#"
+                                    class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium text-sm transition">
+                                    <i class="ph-bold ph-gear text-lg text-slate-400"></i> Edit Profil
+                                </a>
+
+                                <a href="#"
+                                    class="flex items-center justify-center gap-2 px-4 py-3 mt-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 rounded-xl font-bold text-sm transition">
+                                    <i class="ph-bold ph-sign-out text-lg"></i> Keluar Akun
+                                </a>
+                            </div>
+                        </div>
+
                     </div>
+
                 </div>
             </div>
 
