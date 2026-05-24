@@ -58,6 +58,12 @@
 
     <title> Student Access Management - Neurifly Admin
         - LMS</title>
+    <style>
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
     <script id="browser-logger-active">
         (function () {
             const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
@@ -557,7 +563,7 @@
                                 <!-- Profile Dropdown -->
                                 <div class="relative">
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+                                        src="../profile.jpg" alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
                                         class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
@@ -735,11 +741,11 @@
                                                     </span>
                                                 </td>
                                                 <td class="px-6 py-4 text-center">
-                                                    <button class="text-slate-400 hover:text-red-600 transition p-2"
+                                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" class="text-slate-400 hover:text-red-600 transition p-2"
                                                         title="Cabut Akses">
                                                         <i class="ph-bold ph-trash text-lg"></i>
                                                     </button>
-                                                    <button class="text-slate-400 hover:text-primary-600 transition p-2"
+                                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" class="text-slate-400 hover:text-primary-600 transition p-2"
                                                         title="Edit Tanggal">
                                                         <i class="ph-bold ph-pencil-simple text-lg"></i>
                                                     </button>
@@ -782,11 +788,11 @@
                                                     </span>
                                                 </td>
                                                 <td class="px-6 py-4 text-center">
-                                                    <button class="text-slate-400 hover:text-red-600 transition p-2"
+                                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" class="text-slate-400 hover:text-red-600 transition p-2"
                                                         title="Cabut Akses">
                                                         <i class="ph-bold ph-trash text-lg"></i>
                                                     </button>
-                                                    <button class="text-slate-400 hover:text-primary-600 transition p-2"
+                                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" class="text-slate-400 hover:text-primary-600 transition p-2"
                                                         title="Edit Tanggal">
                                                         <i class="ph-bold ph-pencil-simple text-lg"></i>
                                                     </button>
@@ -842,7 +848,7 @@
 
                         </div>
 
-                        <div id="accessModal" class="fixed inset-0 z-1000 hidden">
+                        <div id="accessModal" class="fixed inset-0 z-[1000] hidden">
                             <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
                                 onclick="closeAccessModal()"></div>
 
@@ -927,7 +933,7 @@
                                     <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
                                         <button type="button" onclick="closeAccessModal()"
                                             class="px-5 py-2.5 border border-slate-300 text-slate-600 font-bold rounded-xl hover:bg-slate-50 text-sm">Batal</button>
-                                        <button type="submit"
+                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="submit"
                                             class="px-5 py-2.5 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 shadow-lg shadow-primary-600/20 text-sm">
                                             <i class="ph-bold ph-check mr-1"></i> Aktifkan Akses
                                         </button>
@@ -941,7 +947,7 @@
 
                     <!-- Overlay -->
                     <div id="modal-delete"
-                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        class="fixed inset-0 z-[1000] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
                         <!-- Modal Box -->
                         <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
                             <!-- Icon -->
@@ -1009,7 +1015,7 @@
 
                     <!-- Overlay -->
                     <div id="modal-confirm"
-                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        class="fixed inset-0 z-[1000] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
                         <!-- Modal Box -->
                         <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
                             <!-- Icon -->

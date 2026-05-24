@@ -59,6 +59,12 @@
 
     <title> Laporan Keuangan & Pembukuan - Neurifly Admin
         - LMS</title>
+    <style>
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
     <script id="browser-logger-active">
         (function () {
             const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
@@ -558,7 +564,7 @@
                                 <!-- Profile Dropdown -->
                                 <div class="relative">
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+                                        src="../profile.jpg" alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
                                         class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
@@ -629,7 +635,7 @@
                                         </button>
                                     </div>
 
-                                    <button
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                         class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 transition text-sm shadow-lg shadow-slate-900/20">
                                         <i class="ph-bold ph-printer"></i> Cetak Laporan
                                     </button>
@@ -748,7 +754,7 @@
                                                 <h3 class="text-sm font-bold text-red-600 uppercase tracking-wider">B.
                                                     Pengeluaran
                                                     Operasional (COGS & Opex)</h3>
-                                                <button class="text-xs text-primary-600 hover:underline font-bold">+
+                                                <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" class="text-xs text-primary-600 hover:underline font-bold">+
                                                     Input
                                                     Pengeluaran</button>
                                             </div>

@@ -59,6 +59,12 @@
 
     <title> Manajemen Tugas & Latihan - Neurifly Admin
         - LMS</title>
+    <style>
+        button:disabled {
+            cursor: not-allowed !important;
+            opacity: 0.5 !important;
+        }
+    </style>
     <script id="browser-logger-active">
         (function () {
             const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
@@ -558,7 +564,7 @@
                                 <!-- Profile Dropdown -->
                                 <div class="relative">
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+                                        src="../profile.jpg" alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
                                         class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
@@ -614,10 +620,10 @@
                                             tempat.</p>
                                     </div>
 
-                                    <a href="http://127.0.0.1:8000/admin/tasks/create"
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                         class="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition shadow-lg shadow-primary-600/20">
                                         <i class="ph-bold ph-plus-circle text-lg"></i> Buat Tugas Baru
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -792,11 +798,11 @@
                                                             title="Detail">
                                                             <i class="ph-bold ph-eye text-lg"></i>
                                                         </a>
-                                                        <a href="http://127.0.0.1:8000/admin/tasks/019dd7a5-78db-7045-b914-197e7f11fa5e/edit"
+                                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                                             class="p-2 rounded-lg text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition"
                                                             title="Edit Tugas">
                                                             <i class="ph-bold ph-pencil-simple text-lg"></i>
-                                                        </a>
+                                                        </button>
                                                         <form
                                                             action="http://127.0.0.1:8000/admin/tasks/019dd7a5-78db-7045-b914-197e7f11fa5e"
                                                             method="POST"
@@ -804,7 +810,7 @@
                                                             <input type="hidden" name="_token"
                                                                 value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd"
                                                                 autocomplete="off"> <input type="hidden" name="_method"
-                                                                value="DELETE"> <button type="submit"
+                                                                value="DELETE"> <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="submit"
                                                                 class="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
                                                                 title="Hapus">
                                                                 <i class="ph-bold ph-trash text-lg"></i>

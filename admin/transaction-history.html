@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="http://[::1]:5173/resources/css/app.css" data-navigate-track="reload" />
     <script type="module" src="http://[::1]:5173/resources/js/app.js" data-navigate-track="reload"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
         tailwind.config = {
             theme: {
                 extend: {
@@ -58,85 +58,120 @@
 
     <title> Riwayat Transaksi - Neurifly Admin
         - LMS</title>
+    <style>
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
     <script id="browser-logger-active">
-        (function () {
-            const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
-            const logQueue = [];
-            let flushTimeout = null;
+            (function () {
+                const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+                const logQueue = [];
+                let flushTimeout = null;
 
-            console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+                console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
 
-            // Store original console methods
-            const originalConsole = {
-                log: console.log,
-                info: console.info,
-                error: console.error,
-                warn: console.warn,
-                table: console.table
-            };
+                // Store original console methods
+                const originalConsole = {
+                    log: console.log,
+                    info: console.info,
+                    error: console.error,
+                    warn: console.warn,
+                    table: console.table
+                };
 
-            // Helper to safely stringify values
-            function safeStringify(obj) {
-                const seen = new WeakSet();
-                return JSON.stringify(obj, (key, value) => {
-                    if (typeof value === 'object' && value !== null) {
-                        if (seen.has(value)) return '[Circular]';
-                        seen.add(value);
-                    }
-                    if (value instanceof Error) {
-                        return {
-                            name: value.name,
-                            message: value.message,
-                            stack: value.stack
-                        };
-                    }
-                    return value;
+                // Helper to safely stringify values
+                function safeStringify(obj) {
+                    const seen = new WeakSet();
+                    return JSON.stringify(obj, (key, value) => {
+                        if (typeof value === 'object' && value !== null) {
+                            if (seen.has(value)) return '[Circular]';
+                            seen.add(value);
+                        }
+                        if (value instanceof Error) {
+                            return {
+                                name: value.name,
+                                message: value.message,
+                                stack: value.stack
+                            };
+                        }
+                        return value;
+                    });
+                }
+
+                // Batch and send logs
+                function flushLogs() {
+                    if (logQueue.length === 0) return;
+
+                    const batch = logQueue.splice(0, logQueue.length);
+
+                    fetch(ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ logs: batch })
+                    }).catch(err => {
+                        // Silently fail to avoid infinite loops
+                        originalConsole.error('Failed to send logs:', err);
+                    });
+                }
+
+                // Debounced flush (100ms)
+                function scheduleFlush() {
+                    if (flushTimeout) clearTimeout(flushTimeout);
+                    flushTimeout = setTimeout(flushLogs, 100);
+                }
+
+                // Intercept console methods
+                ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
+                    console[method] = function (...args) {
+                        // Call original method
+                        originalConsole[method].apply(console, args);
+
+                        // Capture log data
+                        try {
+                            logQueue.push({
+                                type: method,
+                                timestamp: new Date().toISOString(),
+                                data: args.map(arg => {
+                                    try {
+                                        return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                                    } catch (e) {
+                                        return String(arg);
+                                    }
+                                }),
+                                url: window.location.href,
+                                userAgent: navigator.userAgent
+                            });
+
+                            scheduleFlush();
+                        } catch (e) {
+                            // Fail silently
+                        }
+                    };
                 });
-            }
 
-            // Batch and send logs
-            function flushLogs() {
-                if (logQueue.length === 0) return;
-
-                const batch = logQueue.splice(0, logQueue.length);
-
-                fetch(ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ logs: batch })
-                }).catch(err => {
-                    // Silently fail to avoid infinite loops
-                    originalConsole.error('Failed to send logs:', err);
-                });
-            }
-
-            // Debounced flush (100ms)
-            function scheduleFlush() {
-                if (flushTimeout) clearTimeout(flushTimeout);
-                flushTimeout = setTimeout(flushLogs, 100);
-            }
-
-            // Intercept console methods
-            ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
-                console[method] = function (...args) {
-                    // Call original method
-                    originalConsole[method].apply(console, args);
-
-                    // Capture log data
+                // Global error handlers for uncaught errors
+                const originalOnError = window.onerror;
+                window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
                     try {
                         logQueue.push({
-                            type: method,
+                            type: 'uncaught_error',
                             timestamp: new Date().toISOString(),
-                            data: args.map(arg => {
-                                try {
-                                    return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
-                                } catch (e) {
-                                    return String(arg);
-                                }
-                            }),
+                            data: [{
+                                message: errorMsg,
+                                filename: url,
+                                lineno: lineNumber,
+                                colno: colNumber,
+                                error: error ? {
+                                    name: error.name,
+                                    message: error.message,
+                                    stack: error.stack
+                                } : null
+                            }],
                             url: window.location.href,
                             userAgent: navigator.userAgent
                         });
@@ -145,105 +180,76 @@
                     } catch (e) {
                         // Fail silently
                     }
-                };
-            });
 
-            // Global error handlers for uncaught errors
-            const originalOnError = window.onerror;
-            window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
-                try {
-                    logQueue.push({
-                        type: 'uncaught_error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: errorMsg,
-                            filename: url,
-                            lineno: lineNumber,
-                            colno: colNumber,
-                            error: error ? {
-                                name: error.name,
-                                message: error.message,
-                                stack: error.stack
-                            } : null
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Call original handler if it exists
+                    if (originalOnError && typeof originalOnError === 'function') {
+                        return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+                    }
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
+                    // Let the error continue to propagate
+                    return false;
                 }
+                window.addEventListener('error', (event) => {
+                    try {
+                        logQueue.push({
+                            type: 'window_error',
+                            timestamp: new Date().toISOString(),
+                            data: [{
+                                message: event.message,
+                                filename: event.filename,
+                                lineno: event.lineno,
+                                colno: event.colno,
+                                error: event.error ? {
+                                    name: event.error.name,
+                                    message: event.error.message,
+                                    stack: event.error.stack
+                                } : null
+                            }],
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
 
-                // Call original handler if it exists
-                if (originalOnError && typeof originalOnError === 'function') {
-                    return originalOnError(errorMsg, url, lineNumber, colNumber, error);
-                }
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
 
-                // Let the error continue to propagate
-                return false;
-            }
-            window.addEventListener('error', (event) => {
-                try {
-                    logQueue.push({
-                        type: 'window_error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: event.message,
-                            filename: event.filename,
-                            lineno: event.lineno,
-                            colno: event.colno,
-                            error: event.error ? {
-                                name: event.error.name,
-                                message: event.error.message,
-                                stack: event.error.stack
-                            } : null
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Let the error continue to propagate
+                    return false;
+                });
+                window.addEventListener('unhandledrejection', (event) => {
+                    try {
+                        logQueue.push({
+                            type: 'error',
+                            timestamp: new Date().toISOString(),
+                            data: [{
+                                message: 'Unhandled Promise Rejection',
+                                reason: event.reason instanceof Error ? {
+                                    name: event.reason.name,
+                                    message: event.reason.message,
+                                    stack: event.reason.stack
+                                } : event.reason
+                            }],
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
-                }
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
 
-                // Let the error continue to propagate
-                return false;
-            });
-            window.addEventListener('unhandledrejection', (event) => {
-                try {
-                    logQueue.push({
-                        type: 'error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: 'Unhandled Promise Rejection',
-                            reason: event.reason instanceof Error ? {
-                                name: event.reason.name,
-                                message: event.reason.message,
-                                stack: event.reason.stack
-                            } : event.reason
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Let the rejection continue to propagate
+                    return false;
+                });
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
-                }
-
-                // Let the rejection continue to propagate
-                return false;
-            });
-
-            // Flush on page unload
-            window.addEventListener('beforeunload', () => {
-                if (logQueue.length > 0) {
-                    navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
-                }
-            });
-        })();
+                // Flush on page unload
+                window.addEventListener('beforeunload', () => {
+                    if (logQueue.length > 0) {
+                        navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+                    }
+                });
+            })();
     </script>
 </head>
 
@@ -557,7 +563,7 @@
                                 <!-- Profile Dropdown -->
                                 <div class="relative">
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+                                        src="../profile.jpg" alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
                                         class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
@@ -611,11 +617,11 @@
                                     </div>
 
                                     <div class="flex items-center gap-3">
-                                        <button
+                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                             class="flex items-center gap-2 px-4 py-2 border border-green-600 text-green-700 bg-green-50 hover:bg-green-100 font-bold rounded-lg transition text-sm">
                                             <i class="ph-bold ph-microsoft-excel-logo text-lg"></i> Export Excel
                                         </button>
-                                        <button
+                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                             class="flex items-center gap-2 px-4 py-2 border border-red-600 text-red-700 bg-red-50 hover:bg-red-100 font-bold rounded-lg transition text-sm">
                                             <i class="ph-bold ph-file-pdf text-lg"></i> Download PDF
                                         </button>

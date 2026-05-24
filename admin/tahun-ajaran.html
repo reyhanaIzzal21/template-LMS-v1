@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="http://[::1]:5173/resources/css/app.css" data-navigate-track="reload" />
     <script type="module" src="http://[::1]:5173/resources/js/app.js" data-navigate-track="reload"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
         tailwind.config = {
             theme: {
                 extend: {
@@ -61,86 +61,126 @@
         [x-cloak] {
             display: none !important;
         }
+
+        button:disabled {
+            cursor: not-allowed !important;
+            opacity: 0.5 !important;
+        }
+
+        /* Opsional: beri styling visual agar terlihat beda */
+        button:disabled:hover {
+            background-color: #cbd5e1 !important;
+            transform: none !important;
+        }
     </style>
     <script id="browser-logger-active">
-        (function () {
-            const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
-            const logQueue = [];
-            let flushTimeout = null;
+            (function () {
+                const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+                const logQueue = [];
+                let flushTimeout = null;
 
-            console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+                console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
 
-            // Store original console methods
-            const originalConsole = {
-                log: console.log,
-                info: console.info,
-                error: console.error,
-                warn: console.warn,
-                table: console.table
-            };
+                // Store original console methods
+                const originalConsole = {
+                    log: console.log,
+                    info: console.info,
+                    error: console.error,
+                    warn: console.warn,
+                    table: console.table
+                };
 
-            // Helper to safely stringify values
-            function safeStringify(obj) {
-                const seen = new WeakSet();
-                return JSON.stringify(obj, (key, value) => {
-                    if (typeof value === 'object' && value !== null) {
-                        if (seen.has(value)) return '[Circular]';
-                        seen.add(value);
-                    }
-                    if (value instanceof Error) {
-                        return {
-                            name: value.name,
-                            message: value.message,
-                            stack: value.stack
-                        };
-                    }
-                    return value;
+                // Helper to safely stringify values
+                function safeStringify(obj) {
+                    const seen = new WeakSet();
+                    return JSON.stringify(obj, (key, value) => {
+                        if (typeof value === 'object' && value !== null) {
+                            if (seen.has(value)) return '[Circular]';
+                            seen.add(value);
+                        }
+                        if (value instanceof Error) {
+                            return {
+                                name: value.name,
+                                message: value.message,
+                                stack: value.stack
+                            };
+                        }
+                        return value;
+                    });
+                }
+
+                // Batch and send logs
+                function flushLogs() {
+                    if (logQueue.length === 0) return;
+
+                    const batch = logQueue.splice(0, logQueue.length);
+
+                    fetch(ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ logs: batch })
+                    }).catch(err => {
+                        // Silently fail to avoid infinite loops
+                        originalConsole.error('Failed to send logs:', err);
+                    });
+                }
+
+                // Debounced flush (100ms)
+                function scheduleFlush() {
+                    if (flushTimeout) clearTimeout(flushTimeout);
+                    flushTimeout = setTimeout(flushLogs, 100);
+                }
+
+                // Intercept console methods
+                ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
+                    console[method] = function (...args) {
+                        // Call original method
+                        originalConsole[method].apply(console, args);
+
+                        // Capture log data
+                        try {
+                            logQueue.push({
+                                type: method,
+                                timestamp: new Date().toISOString(),
+                                data: args.map(arg => {
+                                    try {
+                                        return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                                    } catch (e) {
+                                        return String(arg);
+                                    }
+                                }),
+                                url: window.location.href,
+                                userAgent: navigator.userAgent
+                            });
+
+                            scheduleFlush();
+                        } catch (e) {
+                            // Fail silently
+                        }
+                    };
                 });
-            }
 
-            // Batch and send logs
-            function flushLogs() {
-                if (logQueue.length === 0) return;
-
-                const batch = logQueue.splice(0, logQueue.length);
-
-                fetch(ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ logs: batch })
-                }).catch(err => {
-                    // Silently fail to avoid infinite loops
-                    originalConsole.error('Failed to send logs:', err);
-                });
-            }
-
-            // Debounced flush (100ms)
-            function scheduleFlush() {
-                if (flushTimeout) clearTimeout(flushTimeout);
-                flushTimeout = setTimeout(flushLogs, 100);
-            }
-
-            // Intercept console methods
-            ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
-                console[method] = function (...args) {
-                    // Call original method
-                    originalConsole[method].apply(console, args);
-
-                    // Capture log data
+                // Global error handlers for uncaught errors
+                const originalOnError = window.onerror;
+                window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
                     try {
                         logQueue.push({
-                            type: method,
+                            type: 'uncaught_error',
                             timestamp: new Date().toISOString(),
-                            data: args.map(arg => {
-                                try {
-                                    return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
-                                } catch (e) {
-                                    return String(arg);
-                                }
-                            }),
+                            data: [{
+                                message: errorMsg,
+                                filename: url,
+                                lineno: lineNumber,
+                                colno: colNumber,
+                                error: error ? {
+                                    name: error.name,
+                                    message: error.message,
+                                    stack: error.stack
+                                } : null
+                            }],
                             url: window.location.href,
                             userAgent: navigator.userAgent
                         });
@@ -149,105 +189,76 @@
                     } catch (e) {
                         // Fail silently
                     }
-                };
-            });
 
-            // Global error handlers for uncaught errors
-            const originalOnError = window.onerror;
-            window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
-                try {
-                    logQueue.push({
-                        type: 'uncaught_error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: errorMsg,
-                            filename: url,
-                            lineno: lineNumber,
-                            colno: colNumber,
-                            error: error ? {
-                                name: error.name,
-                                message: error.message,
-                                stack: error.stack
-                            } : null
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Call original handler if it exists
+                    if (originalOnError && typeof originalOnError === 'function') {
+                        return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+                    }
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
+                    // Let the error continue to propagate
+                    return false;
                 }
+                window.addEventListener('error', (event) => {
+                    try {
+                        logQueue.push({
+                            type: 'window_error',
+                            timestamp: new Date().toISOString(),
+                            data: [{
+                                message: event.message,
+                                filename: event.filename,
+                                lineno: event.lineno,
+                                colno: event.colno,
+                                error: event.error ? {
+                                    name: event.error.name,
+                                    message: event.error.message,
+                                    stack: event.error.stack
+                                } : null
+                            }],
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
 
-                // Call original handler if it exists
-                if (originalOnError && typeof originalOnError === 'function') {
-                    return originalOnError(errorMsg, url, lineNumber, colNumber, error);
-                }
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
 
-                // Let the error continue to propagate
-                return false;
-            }
-            window.addEventListener('error', (event) => {
-                try {
-                    logQueue.push({
-                        type: 'window_error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: event.message,
-                            filename: event.filename,
-                            lineno: event.lineno,
-                            colno: event.colno,
-                            error: event.error ? {
-                                name: event.error.name,
-                                message: event.error.message,
-                                stack: event.error.stack
-                            } : null
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Let the error continue to propagate
+                    return false;
+                });
+                window.addEventListener('unhandledrejection', (event) => {
+                    try {
+                        logQueue.push({
+                            type: 'error',
+                            timestamp: new Date().toISOString(),
+                            data: [{
+                                message: 'Unhandled Promise Rejection',
+                                reason: event.reason instanceof Error ? {
+                                    name: event.reason.name,
+                                    message: event.reason.message,
+                                    stack: event.reason.stack
+                                } : event.reason
+                            }],
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
-                }
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
 
-                // Let the error continue to propagate
-                return false;
-            });
-            window.addEventListener('unhandledrejection', (event) => {
-                try {
-                    logQueue.push({
-                        type: 'error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: 'Unhandled Promise Rejection',
-                            reason: event.reason instanceof Error ? {
-                                name: event.reason.name,
-                                message: event.reason.message,
-                                stack: event.reason.stack
-                            } : event.reason
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Let the rejection continue to propagate
+                    return false;
+                });
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
-                }
-
-                // Let the rejection continue to propagate
-                return false;
-            });
-
-            // Flush on page unload
-            window.addEventListener('beforeunload', () => {
-                if (logQueue.length > 0) {
-                    navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
-                }
-            });
-        })();
+                // Flush on page unload
+                window.addEventListener('beforeunload', () => {
+                    if (logQueue.length > 0) {
+                        navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+                    }
+                });
+            })();
     </script>
 </head>
 
@@ -561,7 +572,7 @@
                                 <!-- Profile Dropdown -->
                                 <div class="relative">
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+                                        src="../profile.jpg" alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
                                         class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
@@ -723,7 +734,7 @@
                         </div>
 
                         <div x-show="isCreateModalOpen" x-cloak
-                            class="fixed inset-0 z-1000 flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
+                            class="fixed inset-0 z-[1000] flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
                             <div x-show="isCreateModalOpen" x-transition.opacity
                                 class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
                                 @click="closeAll()"></div>
@@ -760,7 +771,8 @@
                                     <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                                         <button type="button" @click="closeAll()"
                                             class="px-4 py-2 border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-white text-sm transition">Batal</button>
-                                        <button type="submit"
+                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
+                                            type="submit"
                                             class="px-6 py-2 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 shadow-lg shadow-primary-600/20 text-sm transition">Simpan</button>
                                     </div>
                                 </form>
@@ -768,7 +780,7 @@
                         </div>
 
                         <div x-show="isEditModalOpen" x-cloak
-                            class="fixed inset-0 z-1000 flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
+                            class="fixed inset-0 z-[1000] flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
                             <div x-show="isEditModalOpen" x-transition.opacity
                                 class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
                                 @click="closeAll()"></div>
@@ -805,7 +817,7 @@
                                     <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                                         <button type="button" @click="closeAll()"
                                             class="px-4 py-2 border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-white text-sm transition">Batal</button>
-                                        <button type="submit"
+                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="submit"
                                             class="px-6 py-2 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 shadow-lg shadow-primary-600/20 text-sm transition">Update
                                             Data</button>
                                     </div>
@@ -814,7 +826,7 @@
                         </div>
 
                         <div x-show="isDeleteModalOpen" x-cloak
-                            class="fixed inset-0 z-1000 flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
+                            class="fixed inset-0 z-[1000] flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
                             <div x-show="isDeleteModalOpen" x-transition.opacity
                                 class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
                                 @click="closeAll()"></div>
@@ -845,7 +857,7 @@
                                         class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-center gap-3">
                                         <button type="button" @click="closeAll()"
                                             class="flex-1 py-2.5 border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-white text-sm transition">Batal</button>
-                                        <button type="submit"
+                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="submit"
                                             class="flex-1 py-2.5 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-600/20 text-sm transition">Ya,
                                             Hapus</button>
                                     </div>
@@ -854,7 +866,7 @@
                         </div>
 
                         <div x-show="isToggleModalOpen" x-cloak
-                            class="fixed inset-0 z-1000 flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
+                            class="fixed inset-0 z-[1000] flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
                             <div x-show="isToggleModalOpen" x-transition.opacity
                                 class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
                                 @click="closeAll()"></div>
@@ -884,7 +896,7 @@
                                         class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-center gap-3">
                                         <button type="button" @click="closeAll()"
                                             class="flex-1 py-2.5 border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-white text-sm transition">Batal</button>
-                                        <button type="submit"
+                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="submit"
                                             class="flex-1 py-2.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 shadow-lg shadow-slate-900/20 text-sm transition">Ya,
                                             Lanjutkan</button>
                                     </div>
@@ -942,7 +954,7 @@
 
                     <!-- Overlay -->
                     <div id="modal-delete"
-                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        class="fixed inset-0 z-[1000] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
                         <!-- Modal Box -->
                         <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
                             <!-- Icon -->
@@ -1010,7 +1022,7 @@
 
                     <!-- Overlay -->
                     <div id="modal-confirm"
-                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        class="fixed inset-0 z-[1000] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
                         <!-- Modal Box -->
                         <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
                             <!-- Icon -->
@@ -1047,7 +1059,7 @@
                                     <input type="hidden" name="is_ready" id="confirmIsReady">
                                     <input type="hidden" name="is_active" id="confirmIsActive">
 
-                                    <button type="submit" id="confirmButton"
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="submit" id="confirmButton"
                                         class="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700">
                                         Ya, Lanjutkan
                                     </button>

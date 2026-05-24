@@ -62,6 +62,11 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
 
     <style>
+        button:disabled {
+            cursor: not-allowed !important;
+            opacity: 0.5 !important;
+        }
+
         [x-cloak] {
             display: none !important;
         }
@@ -735,7 +740,7 @@
                                 <!-- Profile Dropdown -->
                                 <div class="relative">
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+                                        src="../profile.jpg" alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
                                         class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
@@ -906,16 +911,16 @@
                                 </div>
 
                                 <div class="flex items-center gap-2">
-                                    <a href="http://127.0.0.1:8000/admin/schedules/generate"
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                         class="flex items-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 hover:text-primary-600 hover:bg-primary-50 text-sm font-bold rounded-xl transition">
                                         <i class="ph-bold ph-magic-wand text-lg"></i> <span
                                             class="hidden sm:inline">Generate Batch</span>
-                                    </a>
-                                    <a href="http://127.0.0.1:8000/admin/meetings/create"
+                                    </button>
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                         class="flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold rounded-xl transition shadow-lg shadow-primary-600/20">
                                         <i class="ph-bold ph-plus text-lg"></i> <span class="hidden sm:inline">Tambah
                                             Manual</span>
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
 

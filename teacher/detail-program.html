@@ -58,6 +58,12 @@
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
 
     <title>Teacher Dashboard - LMS</title>
+    <style>
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
     <script id="browser-logger-active">
         (function () {
             const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
@@ -336,7 +342,13 @@
                                     <span class="font-medium">Task Bank</span>
                                 </a>
                             </li>
-
+                            <li>
+                                <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" class="flex items-center gap-3 py-2.5 px-3 rounded-lg w-full transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-600"
+                                    >
+                                    <i class="ti ti-ballpen text-xl"></i>
+                                    <span class="font-medium">Try Out</span>
+                                </button>
+                            </li>
                         </ul>
                     </nav>
                 </div>
@@ -372,7 +384,7 @@
                                 <!-- Profile Dropdown -->
                                 <div class="relative">
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+                                        src="../profile.jpg" alt="User avatar">
 
                                     <div id="profile-dropdown-teacher" data-dropdown-menu
                                         class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
@@ -424,7 +436,7 @@
                                     <div class="w-full md:w-64 flex-shrink-0">
                                         <div
                                             class="aspect-video rounded-xl overflow-hidden border border-slate-200 shadow-sm relative group">
-                                            <img src="http://127.0.0.1:8000/storage/programs/4pKJtZVw7ExIejU3Q1gbHsXUjiBCk3tOopglSBMI.png"
+                                            <img src="../bimbel.png"
                                                 class="w-full h-full object-cover" alt="Kelas UTBK intensif 2026">
                                         </div>
                                     </div>
@@ -519,8 +531,6 @@
                                         data-target="classes">
                                         <i class="ti ti-layout-grid mr-2 text-lg"></i>
                                         Daftar Kelas
-                                        <span
-                                            class="ml-2 bg-slate-100 text-slate-600 py-0.5 px-2 rounded-full text-xs">3</span>
                                     </a>
 
                                     <a href="#students"
@@ -528,8 +538,6 @@
                                         data-target="students">
                                         <i class="ti ti-users mr-2 text-lg"></i>
                                         Data Siswa
-                                        <span
-                                            class="ml-2 bg-slate-100 text-slate-600 py-0.5 px-2 rounded-full text-xs">2</span>
                                     </a>
                                 </nav>
                             </div>
@@ -770,12 +778,12 @@
                                                             title="Lihat Jawaban Siswa">
                                                             <i class="ph-bold ph-eye text-lg"></i>
                                                         </a>
-                                                        <a href="http://127.0.0.1:8000/teacher/programs/019dd7a3-f936-70e8-86ab-944a36ae9335/tasks/019dd7a5-78db-7045-b914-197e7f11fa5e/edit"
+                                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                                             class="p-2 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition"
                                                             title="Edit Tugas">
                                                             <i class="ph-bold ph-pencil-simple text-lg"></i>
-                                                        </a>
-                                                        <button type="button"
+                                                        </button>
+                                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="button"
                                                             onclick="detachTaskFromProgram('019dd7a3-f936-70e8-86ab-944a36ae9335', '019dd7a5-78db-7045-b914-197e7f11fa5e')"
                                                             class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
                                                             title="Hapus dari Program">
@@ -809,7 +817,7 @@
                                                     menambahkan tugas:</p>
 
 
-                                                <button type="button" onclick="openBankPickerModal()"
+                                                <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="button" onclick="openBankPickerModal()"
                                                     class="w-full flex items-center gap-4 p-4 bg-slate-50 hover:bg-primary-50 border-2 border-slate-200 hover:border-primary-400 rounded-xl transition group">
                                                     <div
                                                         class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl group-hover:scale-110 transition">
@@ -826,7 +834,7 @@
                                                 </button>
 
 
-                                                <a href="http://127.0.0.1:8000/teacher/programs/019dd7a3-f936-70e8-86ab-944a36ae9335/tasks/create"
+                                                <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                                     class="w-full flex items-center gap-4 p-4 bg-slate-50 hover:bg-green-50 border-2 border-slate-200 hover:border-green-400 rounded-xl transition group">
                                                     <div
                                                         class="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center text-2xl group-hover:scale-110 transition">
@@ -839,7 +847,7 @@
                                                             lengkap</p>
                                                     </div>
                                                     <i class="ph-bold ph-caret-right text-slate-400 ml-auto"></i>
-                                                </a>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -942,7 +950,7 @@
                                             <p class="text-sm text-slate-500 mb-4 font-medium">teacher@gmail.com</p>
 
                                             <div class="flex justify-center items-center gap-4">
-                                                <button type="button"
+                                                <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="button"
                                                     class="py-2.5 px-6 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:border-primary-600 hover:text-primary-600 hover:bg-primary-50 transition text-sm shadow-sm">
                                                     Detail
                                                 </button>
@@ -999,7 +1007,7 @@
                                             <tbody class="divide-y divide-slate-100">
 
                                                 <tr class="hover:bg-slate-50 transition group"
-                                                    x-show="(searchQuery === '' || 'kla'.includes(searchQuery.toLowerCase())) && (filterYear === '' || '2' === filterYear)"
+                                                    x-show="(searchQuery === '' || 'tbo'.includes(searchQuery.toLowerCase())) && (filterYear === '' || '2' === filterYear)"
                                                     x-transition>
                                                     <td class="px-6 py-4 text-center text-slate-400 font-medium">1</td>
                                                     <td class="px-6 py-4">
@@ -1009,7 +1017,7 @@
                                                                 <i class="ph-fill ph-chalkboard-teacher text-lg"></i>
                                                             </div>
                                                             <div>
-                                                                <span class="font-bold text-slate-900 block">KLA</span>
+                                                                <span class="font-bold text-slate-900 block">TBO</span>
                                                                 <span
                                                                     class="text-[10px] text-slate-400 uppercase tracking-wider">Reguler</span>
                                                             </div>
@@ -1029,91 +1037,11 @@
                                                     </td>
                                                     <td class="px-6 py-4 text-center">
                                                         <div class="flex items-center justify-center gap-1">
-                                                            <a href="http://127.0.0.1:8000/teacher/programs/019dd7a3-f936-70e8-86ab-944a36ae9335/classrooms/019df0b0-3720-7244-ac9f-0b72e1a20acf"
+                                                            <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                                                 class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
                                                                 title="Lihat Detail">
                                                                 <i class="ph-bold ph-eye text-lg"></i>
-                                                            </a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr class="hover:bg-slate-50 transition group"
-                                                    x-show="(searchQuery === '' || 'xii tps a'.includes(searchQuery.toLowerCase())) && (filterYear === '' || '2' === filterYear)"
-                                                    x-transition>
-                                                    <td class="px-6 py-4 text-center text-slate-400 font-medium">2</td>
-                                                    <td class="px-6 py-4">
-                                                        <div class="flex items-center gap-3">
-                                                            <div
-                                                                class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                                                                <i class="ph-fill ph-chalkboard-teacher text-lg"></i>
-                                                            </div>
-                                                            <div>
-                                                                <span class="font-bold text-slate-900 block">XII TPS
-                                                                    A</span>
-                                                                <span
-                                                                    class="text-[10px] text-slate-400 uppercase tracking-wider">Reguler</span>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4">
-                                                        <span
-                                                            class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                                                            2025/2026
-                                                        </span>
-                                                    </td>
-                                                    <td class="px-6 py-4 text-center">
-                                                        <div
-                                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 font-bold text-xs">
-                                                            <i class="ph-fill ph-users"></i> 0 Siswa
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 text-center">
-                                                        <div class="flex items-center justify-center gap-1">
-                                                            <a href="http://127.0.0.1:8000/teacher/programs/019dd7a3-f936-70e8-86ab-944a36ae9335/classrooms/01kqc52az0kvp01jh4ee7g499c"
-                                                                class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                                                                title="Lihat Detail">
-                                                                <i class="ph-bold ph-eye text-lg"></i>
-                                                            </a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr class="hover:bg-slate-50 transition group"
-                                                    x-show="(searchQuery === '' || 'xi tai'.includes(searchQuery.toLowerCase())) && (filterYear === '' || '2' === filterYear)"
-                                                    x-transition>
-                                                    <td class="px-6 py-4 text-center text-slate-400 font-medium">3</td>
-                                                    <td class="px-6 py-4">
-                                                        <div class="flex items-center gap-3">
-                                                            <div
-                                                                class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                                                                <i class="ph-fill ph-chalkboard-teacher text-lg"></i>
-                                                            </div>
-                                                            <div>
-                                                                <span class="font-bold text-slate-900 block">XI
-                                                                    TAI</span>
-                                                                <span
-                                                                    class="text-[10px] text-slate-400 uppercase tracking-wider">Reguler</span>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4">
-                                                        <span
-                                                            class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                                                            2025/2026
-                                                        </span>
-                                                    </td>
-                                                    <td class="px-6 py-4 text-center">
-                                                        <div
-                                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 font-bold text-xs">
-                                                            <i class="ph-fill ph-users"></i> 2 Siswa
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-6 py-4 text-center">
-                                                        <div class="flex items-center justify-center gap-1">
-                                                            <a href="http://127.0.0.1:8000/teacher/programs/019dd7a3-f936-70e8-86ab-944a36ae9335/classrooms/01kqc52paagkrr2sb3gw1pz1h2"
-                                                                class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                                                                title="Lihat Detail">
-                                                                <i class="ph-bold ph-eye text-lg"></i>
-                                                            </a>
+                                                            </button>
                                                         </div>
                                                     </td>
                                                 </tr>

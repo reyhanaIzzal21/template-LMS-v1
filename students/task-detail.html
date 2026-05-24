@@ -66,86 +66,120 @@
         [x-cloak] {
             display: none !important;
         }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
     </style>
     <script id="browser-logger-active">
-        (function () {
-            const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
-            const logQueue = [];
-            let flushTimeout = null;
+            (function () {
+                const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+                const logQueue = [];
+                let flushTimeout = null;
 
-            console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+                console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
 
-            // Store original console methods
-            const originalConsole = {
-                log: console.log,
-                info: console.info,
-                error: console.error,
-                warn: console.warn,
-                table: console.table
-            };
+                // Store original console methods
+                const originalConsole = {
+                    log: console.log,
+                    info: console.info,
+                    error: console.error,
+                    warn: console.warn,
+                    table: console.table
+                };
 
-            // Helper to safely stringify values
-            function safeStringify(obj) {
-                const seen = new WeakSet();
-                return JSON.stringify(obj, (key, value) => {
-                    if (typeof value === 'object' && value !== null) {
-                        if (seen.has(value)) return '[Circular]';
-                        seen.add(value);
-                    }
-                    if (value instanceof Error) {
-                        return {
-                            name: value.name,
-                            message: value.message,
-                            stack: value.stack
-                        };
-                    }
-                    return value;
+                // Helper to safely stringify values
+                function safeStringify(obj) {
+                    const seen = new WeakSet();
+                    return JSON.stringify(obj, (key, value) => {
+                        if (typeof value === 'object' && value !== null) {
+                            if (seen.has(value)) return '[Circular]';
+                            seen.add(value);
+                        }
+                        if (value instanceof Error) {
+                            return {
+                                name: value.name,
+                                message: value.message,
+                                stack: value.stack
+                            };
+                        }
+                        return value;
+                    });
+                }
+
+                // Batch and send logs
+                function flushLogs() {
+                    if (logQueue.length === 0) return;
+
+                    const batch = logQueue.splice(0, logQueue.length);
+
+                    fetch(ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ logs: batch })
+                    }).catch(err => {
+                        // Silently fail to avoid infinite loops
+                        originalConsole.error('Failed to send logs:', err);
+                    });
+                }
+
+                // Debounced flush (100ms)
+                function scheduleFlush() {
+                    if (flushTimeout) clearTimeout(flushTimeout);
+                    flushTimeout = setTimeout(flushLogs, 100);
+                }
+
+                // Intercept console methods
+                ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
+                    console[method] = function (...args) {
+                        // Call original method
+                        originalConsole[method].apply(console, args);
+
+                        // Capture log data
+                        try {
+                            logQueue.push({
+                                type: method,
+                                timestamp: new Date().toISOString(),
+                                data: args.map(arg => {
+                                    try {
+                                        return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                                    } catch (e) {
+                                        return String(arg);
+                                    }
+                                }),
+                                url: window.location.href,
+                                userAgent: navigator.userAgent
+                            });
+
+                            scheduleFlush();
+                        } catch (e) {
+                            // Fail silently
+                        }
+                    };
                 });
-            }
 
-            // Batch and send logs
-            function flushLogs() {
-                if (logQueue.length === 0) return;
-
-                const batch = logQueue.splice(0, logQueue.length);
-
-                fetch(ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ logs: batch })
-                }).catch(err => {
-                    // Silently fail to avoid infinite loops
-                    originalConsole.error('Failed to send logs:', err);
-                });
-            }
-
-            // Debounced flush (100ms)
-            function scheduleFlush() {
-                if (flushTimeout) clearTimeout(flushTimeout);
-                flushTimeout = setTimeout(flushLogs, 100);
-            }
-
-            // Intercept console methods
-            ['log', 'info', 'error', 'warn', 'table'].forEach(method => {
-                console[method] = function (...args) {
-                    // Call original method
-                    originalConsole[method].apply(console, args);
-
-                    // Capture log data
+                // Global error handlers for uncaught errors
+                const originalOnError = window.onerror;
+                window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
                     try {
                         logQueue.push({
-                            type: method,
+                            type: 'uncaught_error',
                             timestamp: new Date().toISOString(),
-                            data: args.map(arg => {
-                                try {
-                                    return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
-                                } catch (e) {
-                                    return String(arg);
-                                }
-                            }),
+                            data: [{
+                                message: errorMsg,
+                                filename: url,
+                                lineno: lineNumber,
+                                colno: colNumber,
+                                error: error ? {
+                                    name: error.name,
+                                    message: error.message,
+                                    stack: error.stack
+                                } : null
+                            }],
                             url: window.location.href,
                             userAgent: navigator.userAgent
                         });
@@ -154,105 +188,76 @@
                     } catch (e) {
                         // Fail silently
                     }
-                };
-            });
 
-            // Global error handlers for uncaught errors
-            const originalOnError = window.onerror;
-            window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
-                try {
-                    logQueue.push({
-                        type: 'uncaught_error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: errorMsg,
-                            filename: url,
-                            lineno: lineNumber,
-                            colno: colNumber,
-                            error: error ? {
-                                name: error.name,
-                                message: error.message,
-                                stack: error.stack
-                            } : null
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Call original handler if it exists
+                    if (originalOnError && typeof originalOnError === 'function') {
+                        return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+                    }
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
+                    // Let the error continue to propagate
+                    return false;
                 }
+                window.addEventListener('error', (event) => {
+                    try {
+                        logQueue.push({
+                            type: 'window_error',
+                            timestamp: new Date().toISOString(),
+                            data: [{
+                                message: event.message,
+                                filename: event.filename,
+                                lineno: event.lineno,
+                                colno: event.colno,
+                                error: event.error ? {
+                                    name: event.error.name,
+                                    message: event.error.message,
+                                    stack: event.error.stack
+                                } : null
+                            }],
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
 
-                // Call original handler if it exists
-                if (originalOnError && typeof originalOnError === 'function') {
-                    return originalOnError(errorMsg, url, lineNumber, colNumber, error);
-                }
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
 
-                // Let the error continue to propagate
-                return false;
-            }
-            window.addEventListener('error', (event) => {
-                try {
-                    logQueue.push({
-                        type: 'window_error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: event.message,
-                            filename: event.filename,
-                            lineno: event.lineno,
-                            colno: event.colno,
-                            error: event.error ? {
-                                name: event.error.name,
-                                message: event.error.message,
-                                stack: event.error.stack
-                            } : null
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Let the error continue to propagate
+                    return false;
+                });
+                window.addEventListener('unhandledrejection', (event) => {
+                    try {
+                        logQueue.push({
+                            type: 'error',
+                            timestamp: new Date().toISOString(),
+                            data: [{
+                                message: 'Unhandled Promise Rejection',
+                                reason: event.reason instanceof Error ? {
+                                    name: event.reason.name,
+                                    message: event.reason.message,
+                                    stack: event.reason.stack
+                                } : event.reason
+                            }],
+                            url: window.location.href,
+                            userAgent: navigator.userAgent
+                        });
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
-                }
+                        scheduleFlush();
+                    } catch (e) {
+                        // Fail silently
+                    }
 
-                // Let the error continue to propagate
-                return false;
-            });
-            window.addEventListener('unhandledrejection', (event) => {
-                try {
-                    logQueue.push({
-                        type: 'error',
-                        timestamp: new Date().toISOString(),
-                        data: [{
-                            message: 'Unhandled Promise Rejection',
-                            reason: event.reason instanceof Error ? {
-                                name: event.reason.name,
-                                message: event.reason.message,
-                                stack: event.reason.stack
-                            } : event.reason
-                        }],
-                        url: window.location.href,
-                        userAgent: navigator.userAgent
-                    });
+                    // Let the rejection continue to propagate
+                    return false;
+                });
 
-                    scheduleFlush();
-                } catch (e) {
-                    // Fail silently
-                }
-
-                // Let the rejection continue to propagate
-                return false;
-            });
-
-            // Flush on page unload
-            window.addEventListener('beforeunload', () => {
-                if (logQueue.length > 0) {
-                    navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
-                }
-            });
-        })();
+                // Flush on page unload
+                window.addEventListener('beforeunload', () => {
+                    if (logQueue.length > 0) {
+                        navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+                    }
+                });
+            })();
     </script>
 </head>
 
@@ -393,35 +398,35 @@
                                             class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium text-sm transition">
                                             <i class="ph-bold ph-book-bookmark text-lg"></i> Materi
                                         </a>
-                                        <a href="#"
+                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                             class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium text-sm transition">
                                             <i class="ph-bold ph-pencil-simple text-lg"></i> Try Out
-                                        </a>
+                                        </button>
                                         <a href="./task.html"
                                             class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium text-sm transition">
                                             <i class="ph-bold ph-exam text-lg"></i> Tugas & Ujian
                                         </a>
-                                        <a href="#"
+                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                             class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium text-sm transition">
                                             <i class="ph-bold ph-question text-lg"></i> Quiz
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             </label>
 
-                            <a href="#"
+                            <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                 class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium transition">
                                 <i class="ph-bold ph-receipt text-xl"></i> Riwayat Pembelian
-                            </a>
+                            </button>
 
-                            <a href="#"
+                            <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                 class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl font-medium transition">
                                 <i class="ph-bold ph-gear text-xl"></i> Edit Profil
-                            </a>
+                            </button>
 
                             <div class="border-t border-slate-100 my-2"></div>
 
-                            <a href="#"
+                            <a href="../auth/option.html"
                                 class="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-medium transition">
                                 <i class="ph-bold ph-sign-out text-xl"></i> Keluar
                             </a>
@@ -470,6 +475,10 @@
                                         class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
                                         <i class="ph-fill ph-chart-line-up text-2xl text-slate-400"></i> Progres
                                     </a>
+                                    <a href="./payment.html"
+                                        class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
+                                        <i class="ph-fill ph-credit-card text-2xl text-slate-400"></i> Pembayaran
+                                    </a>
                                     <a href="./schedules.html"
                                         class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
                                         <i class="ph-fill ph-calendar-check text-2xl text-slate-400"></i> Jadwal
@@ -480,34 +489,29 @@
                                     </a>
                                     <a href="./task.html"
                                         class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
-                                        <i class="ph-fill ph-exam text-2xl text-slate-400"></i> Ujian
+                                        <i class="ph-fill ph-exam text-2xl text-slate-400"></i> Tugas & Ujian
                                     </a>
-                                    <a href="#"
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                         class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
                                         <i class="ph-fill ph-pencil-simple text-2xl text-slate-400"></i> Try Out
-                                    </a>
-                                    <a href="#"
+                                    </button>
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                         class="flex flex-col items-center justify-center gap-2 p-3 text-slate-600 bg-slate-50 hover:bg-primary-50 hover:text-primary-600 border border-slate-100 rounded-xl font-semibold text-xs transition text-center">
                                         <i class="ph-fill ph-question text-2xl text-slate-400"></i> Quiz
-                                    </a>
+                                    </button>
                                 </div>
 
                                 <div class="border-t border-slate-100 my-3"></div>
-
-                                <a href="./payment.html"
-                                    class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium text-sm transition">
-                                    <i class="ph-bold ph-credit-card text-lg text-slate-400"></i> Pembayaran
-                                </a>
-                                <a href="#"
+                                <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                     class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium text-sm transition">
                                     <i class="ph-bold ph-receipt text-lg text-slate-400"></i> Riwayat Pembelian
-                                </a>
-                                <a href="#"
+                                </button>
+                                <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                     class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium text-sm transition">
                                     <i class="ph-bold ph-gear text-lg text-slate-400"></i> Edit Profil
-                                </a>
+                                </button>
 
-                                <a href="#"
+                                <a href="../auth/option.html"
                                     class="flex items-center justify-center gap-2 px-4 py-3 mt-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 rounded-xl font-bold text-sm transition">
                                     <i class="ph-bold ph-sign-out text-lg"></i> Keluar Akun
                                 </a>
@@ -917,8 +921,7 @@
                             </h3>
 
                             <div class="grid sm:grid-cols-2 gap-4">
-                                <a href="/storage/tasks/attachments/XJc35MTouvtcmFvDFoIDgRE9Y8CqzlPi8rheR9pZ.pdf"
-                                    target="_blank"
+                                <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" target="_blank"
                                     class="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200 hover:border-primary-500 hover:shadow-md transition group">
                                     <div
                                         class="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-2xl flex-shrink-0">
@@ -927,13 +930,13 @@
                                     <div class="overflow-hidden">
                                         <p
                                             class="text-sm font-bold text-slate-900 truncate group-hover:text-primary-600 transition">
-                                            XJc35MTouvtcmFvDFoIDgRE9Y8CqzlPi8rheR9pZ.pdf
+                                            materi.pdf
                                         </p>
                                         <p class="text-xs text-slate-500">Klik untuk download</p>
                                     </div>
                                     <i
                                         class="ph-bold ph-download-simple ml-auto text-slate-300 group-hover:text-primary-600"></i>
-                                </a>
+                                </button>
                             </div>
                         </div>
 
@@ -1034,20 +1037,13 @@
                                     </div>
 
 
-                                    <button type="submit"
-                                        class="w-full mt-6 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition shadow-lg shadow-primary-600/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        :disabled="submitting">
-                                        <template x-if="!submitting">
-                                            <span class="flex items-center gap-2">
-                                                <i class="ph-bold ph-paper-plane-right"></i>
-                                                Kirim Jawaban
-                                            </span>
-                                        </template>
-                                        <template x-if="submitting">
-                                            <span class="flex items-center gap-2">
-                                                <i class="ph-bold ph-spinner animate-spin"></i> Mengirim...
-                                            </span>
-                                        </template>
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
+                                        type="submit"
+                                        class="w-full mt-6 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition shadow-lg shadow-primary-600/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <span class="flex items-center gap-2">
+                                            <i class="ph-bold ph-paper-plane-right"></i>
+                                            Kirim Jawaban
+                                        </span>
                                     </button>
                                 </form>
                             </div>

@@ -58,6 +58,12 @@
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
 
     <title>Admin Dashboard - LMS</title>
+    <style>
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
     <script id="browser-logger-active">
         (function () {
             const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
@@ -557,7 +563,7 @@
                                 <!-- Profile Dropdown -->
                                 <div class="relative">
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+                                        src="../profile.jpg" alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
                                         class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
@@ -606,15 +612,15 @@
                                 <p class="text-slate-500 text-sm mt-1">Manage, publish, and track your course catalog.
                                 </p>
                             </div>
-                            <a href="http://127.0.0.1:8000/admin/courses/create"
+                            <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                 class="bg-[#5d87ff] hover:bg-[#4a70e0] text-white px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 transition-all duration-300 flex items-center gap-2 font-medium">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 4v16m8-8H4" />
                                 </svg>
-                                <span>Add New Course</span>
-                            </a>
+                                <span>Tambah Course</span>
+                            </button>
                         </div>
 
 
@@ -623,8 +629,8 @@
                                 class="group bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full relative">
 
                                 <div class="relative h-48 w-full overflow-hidden bg-slate-100">
-                                    <img src="http://127.0.0.1:8000/storage/courses/T8R35kazd1s2rKS6NOEXKiuSnNabQBJcFrdZJba0.png"
-                                        alt="Kelas Matematika Wajib SMA"
+                                    <img src="../course.avif"
+                                        alt="Matematika Wajib SMA"
                                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
 
                                     <span
@@ -678,7 +684,7 @@
                                         </svg>
                                     </a>
 
-                                    <button type="button" onclick="openConfirmModal(
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="button" onclick="openConfirmModal(
                                 'http://127.0.0.1:8000/admin/courses/019dd7a8-7a80-70f5-af77-498a02d0cb65/ready',
                                 'Jadikan Draft?',
                                 'Apakah anda yakin ingin mengubah status course ini menjadi Draft? Course tidak akan tampil di halaman user.',
@@ -703,15 +709,12 @@
 
                                         <div id="dropdown-019dd7a8-7a80-70f5-af77-498a02d0cb65"
                                             class="hidden absolute right-0 bottom-full mb-2 w-40 bg-white rounded-lg shadow-xl border border-slate-100 z-20 overflow-hidden dropdown-menu origin-bottom-right">
-                                            <a href="http://127.0.0.1:8000/admin/courses/019dd7a8-7a80-70f5-af77-498a02d0cb65/edit"
+                                            <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                                 class="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 hover:text-[#5d87ff] transition-colors">
                                                 Edit Course
-                                            </a>
+                                            </button>
 
-                                            <button type="button"
-                                                onclick="openDeleteModal(
-                                    'http://127.0.0.1:8000/admin/courses/019dd7a8-7a80-70f5-af77-498a02d0cb65',
-                                    'Apakah anda yakin ingin menghapus <strong>Kelas Matematika Wajib SMA</strong>? Tindakan ini tidak dapat dibatalkan.')"
+                                            <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                                 class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-slate-50">
                                                 Delete
                                             </button>

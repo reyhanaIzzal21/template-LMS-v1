@@ -81,6 +81,11 @@
             background: #e2e8f0;
             border-radius: 4px;
         }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
     </style>
 </head>
 
@@ -388,7 +393,7 @@
 
                                 <div>
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff"
+                                        src="../profile.jpg"
                                         alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
@@ -436,14 +441,14 @@
                             </div>
 
                             <button onclick="openModal('createCategoryModal')"
-                                class="group bg-primary hover:bg-primaryHover text-white px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 transition-all duration-300 flex items-center gap-2 font-medium">
+                                class="group bg-primary-600 hover:bg-primaryHover text-white px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 transition-all duration-300 flex items-center gap-2 font-medium">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                     class="h-5 w-5 transition-transform group-hover:rotate-90" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 4v16m8-8H4" />
                                 </svg>
-                                <span>New Category</span>
+                                <span>Tambah Kategori</span>
                             </button>
                         </div>
 
@@ -551,7 +556,7 @@
                         <div
                             class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
                             <div class="flex justify-between items-center mb-5">
-                                <h3 class="text-xl font-bold text-slate-800">Create New Category</h3>
+                                <h3 class="text-xl font-bold text-slate-800">Tambah kategori baru</h3>
                                 <button onclick="closeModal('createCategoryModal')"
                                     class="text-slate-400 hover:text-slate-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
@@ -571,9 +576,9 @@
                                 <div class="flex justify-end space-x-3 pt-2 border-t border-slate-100">
                                     <button type="button" onclick="closeModal('createCategoryModal')"
                                         class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition font-medium">Cancel</button>
-                                    <button type="submit"
-                                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryHover shadow-md shadow-blue-500/20 transition font-medium">Save
-                                        Category</button>
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
+                                        class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primaryHover shadow-md shadow-blue-500/20 transition font-medium">Simpan
+                                        Kategori</button>
                                 </div>
                             </form>
                         </div>
@@ -603,8 +608,8 @@
                                 <div class="flex justify-end space-x-3 pt-2 border-t border-slate-100">
                                     <button type="button" onclick="closeModal('editCategoryModal1')"
                                         class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition font-medium">Cancel</button>
-                                    <button type="submit"
-                                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryHover shadow-md shadow-blue-500/20 transition font-medium">Update
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
+                                        class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primaryHover shadow-md shadow-blue-500/20 transition font-medium">Update
                                         Changes</button>
                                 </div>
                             </form>
@@ -657,7 +662,7 @@
                             <div class="flex justify-center space-x-3">
                                 <button type="button" onclick="closeModal('deleteConfirmModal')"
                                     class="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition font-medium w-full">Batal</button>
-                                <button type="button" onclick="closeModal('deleteConfirmModal')"
+                                <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="button" onclick="closeModal('deleteConfirmModal')"
                                     class="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md shadow-red-500/20 transition font-medium w-full">Ya,
                                     Hapus</button>
                             </div>

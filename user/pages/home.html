@@ -69,6 +69,11 @@
             z-index: -1;
             /* opacity: 0.4; */
         }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
     </style>
 </head>
 
@@ -112,7 +117,8 @@
             <a href="./courses/index.html" class="block text-slate-600 hover:text-primary-600 font-medium">Course</a>
             <a href="./event/index.html" class="block text-slate-600 hover:text-primary-600 font-medium">Event</a>
             <a href="./blog/index.html" class="block text-slate-600 hover:text-primary-600 font-medium">Blog</a>
-            <a href="./testimoni/index.html" class="block text-slate-600 hover:text-primary-600 font-medium">Testimoni</a>
+            <a href="./testimoni/index.html"
+                class="block text-slate-600 hover:text-primary-600 font-medium">Testimoni</a>
             <div class="pt-4 border-t border-gray-100">
                 <a href="../../auth/login.html"
                     class="block w-full text-center py-2 text-slate-700 font-semibold border border-slate-200 rounded-lg">Masuk</a>
@@ -141,16 +147,16 @@
                         terukur, dan menyenangkan bersama Super Teacher.
                     </p>
                     <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                        <a href="#"
+                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                             class="w-full sm:w-auto px-8 py-4 bg-primary-600 text-white rounded-full font-bold hover:bg-primary-700 transition shadow-xl shadow-primary-600/30 flex items-center justify-center gap-2">
                             Mulai Belajar Gratis
                             <i class="ph-bold ph-arrow-right"></i>
-                        </a>
-                        <a href="#"
+                        </button>
+                        <!-- <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                             class="w-full sm:w-auto px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-full font-bold hover:bg-slate-50 transition flex items-center justify-center gap-2">
                             <i class="ph-fill ph-play-circle text-xl text-primary-600"></i>
                             Lihat Demo
-                        </a>
+                        </button> -->
                     </div>
                     <div
                         class="pt-6 flex items-center justify-center lg:justify-start gap-4 text-sm text-slate-500 font-medium">
@@ -279,10 +285,10 @@
                                 <p class="text-lg font-bold text-primary-600">Rp 350.000<span
                                         class="text-xs font-normal text-slate-500">/bulan</span></p>
                             </div>
-                            <button
-                                class="w-10 h-10 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center hover:bg-primary-600 hover:text-white transition">
-                                <i class="ph-bold ph-plus"></i>
-                            </button>
+                            <a href="/user/pages/program/detail.html"
+                                class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-bold hover:bg-primary-700 transition">
+                                Pilih Paket
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -314,10 +320,10 @@
                                 <p class="text-lg font-bold text-primary-600">Rp 850.000<span
                                         class="text-xs font-normal text-slate-500">/bulan</span></p>
                             </div>
-                            <button
+                            <a href="/user/pages/program/detail.html"
                                 class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-bold hover:bg-primary-700 transition">
                                 Pilih Paket
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -348,7 +354,7 @@
                                 <p class="text-lg font-bold text-primary-600">Hubungi Kami<span
                                         class="text-xs font-normal text-slate-500"></span></p>
                             </div>
-                            <button
+                            <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                 class="w-10 h-10 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center hover:bg-primary-600 hover:text-white transition">
                                 <i class="ph-bold ph-whatsapp-logo"></i>
                             </button>
@@ -370,12 +376,12 @@
             <p class="text-blue-100 text-lg mb-8 max-w-2xl mx-auto relative z-10">Jangan tunda lagi. Bergabunglah
                 dengan ribuan siswa lain yang telah merasakan perubahan cara belajar yang lebih efektif.</p>
             <div class="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
-                <a href="#"
+                <a href="../../auth/register.html"
                     class="px-8 py-4 bg-accent-500 hover:bg-accent-600 text-white rounded-full font-bold transition shadow-lg transform hover:scale-105">Daftar
                     Gratis Sekarang</a>
-                <a href="#"
+                <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                     class="px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-full font-bold transition backdrop-blur-sm">Konsultasi
-                    Dulu</a>
+                    Dulu</button>
             </div>
         </div>
     </section>

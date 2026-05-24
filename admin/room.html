@@ -58,6 +58,12 @@
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
 
     <title>Manajemen Ruangan - Neurifly Admin - LMS</title>
+    <style>
+        button:disabled{
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
     <script id="browser-logger-active">
         (function () {
             const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
@@ -557,7 +563,7 @@
                                 <!-- Profile Dropdown -->
                                 <div class="relative">
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+                                        src="../profile.jpg" alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
                                         class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
@@ -616,7 +622,7 @@
                                             belajar.</p>
                                     </div>
 
-                                    <button
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                         @click="isModalOpen = true; modalType = 'create'; roomName = ''; roomId = '';"
                                         class="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition shadow-lg shadow-slate-900/20 text-sm">
                                         <i class="ph-bold ph-plus text-lg"></i> Tambah Ruangan
@@ -668,13 +674,13 @@
                                                 </td>
                                                 <td class="px-6 py-4 text-center">
                                                     <div class="flex items-center justify-center gap-2">
-                                                        <button
+                                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                                             @click="isModalOpen = true; modalType = 'edit'; roomName = 'Adam'; roomId = '019de45f-2550-7168-ab44-866cc9f8bead';"
                                                             class="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition"
                                                             title="Edit">
                                                             <i class="ph-bold ph-pencil-simple text-lg"></i>
                                                         </button>
-                                                        <button type="button"
+                                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="button"
                                                             onclick="openDeleteModal('http://127.0.0.1:8000/admin/rooms/019de45f-2550-7168-ab44-866cc9f8bead', 'Apakah Anda yakin ingin menghapus ruangan <strong>Adam</strong>? Tindakan ini tidak dapat dibatalkan.')"
                                                             class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
                                                             title="Hapus">
@@ -696,13 +702,13 @@
                                                 </td>
                                                 <td class="px-6 py-4 text-center">
                                                     <div class="flex items-center justify-center gap-2">
-                                                        <button
+                                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                                             @click="isModalOpen = true; modalType = 'edit'; roomName = 'Epatain'; roomId = '019de45f-0f92-7145-8e04-6c41baa8e37b';"
                                                             class="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition"
                                                             title="Edit">
                                                             <i class="ph-bold ph-pencil-simple text-lg"></i>
                                                         </button>
-                                                        <button type="button"
+                                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="button"
                                                             onclick="openDeleteModal('http://127.0.0.1:8000/admin/rooms/019de45f-0f92-7145-8e04-6c41baa8e37b', 'Apakah Anda yakin ingin menghapus ruangan <strong>Epatain</strong>? Tindakan ini tidak dapat dibatalkan.')"
                                                             class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
                                                             title="Hapus">

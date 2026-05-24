@@ -80,6 +80,11 @@
             background: #e2e8f0;
             border-radius: 4px;
         }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
     </style>
 </head>
 
@@ -387,7 +392,7 @@
 
                                 <div>
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff"
+                                        src="../profile.jpg"
                                         alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
@@ -443,7 +448,7 @@
                             </div>
 
                             <div class="flex flex-wrap items-center gap-3">
-                                <button
+                                <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                     class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition">
                                     <i class="ph ph-download-simple mr-2"></i>
                                     Export Report
@@ -611,16 +616,16 @@
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-3 mt-5">
-                                    <button
+                                    <a href="./course.html"
                                         class="bg-white text-blue-700 rounded-2xl py-3 font-bold hover:bg-blue-50 transition">
                                         <i class="ph ph-notebook mr-2"></i>
                                         Course
-                                    </button>
-                                    <button
+                                    </a>
+                                    <a href="./jadwal.html"
                                         class="bg-white/15 text-white rounded-2xl py-3 font-bold hover:bg-white/20 transition border border-white/15">
                                         <i class="ph ph-calendar-plus mr-2"></i>
                                         Schedule
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>

@@ -58,6 +58,14 @@
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
 
     <title>Admin Dashboard - LMS</title>
+    <style>
+        button:disabled,
+        a.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+    </style>
     <script id="browser-logger-active">
         (function () {
             const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
@@ -359,11 +367,11 @@
                                     class="w-full overflow-hidden transition-all duration-300 hidden">
                                     <ul class="mt-1 ml-4 pl-4 border-l-2 border-gray-200 space-y-1">
                                         <li>
-                                            <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
+                                            <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
                                                 href="http://127.0.0.1:8000/admin/program-categories">
                                                 <i class="ti ti-point text-xs"></i>
                                                 <span>Category</span>
-                                            </a>
+                                            </button>
                                         </li>
                                         <li>
                                             <a class="flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 text-gray-500"
@@ -557,7 +565,7 @@
                                 <!-- Profile Dropdown -->
                                 <div class="relative">
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+                                        src="../profile.jpg" alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
                                         class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
@@ -605,7 +613,7 @@
                                 <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Programs</h1>
                                 <p class="text-slate-500 text-sm mt-1">Kelola program bimbel dan kursus Anda.</p>
                             </div>
-                            <a href="http://127.0.0.1:8000/admin/programs/create"
+                            <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                 class="bg-[#5d87ff] hover:bg-[#4a70e0] text-white px-5 py-2.5 rounded-lg shadow-lg shadow-blue-500/30 transition-all duration-300 flex items-center gap-2 font-medium">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
@@ -613,7 +621,7 @@
                                         d="M12 4v16m8-8H4" />
                                 </svg>
                                 <span>Tambah Program</span>
-                            </a>
+                            </button>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
@@ -621,117 +629,7 @@
                                 class="group bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full relative">
 
                                 <div class="relative h-48 w-full overflow-hidden bg-slate-100">
-                                    <img src="http://127.0.0.1:8000/storage/programs/7xVEUgAt6GFcREGpJlVwCj1KXaInIvDkw4eE6GOn.png"
-                                        alt="Program intensif Try Out"
-                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-
-                                    <span
-                                        class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-slate-700 text-xs font-bold px-3 py-1 rounded-full shadow-sm border border-slate-100">
-                                        Intensif
-                                    </span>
-
-                                    <div class="absolute top-3 right-3">
-                                        <span class="relative flex h-3 w-3">
-                                            <span
-                                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                            <span
-                                                class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="p-5 flex-grow flex flex-col">
-                                    <h3 class="text-lg font-bold text-slate-800 leading-tight mb-2 line-clamp-2"
-                                        title="Program intensif Try Out">
-                                        Program intensif Try Out
-                                    </h3>
-                                    <p class="text-sm text-slate-500 mb-3 line-clamp-2">lorem itu orang mana ya</p>
-
-                                    <div class="mb-3">
-                                        <div class="flex flex-wrap gap-1">
-                                            <span
-                                                class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">tidak
-                                                ada benef...</span>
-                                            <span
-                                                class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">tidak
-                                                ada benef...</span>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
-                                        <div class="flex flex-col">
-                                            <span class="text-xs text-slate-400">Harga</span>
-                                            <span class="text-lg font-bold text-slate-800">
-                                                Gratis
-                                            </span>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="bg-slate-50 p-3 px-5 flex items-center justify-between border-t border-slate-100">
-
-                                    <a href="./detail-program.html"
-                                        class="text-slate-500 hover:text-[#5d87ff] transition-colors p-2 hover:bg-blue-50 rounded-full"
-                                        title="Lihat Detail">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                    </a>
-
-                                    <button type="button" onclick="openConfirmModal(
-                                'http://127.0.0.1:8000/admin/programs/019de180-8957-7185-81ff-1487d27c4b2c/toggle-active',
-                                'Nonaktifkan Program?',
-                                'Apakah anda yakin ingin menonaktifkan program ini? Program tidak akan tampil di halaman user.',
-                                0,
-                                'Ya, Nonaktifkan',
-                                'bg-slate-600 hover:bg-slate-700 shadow-slate-500/20'
-                            )" class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all border shadow-sm
-                            bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200">
-                                        Aktif
-                                    </button>
-
-                                    <div class="relative">
-                                        <button
-                                            onclick="toggleDropdown('dropdown-019de180-8957-7185-81ff-1487d27c4b2c')"
-                                            class="text-slate-400 hover:text-slate-700 p-2 hover:bg-slate-200 rounded-full transition-colors focus:outline-none">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                                            </svg>
-                                        </button>
-
-                                        <div id="dropdown-019de180-8957-7185-81ff-1487d27c4b2c"
-                                            class="hidden absolute right-0 bottom-full mb-2 w-40 bg-white rounded-lg shadow-xl border border-slate-100 z-20 overflow-hidden dropdown-menu origin-bottom-right">
-                                            <a href="http://127.0.0.1:8000/admin/programs/019de180-8957-7185-81ff-1487d27c4b2c/edit"
-                                                class="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 hover:text-[#5d87ff] transition-colors">
-                                                Edit Program
-                                            </a>
-
-                                            <button type="button"
-                                                onclick="openDeleteModal(
-                                    'http://127.0.0.1:8000/admin/programs/019de180-8957-7185-81ff-1487d27c4b2c',
-                                    'Apakah anda yakin ingin menghapus <strong>Program intensif Try Out</strong>? Tindakan ini tidak dapat dibatalkan.')"
-                                                class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-slate-50">
-                                                Hapus
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div
-                                class="group bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full relative">
-
-                                <div class="relative h-48 w-full overflow-hidden bg-slate-100">
-                                    <img src="http://127.0.0.1:8000/storage/programs/4pKJtZVw7ExIejU3Q1gbHsXUjiBCk3tOopglSBMI.png"
+                                    <img src="../bimbel.png"
                                         alt="Kelas UTBK intensif 2026"
                                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
 
@@ -803,7 +701,7 @@
                                         </svg>
                                     </a>
 
-                                    <button type="button" onclick="openConfirmModal(
+                                    <button button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="button" onclick="openConfirmModal(
                                 'http://127.0.0.1:8000/admin/programs/019dd7a3-f936-70e8-86ab-944a36ae9335/toggle-active',
                                 'Nonaktifkan Program?',
                                 'Apakah anda yakin ingin menonaktifkan program ini? Program tidak akan tampil di halaman user.',
@@ -828,15 +726,12 @@
 
                                         <div id="dropdown-019dd7a3-f936-70e8-86ab-944a36ae9335"
                                             class="hidden absolute right-0 bottom-full mb-2 w-40 bg-white rounded-lg shadow-xl border border-slate-100 z-20 overflow-hidden dropdown-menu origin-bottom-right">
-                                            <a href="http://127.0.0.1:8000/admin/programs/019dd7a3-f936-70e8-86ab-944a36ae9335/edit"
+                                            <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                                 class="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 hover:text-[#5d87ff] transition-colors">
                                                 Edit Program
-                                            </a>
+                                            </button>
 
-                                            <button type="button"
-                                                onclick="openDeleteModal(
-                                    'http://127.0.0.1:8000/admin/programs/019dd7a3-f936-70e8-86ab-944a36ae9335',
-                                    'Apakah anda yakin ingin menghapus <strong>Kelas UTBK intensif 2026</strong>? Tindakan ini tidak dapat dibatalkan.')"
+                                            <button type="button" disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                                 class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-slate-50">
                                                 Hapus
                                             </button>

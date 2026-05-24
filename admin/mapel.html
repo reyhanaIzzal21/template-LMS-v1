@@ -58,6 +58,14 @@
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
 
     <title>Mata Pelajaran - Neurifly Admin - LMS</title>
+    <style>
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+    </style>
     <script id="browser-logger-active">
         (function () {
             const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
@@ -557,7 +565,7 @@
                                 <!-- Profile Dropdown -->
                                 <div class="relative">
                                     <img class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                                        src="http://127.0.0.1:8000/assets/images/profile/user-1.jpg" alt="User avatar">
+                                        src="../profile.jpg" alt="User avatar">
 
                                     <div id="profile-dropdown" data-dropdown-menu
                                         class="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-xl rounded-xl border border-gray-100 py-2 hidden opacity-0 transition-opacity duration-200 z-50">
@@ -616,7 +624,7 @@
                                             LMS.</p>
                                     </div>
 
-                                    <button
+                                    <button disabled title="Fitur interaktif dinonaktifkan pada versi demo"
                                         @click="isModalOpen = true; modalType = 'create'; subjectName = ''; subjectCode = ''; subjectId = '';"
                                         class="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition shadow-lg shadow-slate-900/20 text-sm">
                                         <i class="ph-bold ph-plus text-lg"></i> Tambah Mapel
@@ -770,7 +778,7 @@
                         </div>
 
                         <div x-show="isModalOpen" style="display: none;"
-                            class="fixed inset-0 z-1000 flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
+                            class="fixed inset-0 z-[1000] flex items-center justify-center px-4 pt-4 pb-20 text-center sm:p-0">
 
                             <div x-show="isModalOpen" x-transition:enter="ease-out duration-300"
                                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -847,7 +855,7 @@
                                             class="px-4 py-2 border border-slate-300 text-slate-600 font-bold rounded-xl hover:bg-white transition text-sm">
                                             Batal
                                         </button>
-                                        <button type="submit"
+                                        <button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="submit"
                                             class="px-5 py-2 bg-primary-600 text-white font-bold rounded-xl hover:bg-slate-800 shadow-lg shadow-slate-900/20 transition text-sm flex items-center gap-2">
                                             <i class="ph-bold ph-floppy-disk"></i> Simpan
                                         </button>
@@ -862,7 +870,7 @@
 
                     <!-- Overlay -->
                     <div id="modal-delete"
-                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        class="fixed inset-0 z-[1000] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
                         <!-- Modal Box -->
                         <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
                             <!-- Icon -->
@@ -894,7 +902,7 @@
                                 <form id="deleteForm" method="POST" class="w-full">
                                     <input type="hidden" name="_token" value="cp73DhA6ooJU8xgco30PmIRe0h5qRY7idfhyK8gd"
                                         autocomplete="off"> <input type="hidden" name="_method" value="DELETE"> <button
-                                        type="submit"
+                                        button disabled title="Fitur interaktif dinonaktifkan pada versi demo" type="submit"
                                         class="w-full rounded-lg bg-red-600 px-4 py-2 font-medium text-white shadow-md shadow-red-500/20 transition hover:bg-red-700">
                                         Hapus
                                     </button>
@@ -930,7 +938,7 @@
 
                     <!-- Overlay -->
                     <div id="modal-confirm"
-                        class="fixed inset-0 z-1000 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+                        class="fixed inset-0 z-[1000] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
                         <!-- Modal Box -->
                         <div class="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
                             <!-- Icon -->
